@@ -2,13 +2,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
+import PageHeader from "@/components/PageHeader";
 import QRCode from "react-qr-code";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import karatekaDojo from "@/assets/karateka-dojo.jpg";
 
 const QRCodePage = () => {
   const { usuario } = useAuth();
-  const navigate = useNavigate();
   const [token, setToken] = useState("");
   const [date, setDate] = useState("");
 
@@ -17,7 +16,7 @@ const QRCodePage = () => {
       if (!usuario) return;
       const newToken = crypto.randomUUID();
       const now = new Date();
-      const expiresAt = new Date(now.getTime() + 60 * 60 * 1000); // 60 min
+      const expiresAt = new Date(now.getTime() + 60 * 60 * 1000);
 
       await supabase.from("aulas").insert({
         professor_id: usuario.id,
@@ -28,9 +27,8 @@ const QRCodePage = () => {
 
       setToken(newToken);
       setDate(now.toLocaleDateString("pt-BR", {
-        weekday: "long",
         day: "2-digit",
-        month: "long",
+        month: "2-digit",
         year: "numeric",
       }));
     };
@@ -40,32 +38,35 @@ const QRCodePage = () => {
 
   return (
     <MobileLayout showBrush={true}>
-      <div className="flex-1 flex flex-col px-5 pt-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-foreground mb-6">
-          <ArrowLeft size={20} />
-          <span className="text-sm font-medium">Voltar</span>
-        </button>
+      <PageHeader title="Registrar Presença" showBack={true} />
 
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="dojo-card w-full max-w-sm p-8 flex flex-col items-center gap-6 animate-fade-in">
-            <h2 className="font-serif font-bold text-xl text-foreground">Aula Aberta</h2>
+      <div className="flex-1 bg-dojo-paper px-5 py-6">
+        <div className="dojo-card p-6 flex flex-col items-center gap-5 animate-fade-in">
+          {token ? (
+            <div className="bg-card p-3 rounded-xl border border-border">
+              <QRCode value={token} size={180} />
+            </div>
+          ) : (
+            <div className="w-[180px] h-[180px] bg-muted rounded-xl animate-pulse" />
+          )}
 
-            {token ? (
-              <div className="bg-card p-4 rounded-xl border border-border">
-                <QRCode value={token} size={200} />
-              </div>
-            ) : (
-              <div className="w-[200px] h-[200px] bg-muted rounded-xl animate-pulse" />
-            )}
+          <p className="text-sm text-foreground font-medium text-center">
+            Escaneie para marcar presença
+          </p>
 
-            <p className="text-sm text-muted-foreground text-center">
-              Escaneie para marcar presença
-            </p>
-            <p className="text-xs text-muted-foreground text-center capitalize">{date}</p>
-            <p className="text-xs text-muted-foreground/60">
-              Válido por 60 minutos
-            </p>
+          <div className="text-center">
+            <p className="font-serif font-bold text-foreground text-lg">Aula de Karatê</p>
+            <p className="text-sm text-muted-foreground">{date}</p>
           </div>
+
+          <p className="text-[10px] text-muted-foreground/60">
+            Token válido por 60 minutos
+          </p>
+        </div>
+
+        {/* Karateka image */}
+        <div className="mt-5 rounded-2xl overflow-hidden shadow-md">
+          <img src={karatekaDojo} alt="Karateka" className="w-full h-48 object-cover" />
         </div>
       </div>
     </MobileLayout>

@@ -2,7 +2,7 @@ import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
-import paperTexture from "@/assets/paper-texture.jpg";
+import dojoInterior from "@/assets/dojo-interior.jpg";
 import { QrCode, Users, FileBarChart, ClipboardCheck } from "lucide-react";
 
 const TeacherDashboard = () => {
@@ -10,38 +10,44 @@ const TeacherDashboard = () => {
   const navigate = useNavigate();
 
   const buttons = [
-    { icon: QrCode, label: "Abrir Aula", subtitle: "QR Code", path: "/sensei/qrcode", delay: "0.1s" },
-    { icon: Users, label: "Alunos", subtitle: "Lista", path: "/sensei/alunos", delay: "0.2s" },
-    { icon: FileBarChart, label: "Relatório", subtitle: "Mensal", path: "/sensei/relatorio", delay: "0.3s" },
-    { icon: ClipboardCheck, label: "Avaliações", subtitle: "Técnicas", path: "/sensei/avaliacao", delay: "0.4s" },
+    { icon: QrCode, label: "Abrir Aula", subtitle: "(QR Code)", path: "/sensei/qrcode" },
+    { icon: Users, label: "Alunos", subtitle: "", path: "/sensei/alunos" },
+    { icon: FileBarChart, label: "Relatório", subtitle: "Mensal", path: "/sensei/relatorio" },
+    { icon: ClipboardCheck, label: "Avaliações", subtitle: "", path: "/sensei/avaliacao" },
   ];
 
   return (
-    <MobileLayout bgImage={paperTexture} showBrush={true} darkOverlay={false}>
-      <div className="flex-1 overflow-y-auto pb-20">
-        {/* Header */}
-        <div className="px-5 pt-8 pb-6">
-          <p className="text-muted-foreground text-sm">押忍 (Osu)</p>
-          <h1 className="text-2xl font-serif font-bold text-foreground">
+    <MobileLayout showBrush={true}>
+      {/* Red header with dojo bg */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${dojoInterior})` }} />
+        <div className="absolute inset-0" style={{ backgroundColor: "hsla(0, 100%, 27%, 0.75)" }} />
+        <div className="relative z-10 px-5 pt-8 pb-6">
+          <h1 className="text-xl font-serif font-bold text-primary-foreground">
             Bem-vindo, Sensei {usuario?.nome || ""}
           </h1>
         </div>
+      </div>
 
-        {/* Grid 2x2 */}
-        <div className="px-5 grid grid-cols-2 gap-4">
-          {buttons.map((btn) => (
+      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
+        {/* Grid 2x2 with RED buttons */}
+        <div className="px-5 py-5 grid grid-cols-2 gap-4">
+          {buttons.map((btn, i) => (
             <button
               key={btn.path}
               onClick={() => navigate(btn.path)}
-              className="dojo-card flex flex-col items-center justify-center py-8 gap-3 hover:shadow-md transition-all animate-fade-in active:scale-95"
-              style={{ animationDelay: btn.delay }}
+              className="flex flex-col items-center justify-center py-7 gap-3 rounded-2xl shadow-md transition-all active:scale-95 animate-fade-in hover:shadow-lg"
+              style={{
+                backgroundColor: "hsl(0, 100%, 27%)",
+                animationDelay: `${i * 0.1}s`,
+              }}
             >
-              <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center">
-                <btn.icon className="text-primary-foreground" size={26} />
-              </div>
+              <btn.icon className="text-primary-foreground" size={32} />
               <div className="text-center">
-                <p className="font-serif font-bold text-foreground">{btn.label}</p>
-                <p className="text-xs text-muted-foreground">{btn.subtitle}</p>
+                <p className="font-serif font-bold text-primary-foreground text-sm">{btn.label}</p>
+                {btn.subtitle && (
+                  <p className="text-[10px] text-primary-foreground/60">{btn.subtitle}</p>
+                )}
               </div>
             </button>
           ))}

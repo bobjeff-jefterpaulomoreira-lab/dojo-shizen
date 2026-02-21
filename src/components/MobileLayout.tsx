@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import brushStrokes from "@/assets/brush-strokes.png";
+import brushRedBottom from "@/assets/brush-red-bottom.png";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -20,7 +20,7 @@ const MobileLayout = ({ children, showBrush = true, bgImage, darkOverlay = true,
           />
         )}
         {bgImage && darkOverlay && (
-          <div className="absolute inset-0 z-[1]" style={{ backgroundColor: "rgba(0,0,0,0.4)" }} />
+          <div className="absolute inset-0 z-[1]" style={{ backgroundColor: "rgba(0,0,0,0.45)" }} />
         )}
         <div className="relative z-10 min-h-screen flex flex-col">
           {children}
@@ -28,9 +28,9 @@ const MobileLayout = ({ children, showBrush = true, bgImage, darkOverlay = true,
         {showBrush && (
           <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
             <img
-              src={brushStrokes}
+              src={brushRedBottom}
               alt=""
-              className="w-full h-28 object-cover opacity-70"
+              className="w-full h-32 object-cover object-bottom opacity-80"
             />
           </div>
         )}
