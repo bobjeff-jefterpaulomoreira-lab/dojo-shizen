@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import MobileLayout from "@/components/MobileLayout";
-import kankulogo from "@/assets/kanku-logo.png";
-import karatekaDojo from "@/assets/karateka-dojo.jpg";
+import shizenLogo from "@/assets/shizen-logo.png";
+import karatekaBack from "@/assets/karateka-back.jpg";
 import brushRedBottom from "@/assets/brush-red-bottom.png";
 import { Mail, Lock, LogIn } from "lucide-react";
 
@@ -25,18 +25,18 @@ const Login = () => {
   };
 
   return (
-    <MobileLayout bgImage={karatekaDojo} showBrush={false} darkOverlay={true}>
+    <MobileLayout bgImage={karatekaBack} showBrush={false} darkOverlay={true}>
       <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
-        {/* Kanku Logo */}
-        <div className="w-32 h-32 mb-5 animate-fade-in">
-          <img src={kankulogo} alt="Kyokushin Kanku" className="w-full h-full object-contain drop-shadow-lg" />
+        {/* Shizen Logo */}
+        <div className="w-36 h-36 mb-4 animate-fade-in">
+          <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg" />
         </div>
 
         <h1 className="text-3xl font-serif font-bold text-primary-foreground mb-1 animate-fade-in drop-shadow-md" style={{ animationDelay: "0.1s" }}>
-          Dojo Kyokushin
+          Dojo Shizen
         </h1>
         <p className="text-sm text-primary-foreground/70 mb-10 animate-fade-in font-serif italic" style={{ animationDelay: "0.2s" }}>
-          IKO Matsushima
+          Shihan Aldair
         </p>
 
         <form onSubmit={handleSubmit} className="w-full space-y-4 animate-fade-in" style={{ animationDelay: "0.3s" }}>

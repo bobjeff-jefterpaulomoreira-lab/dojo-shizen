@@ -26,11 +26,11 @@ const MobileLayout = ({ children, showBrush = true, bgImage, darkOverlay = true,
           {children}
         </div>
         {showBrush && (
-          <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
+          <div className="absolute bottom-14 left-0 right-0 z-20 pointer-events-none">
             <img
               src={brushRedBottom}
               alt=""
-              className="w-full h-32 object-cover object-bottom opacity-80"
+              className="w-full h-24 object-cover object-bottom opacity-60"
             />
           </div>
         )}

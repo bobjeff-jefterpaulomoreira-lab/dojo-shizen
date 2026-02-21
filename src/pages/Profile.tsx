@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import BottomNav from "@/components/BottomNav";
-import kankulogo from "@/assets/kanku-logo.png";
+import shizenLogo from "@/assets/shizen-logo.png";
 import { LogOut } from "lucide-react";
 
 const Profile = () => {
@@ -24,7 +24,7 @@ const Profile = () => {
           {/* Avatar area */}
           <div className="flex flex-col items-center mb-6">
             <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-3 shadow-md">
-              <img src={kankulogo} alt="" className="w-12 h-12 object-contain" />
+              <img src={shizenLogo} alt="" className="w-12 h-12 object-contain" />
             </div>
             <h2 className="text-lg font-serif font-bold text-foreground">{usuario?.nome}</h2>
             <p className="text-xs text-muted-foreground">{usuario?.email}</p>
