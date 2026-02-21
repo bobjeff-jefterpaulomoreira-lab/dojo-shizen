@@ -79,11 +79,13 @@ const Login = () => {
       </div>
 
       {/* Brush strokes at bottom */}
-      <img
-        src={brushStrokes}
-        alt=""
-        className="absolute bottom-0 left-0 right-0 h-28 object-cover opacity-70 pointer-events-none"
-      />
+      <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
+        <img
+          src={brushStrokes}
+          alt=""
+          className="w-full h-28 object-cover opacity-70"
+        />
+      </div>
     </MobileLayout>
   );
 };

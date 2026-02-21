@@ -17,7 +17,7 @@ const TeacherDashboard = () => {
   ];
 
   return (
-    <MobileLayout bgImage={paperTexture} showBrush={true}>
+    <MobileLayout bgImage={paperTexture} showBrush={true} darkOverlay={false}>
       <div className="flex-1 overflow-y-auto pb-20">
         {/* Header */}
         <div className="px-5 pt-8 pb-6">
