@@ -1,7 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
-import dojoInterior from "@/assets/dojo-interior.jpg";
+import karatekaBack from "@/assets/karateka-back.jpg";
 
 const JURAMENTOS = [
   "TREINAREMOS FIRMEMENTE O NOSSO CORAÇÃO E O NOSSO CORPO PARA TERMOS UM ESPÍRITO INABALÁVEL.",
@@ -20,7 +20,7 @@ const StudentDashboard = () => {
     <MobileLayout showBrush={false}>
       {/* Red header with dojo bg */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${dojoInterior})` }} />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${karatekaBack})` }} />
         <div className="absolute inset-0" style={{ backgroundColor: "hsla(0, 100%, 27%, 0.7)" }} />
         <div className="relative z-10 px-5 pt-8 pb-5">
           <h1 className="text-2xl font-serif font-bold text-primary-foreground">

@@ -2,7 +2,7 @@ import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
-import dojoInterior from "@/assets/dojo-interior.jpg";
+import karatekaBack from "@/assets/karateka-back.jpg";
 import { QrCode, Users, FileBarChart, ClipboardCheck } from "lucide-react";
 
 const TeacherDashboard = () => {
@@ -20,7 +20,7 @@ const TeacherDashboard = () => {
     <MobileLayout showBrush={true}>
       {/* Red header with dojo bg */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${dojoInterior})` }} />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${karatekaBack})` }} />
         <div className="absolute inset-0" style={{ backgroundColor: "hsla(0, 100%, 27%, 0.75)" }} />
         <div className="relative z-10 px-5 pt-8 pb-6">
           <h1 className="text-xl font-serif font-bold text-primary-foreground">

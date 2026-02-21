@@ -3,8 +3,8 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
-import toriiImg from "@/assets/torii-bg.jpg";
-import kankulogo from "@/assets/kanku-logo.png";
+import karatekaBack from "@/assets/karateka-back.jpg";
+import shizenLogo from "@/assets/shizen-logo.png";
 
 const TECNICAS = [
   { id: "Mae Geri", nome: "Mae Geri", desc: "(Chute Frontal)" },
@@ -55,10 +55,10 @@ const Evolution = () => {
     <MobileLayout showBrush={false}>
       {/* Full torii background header with kanku */}
       <div className="relative overflow-hidden h-64">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${toriiImg})` }} />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${karatekaBack})` }} />
         <div className="absolute inset-0" style={{ backgroundColor: "rgba(0,0,0,0.35)" }} />
         <div className="relative z-10 flex flex-col items-center justify-center h-full">
-          <img src={kankulogo} alt="Kanku" className="w-20 h-20 object-contain drop-shadow-lg" />
+          <img src={shizenLogo} alt="Shizen" className="w-20 h-20 object-contain drop-shadow-lg" />
         </div>
       </div>
 
