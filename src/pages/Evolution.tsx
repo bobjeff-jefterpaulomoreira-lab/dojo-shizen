@@ -4,17 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 import toriiImg from "@/assets/torii-bg.jpg";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import kankulogo from "@/assets/kanku-logo.png";
 
-const TECNICAS = ["Mae Geri", "Soto Uke", "Mawashi Geri"];
+const TECNICAS = [
+  { id: "Mae Geri", nome: "Mae Geri", desc: "(Chute Frontal)" },
+  { id: "Soto Uke", nome: "Soto Uke", desc: "(Bloqueio Médio)" },
+  { id: "Mawashi Geri", nome: "Mawashi Geri", desc: "(Chute Circular)" },
+];
 
 type StatusType = "aprovado" | "acompanhamento" | "nao_iniciado";
-
-interface Avaliacao {
-  tecnica: string;
-  status: StatusType;
-}
 
 const statusLabel: Record<StatusType, string> = {
   aprovado: "Aprovado",
@@ -22,16 +20,21 @@ const statusLabel: Record<StatusType, string> = {
   nao_iniciado: "Não Iniciado",
 };
 
-const statusClass: Record<StatusType, string> = {
+const statusBadgeClass: Record<StatusType, string> = {
   aprovado: "badge-aprovado",
   acompanhamento: "badge-acompanhamento",
   nao_iniciado: "badge-nao-iniciado",
 };
 
+const statusColor: Record<StatusType, string> = {
+  aprovado: "border-l-dojo-green",
+  acompanhamento: "border-l-dojo-yellow",
+  nao_iniciado: "border-l-dojo-red-status",
+};
+
 const Evolution = () => {
   const { usuario } = useAuth();
-  const navigate = useNavigate();
-  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+  const [avaliacoes, setAvaliacoes] = useState<Map<string, StatusType>>(new Map());
 
   useEffect(() => {
     const fetch = async () => {
@@ -43,46 +46,49 @@ const Evolution = () => {
 
       const map = new Map<string, StatusType>();
       (data || []).forEach((a: any) => map.set(a.tecnica, a.status));
-
-      setAvaliacoes(
-        TECNICAS.map((t) => ({
-          tecnica: t,
-          status: map.get(t) || "nao_iniciado",
-        }))
-      );
+      setAvaliacoes(map);
     };
     fetch();
   }, [usuario]);
 
   return (
-    <MobileLayout bgImage={toriiImg} showBrush={false}>
-      <div className="flex-1 overflow-y-auto pb-20">
-        <div className="px-5 pt-6">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-primary-foreground mb-4">
-            <ArrowLeft size={20} />
-            <span className="text-sm font-medium">Voltar</span>
-          </button>
+    <MobileLayout showBrush={false}>
+      {/* Full torii background header with kanku */}
+      <div className="relative overflow-hidden h-64">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${toriiImg})` }} />
+        <div className="absolute inset-0" style={{ backgroundColor: "rgba(0,0,0,0.35)" }} />
+        <div className="relative z-10 flex flex-col items-center justify-center h-full">
+          <img src={kankulogo} alt="Kanku" className="w-20 h-20 object-contain drop-shadow-lg" />
+        </div>
+      </div>
 
-          <h1 className="text-2xl font-serif font-bold text-primary-foreground mb-6">
-            Evolução Técnica
-          </h1>
+      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper -mt-6 rounded-t-3xl relative z-10">
+        <div className="px-5 pt-6 pb-4">
+          <h1 className="text-xl font-serif font-bold text-foreground mb-1">Evolução</h1>
+          <h2 className="text-sm text-muted-foreground mb-5">Técnicas da Faixa</h2>
 
           <div className="space-y-3">
-            {avaliacoes.map((a, i) => (
-              <div
-                key={a.tecnica}
-                className="dojo-card flex items-center justify-between animate-fade-in"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              >
-                <div>
-                  <p className="font-serif font-bold text-foreground">{a.tecnica}</p>
-                  <p className="text-xs text-muted-foreground">{statusLabel[a.status]}</p>
+            {TECNICAS.map((t, i) => {
+              const status = avaliacoes.get(t.id) || "nao_iniciado";
+              return (
+                <div
+                  key={t.id}
+                  className={`dojo-card border-l-4 ${statusColor[status]} flex items-center justify-between animate-fade-in`}
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">🥋</span>
+                    <div>
+                      <p className="font-serif font-bold text-foreground text-sm">{t.nome} {t.desc}</p>
+                      <p className="text-[10px] text-muted-foreground">{statusLabel[status]}</p>
+                    </div>
+                  </div>
+                  <span className={statusBadgeClass[status]}>
+                    {status === "aprovado" ? "Aprovado" : status === "acompanhamento" ? "EM" : "NI"}
+                  </span>
                 </div>
-                <span className={statusClass[a.status]}>
-                  {statusLabel[a.status]}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

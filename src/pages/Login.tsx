@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import MobileLayout from "@/components/MobileLayout";
-import brushStrokes from "@/assets/brush-strokes.png";
+import kankulogo from "@/assets/kanku-logo.png";
+import karatekaDojo from "@/assets/karateka-dojo.jpg";
+import brushRedBottom from "@/assets/brush-red-bottom.png";
 import { Mail, Lock, LogIn } from "lucide-react";
 
 const Login = () => {
@@ -11,7 +12,6 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,18 +25,18 @@ const Login = () => {
   };
 
   return (
-    <MobileLayout showBrush={false}>
+    <MobileLayout bgImage={karatekaDojo} showBrush={false} darkOverlay={true}>
       <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
-        {/* Logo */}
-        <div className="w-28 h-28 rounded-full bg-primary flex items-center justify-center mb-6 shadow-lg animate-fade-in">
-          <span className="text-primary-foreground text-4xl font-serif font-black">極</span>
+        {/* Kanku Logo */}
+        <div className="w-32 h-32 mb-5 animate-fade-in">
+          <img src={kankulogo} alt="Kyokushin Kanku" className="w-full h-full object-contain drop-shadow-lg" />
         </div>
 
-        <h1 className="text-2xl font-serif font-bold text-foreground mb-1 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+        <h1 className="text-3xl font-serif font-bold text-primary-foreground mb-1 animate-fade-in drop-shadow-md" style={{ animationDelay: "0.1s" }}>
           Dojo Kyokushin
         </h1>
-        <p className="text-sm text-muted-foreground mb-10 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          Sistema de Gestão do Dojo
+        <p className="text-sm text-primary-foreground/70 mb-10 animate-fade-in font-serif italic" style={{ animationDelay: "0.2s" }}>
+          IKO Matsushima
         </p>
 
         <form onSubmit={handleSubmit} className="w-full space-y-4 animate-fade-in" style={{ animationDelay: "0.3s" }}>
@@ -48,7 +48,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-card/90 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 backdrop-blur-sm"
             />
           </div>
           <div className="relative">
@@ -59,12 +59,12 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-card/90 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 backdrop-blur-sm"
             />
           </div>
 
           {error && (
-            <p className="text-destructive text-sm text-center">{error}</p>
+            <p className="text-primary-foreground text-sm text-center bg-destructive/80 rounded-lg py-2">{error}</p>
           )}
 
           <button
@@ -80,11 +80,7 @@ const Login = () => {
 
       {/* Brush strokes at bottom */}
       <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
-        <img
-          src={brushStrokes}
-          alt=""
-          className="w-full h-28 object-cover opacity-70"
-        />
+        <img src={brushRedBottom} alt="" className="w-full h-36 object-cover object-bottom opacity-80" />
       </div>
     </MobileLayout>
   );
