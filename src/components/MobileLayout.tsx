@@ -1,5 +1,8 @@
 import { ReactNode } from "react";
 import brushRedBottom from "@/assets/brush-red-bottom.png";
+import TopNav from "@/components/TopNav";
+import BottomNav from "@/components/BottomNav";
+import { useAuth } from "@/lib/auth";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -7,12 +10,35 @@ interface MobileLayoutProps {
   bgImage?: string;
   darkOverlay?: boolean;
   className?: string;
+  showNav?: boolean;
+  fullWidth?: boolean;
 }
 
-const MobileLayout = ({ children, showBrush = true, bgImage, darkOverlay = true, className = "" }: MobileLayoutProps) => {
+const MobileLayout = ({
+  children,
+  showBrush = true,
+  bgImage,
+  darkOverlay = true,
+  className = "",
+  showNav = false,
+  fullWidth = false,
+}: MobileLayoutProps) => {
+  const { usuario } = useAuth();
+  const role = usuario?.role === "professor" ? "professor" : "aluno";
+
   return (
-    <div className="min-h-screen bg-muted flex items-start justify-center">
-      <div className={`dojo-container ${className}`} style={{ position: "relative" }}>
+    <div className="min-h-screen bg-muted flex flex-col items-center">
+      {/* Desktop top nav - hidden on mobile */}
+      {showNav && (
+        <div className="hidden md:block w-full sticky top-0 z-50">
+          <TopNav />
+        </div>
+      )}
+
+      <div
+        className={`${fullWidth ? "w-full" : "w-full max-w-[430px] md:max-w-full"} min-h-[calc(100vh-3.5rem)] md:min-h-0 relative overflow-hidden flex-1 ${className}`}
+        style={{ position: "relative" }}
+      >
         {bgImage && (
           <div
             className="absolute inset-0 bg-cover bg-center z-0"
@@ -22,11 +48,11 @@ const MobileLayout = ({ children, showBrush = true, bgImage, darkOverlay = true,
         {bgImage && darkOverlay && (
           <div className="absolute inset-0 z-[1]" style={{ backgroundColor: "rgba(0,0,0,0.45)" }} />
         )}
-        <div className="relative z-10 min-h-screen flex flex-col">
+        <div className="relative z-10 min-h-screen md:min-h-0 flex flex-col flex-1">
           {children}
         </div>
         {showBrush && (
-          <div className="absolute bottom-14 left-0 right-0 z-20 pointer-events-none">
+          <div className="absolute bottom-14 md:bottom-0 left-0 right-0 z-20 pointer-events-none">
             <img
               src={brushRedBottom}
               alt=""
@@ -35,6 +61,13 @@ const MobileLayout = ({ children, showBrush = true, bgImage, darkOverlay = true,
           </div>
         )}
       </div>
+
+      {/* Mobile bottom nav - hidden on desktop */}
+      {showNav && (
+        <div className="md:hidden w-full max-w-[430px] sticky bottom-0 z-30">
+          <BottomNav role={role} />
+        </div>
+      )}
     </div>
   );
 };

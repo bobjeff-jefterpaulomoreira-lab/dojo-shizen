@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import BottomNav from "@/components/BottomNav";
+
 
 interface Aluno {
   id: string;
@@ -30,7 +30,7 @@ const StudentList = () => {
   }, [usuario]);
 
   return (
-    <MobileLayout showBrush={true}>
+    <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Alunos" showBack={true} />
 
       <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
@@ -64,7 +64,7 @@ const StudentList = () => {
         </div>
       </div>
 
-      <BottomNav role="professor" />
+      
     </MobileLayout>
   );
 };

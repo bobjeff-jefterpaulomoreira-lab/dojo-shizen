@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import BottomNav from "@/components/BottomNav";
+
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 
@@ -73,7 +73,7 @@ const Assessment = () => {
   ];
 
   return (
-    <MobileLayout showBrush={true}>
+    <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader
         title={selectedNome ? `Avaliar ${selectedNome}` : "Avaliação Técnica"}
         showBack={true}
@@ -148,7 +148,7 @@ const Assessment = () => {
         </div>
       </div>
 
-      <BottomNav role="professor" />
+      
     </MobileLayout>
   );
 };

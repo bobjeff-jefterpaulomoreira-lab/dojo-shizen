@@ -1,6 +1,5 @@
 import { useAuth } from "@/lib/auth";
 import MobileLayout from "@/components/MobileLayout";
-import BottomNav from "@/components/BottomNav";
 import karatekaBack from "@/assets/karateka-back.jpg";
 
 const JURAMENTOS = [
@@ -17,20 +16,18 @@ const StudentDashboard = () => {
   const { usuario } = useAuth();
 
   return (
-    <MobileLayout showBrush={false}>
-      {/* Red header with dojo bg */}
+    <MobileLayout showBrush={false} showNav={true} fullWidth={true}>
+      {/* Red header with bg */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${karatekaBack})` }} />
         <div className="absolute inset-0" style={{ backgroundColor: "hsla(0, 100%, 27%, 0.7)" }} />
-        <div className="relative z-10 px-5 pt-8 pb-5">
+        <div className="relative z-10 px-5 pt-8 pb-5 max-w-3xl mx-auto">
           <h1 className="text-2xl font-serif font-bold text-primary-foreground">
             Olá, {usuario?.nome || "Aluno"}
           </h1>
-          {/* Belt badge */}
           <div className="mt-3 inline-block bg-dojo-green text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full">
             🥋 Faixa {usuario?.faixa || "Branca"}
           </div>
-          {/* Progress bar */}
           <div className="mt-3">
             <div className="flex justify-between text-xs text-primary-foreground/70 mb-1">
               <span>Progresso</span>
@@ -46,9 +43,8 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
-        {/* Juramentos */}
-        <div className="px-5 pt-5 pb-6">
+      <div className="flex-1 overflow-y-auto pb-20 md:pb-10 bg-dojo-paper">
+        <div className="px-5 pt-5 pb-6 max-w-3xl mx-auto">
           <h2 className="text-base font-serif font-bold text-foreground mb-3 flex items-center gap-2">
             🥋 Os 7 Juramentos do Kyokushin
           </h2>
@@ -64,8 +60,6 @@ const StudentDashboard = () => {
           </div>
         </div>
       </div>
-
-      <BottomNav role="aluno" />
     </MobileLayout>
   );
 };
