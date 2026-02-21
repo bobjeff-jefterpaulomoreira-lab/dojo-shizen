@@ -2,11 +2,57 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/lib/auth";
+import Login from "./pages/Login";
+import StudentDashboard from "./pages/StudentDashboard";
+import TeacherDashboard from "./pages/TeacherDashboard";
+import QRCodePage from "./pages/QRCodePage";
+import Evolution from "./pages/Evolution";
+import Assessment from "./pages/Assessment";
+import AttendanceReport from "./pages/AttendanceReport";
+import StudentList from "./pages/StudentList";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) => {
+  const { user, usuario, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) return <Navigate to="/" replace />;
+  if (requiredRole && usuario?.role !== requiredRole) {
+    return <Navigate to={usuario?.role === "professor" ? "/sensei" : "/dashboard"} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const AuthRedirect = () => {
+  const { user, usuario, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (user && usuario) {
+    return <Navigate to={usuario.role === "professor" ? "/sensei" : "/dashboard"} replace />;
+  }
+
+  return <Login />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -14,11 +60,21 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<AuthRedirect />} />
+            <Route path="/dashboard" element={<ProtectedRoute requiredRole="aluno"><StudentDashboard /></ProtectedRoute>} />
+            <Route path="/evolucao" element={<ProtectedRoute requiredRole="aluno"><Evolution /></ProtectedRoute>} />
+            <Route path="/presenca" element={<ProtectedRoute><AttendanceReport /></ProtectedRoute>} />
+            <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/sensei" element={<ProtectedRoute requiredRole="professor"><TeacherDashboard /></ProtectedRoute>} />
+            <Route path="/sensei/qrcode" element={<ProtectedRoute requiredRole="professor"><QRCodePage /></ProtectedRoute>} />
+            <Route path="/sensei/alunos" element={<ProtectedRoute requiredRole="professor"><StudentList /></ProtectedRoute>} />
+            <Route path="/sensei/avaliacao" element={<ProtectedRoute requiredRole="professor"><Assessment /></ProtectedRoute>} />
+            <Route path="/sensei/relatorio" element={<ProtectedRoute requiredRole="professor"><AttendanceReport /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
