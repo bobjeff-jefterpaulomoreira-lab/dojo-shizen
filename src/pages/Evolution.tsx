@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
-import BottomNav from "@/components/BottomNav";
 import karatekaBack from "@/assets/karateka-back.jpg";
 import shizenLogo from "@/assets/shizen-logo.png";
 
@@ -52,8 +51,8 @@ const Evolution = () => {
   }, [usuario]);
 
   return (
-    <MobileLayout showBrush={false}>
-      {/* Full torii background header with kanku */}
+    <MobileLayout showBrush={false} showNav={true} fullWidth={true}>
+      {/* Header with bg */}
       <div className="relative overflow-hidden h-64">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${karatekaBack})` }} />
         <div className="absolute inset-0" style={{ backgroundColor: "rgba(0,0,0,0.35)" }} />
@@ -62,8 +61,8 @@ const Evolution = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper -mt-6 rounded-t-3xl relative z-10">
-        <div className="px-5 pt-6 pb-4">
+      <div className="flex-1 overflow-y-auto pb-20 md:pb-10 bg-dojo-paper -mt-6 rounded-t-3xl relative z-10">
+        <div className="px-5 pt-6 pb-4 max-w-3xl mx-auto">
           <h1 className="text-xl font-serif font-bold text-foreground mb-1">Evolução</h1>
           <h2 className="text-sm text-muted-foreground mb-5">Técnicas da Faixa</h2>
 
@@ -92,8 +91,6 @@ const Evolution = () => {
           </div>
         </div>
       </div>
-
-      <BottomNav role="aluno" />
     </MobileLayout>
   );
 };

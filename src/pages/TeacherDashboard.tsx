@@ -1,9 +1,9 @@
 import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
-import BottomNav from "@/components/BottomNav";
+import shizenLogo from "@/assets/shizen-logo.png";
 import karatekaBack from "@/assets/karateka-back.jpg";
-import { QrCode, Users, FileBarChart, ClipboardCheck } from "lucide-react";
+import { QrCode, Users, Bell, ClipboardCheck } from "lucide-react";
 
 const TeacherDashboard = () => {
   const { usuario } = useAuth();
@@ -11,50 +11,56 @@ const TeacherDashboard = () => {
 
   const buttons = [
     { icon: QrCode, label: "Abrir Aula", subtitle: "(QR Code)", path: "/sensei/qrcode" },
-    { icon: Users, label: "Alunos", subtitle: "", path: "/sensei/alunos" },
-    { icon: FileBarChart, label: "Relatório", subtitle: "Mensal", path: "/sensei/relatorio" },
-    { icon: ClipboardCheck, label: "Avaliações", subtitle: "", path: "/sensei/avaliacao" },
+    { icon: Users, label: "Alunos", subtitle: "5 cadastrados", path: "/sensei/alunos" },
+    { icon: Bell, label: "Comunicados", subtitle: "Eventos e Avisos", path: "/sensei/comunicados" },
+    { icon: ClipboardCheck, label: "Avaliações", subtitle: "Técnicas", path: "/sensei/avaliacao" },
   ];
 
   return (
-    <MobileLayout showBrush={true}>
-      {/* Red header with dojo bg */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${karatekaBack})` }} />
-        <div className="absolute inset-0" style={{ backgroundColor: "hsla(0, 100%, 27%, 0.75)" }} />
-        <div className="relative z-10 px-5 pt-8 pb-6">
-          <h1 className="text-xl font-serif font-bold text-primary-foreground">
-            Bem-vindo, Sensei {usuario?.nome || ""}
-          </h1>
+    <MobileLayout bgImage={karatekaBack} darkOverlay={true} showBrush={false} showNav={true} fullWidth={true}>
+      <div className="flex-1 flex flex-col items-center justify-center px-5 py-10">
+        {/* Shizen Logo */}
+        <div className="w-24 h-24 md:w-28 md:h-28 mb-4 animate-fade-in">
+          <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg" />
         </div>
-      </div>
 
-      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
-        {/* Grid 2x2 with RED buttons */}
-        <div className="px-5 py-5 grid grid-cols-2 gap-4">
+        {/* Welcome text */}
+        <p className="text-primary text-xs md:text-sm font-bold tracking-widest uppercase mb-1 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          Painel do Sensei
+        </p>
+        <h1 className="text-2xl md:text-4xl font-serif font-bold text-primary-foreground mb-1 animate-fade-in drop-shadow-md" style={{ animationDelay: "0.15s" }}>
+          Bem-vindo, {usuario?.nome?.split(" ")[0] || "Sensei"}
+        </h1>
+        <p className="text-primary-foreground/60 text-sm mb-8 animate-fade-in font-serif" style={{ animationDelay: "0.2s" }}>
+          押忍 - Osu!
+        </p>
+
+        {/* 2x2 Grid */}
+        <div className="grid grid-cols-2 gap-4 w-full max-w-md animate-fade-in" style={{ animationDelay: "0.3s" }}>
           {buttons.map((btn, i) => (
             <button
               key={btn.path}
               onClick={() => navigate(btn.path)}
-              className="flex flex-col items-center justify-center py-7 gap-3 rounded-2xl shadow-md transition-all active:scale-95 animate-fade-in hover:shadow-lg"
+              className="flex flex-col items-center justify-center py-8 md:py-10 gap-3 rounded-2xl shadow-lg transition-all active:scale-95 hover:shadow-xl hover:scale-[1.02] animate-fade-in"
               style={{
-                backgroundColor: "hsl(0, 100%, 27%)",
-                animationDelay: `${i * 0.1}s`,
+                backgroundColor: "hsl(var(--primary))",
+                animationDelay: `${0.35 + i * 0.08}s`,
               }}
             >
               <btn.icon className="text-primary-foreground" size={32} />
               <div className="text-center">
                 <p className="font-serif font-bold text-primary-foreground text-sm">{btn.label}</p>
-                {btn.subtitle && (
-                  <p className="text-[10px] text-primary-foreground/60">{btn.subtitle}</p>
-                )}
+                <p className="text-[11px] text-primary-foreground/60">{btn.subtitle}</p>
               </div>
             </button>
           ))}
         </div>
-      </div>
 
-      <BottomNav role="professor" />
+        {/* Osu footer */}
+        <p className="text-primary-foreground/40 text-sm font-serif mt-10 animate-fade-in" style={{ animationDelay: "0.7s" }}>
+          押忍!
+        </p>
+      </div>
     </MobileLayout>
   );
 };

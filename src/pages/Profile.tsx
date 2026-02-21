@@ -2,7 +2,7 @@ import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import BottomNav from "@/components/BottomNav";
+
 import shizenLogo from "@/assets/shizen-logo.png";
 import { LogOut } from "lucide-react";
 
@@ -16,7 +16,7 @@ const Profile = () => {
   };
 
   return (
-    <MobileLayout showBrush={true}>
+    <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Perfil" showBack={false} />
 
       <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
@@ -53,7 +53,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <BottomNav role={usuario?.role === "professor" ? "professor" : "aluno"} />
+      
     </MobileLayout>
   );
 };

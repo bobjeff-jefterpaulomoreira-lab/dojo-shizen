@@ -37,7 +37,7 @@ const QRCodePage = () => {
   }, [usuario]);
 
   return (
-    <MobileLayout showBrush={true}>
+    <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Registrar Presença" showBack={true} />
 
       <div className="flex-1 bg-dojo-paper px-5 py-6">
