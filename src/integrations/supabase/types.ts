@@ -97,6 +97,45 @@ export type Database = {
           },
         ]
       }
+      comunicados: {
+        Row: {
+          created_at: string
+          data_evento: string | null
+          descricao: string | null
+          id: string
+          imagem_url: string | null
+          pdf_url: string | null
+          professor_id: string
+          tipo: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_evento?: string | null
+          descricao?: string | null
+          id?: string
+          imagem_url?: string | null
+          pdf_url?: string | null
+          professor_id: string
+          tipo?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_evento?: string | null
+          descricao?: string | null
+          id?: string
+          imagem_url?: string | null
+          pdf_url?: string | null
+          professor_id?: string
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       presencas: {
         Row: {
           aluno_id: string
