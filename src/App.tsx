@@ -12,6 +12,9 @@ import Evolution from "./pages/Evolution";
 import Assessment from "./pages/Assessment";
 import AttendanceReport from "./pages/AttendanceReport";
 import StudentList from "./pages/StudentList";
+import RegisterStudent from "./pages/RegisterStudent";
+import Comunicados from "./pages/Comunicados";
+import Calendario from "./pages/Calendario";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -70,8 +73,11 @@ const App = () => (
             <Route path="/sensei" element={<ProtectedRoute requiredRole="professor"><TeacherDashboard /></ProtectedRoute>} />
             <Route path="/sensei/qrcode" element={<ProtectedRoute requiredRole="professor"><QRCodePage /></ProtectedRoute>} />
             <Route path="/sensei/alunos" element={<ProtectedRoute requiredRole="professor"><StudentList /></ProtectedRoute>} />
+            <Route path="/sensei/cadastrar-aluno" element={<ProtectedRoute requiredRole="professor"><RegisterStudent /></ProtectedRoute>} />
             <Route path="/sensei/avaliacao" element={<ProtectedRoute requiredRole="professor"><Assessment /></ProtectedRoute>} />
             <Route path="/sensei/relatorio" element={<ProtectedRoute requiredRole="professor"><AttendanceReport /></ProtectedRoute>} />
+            <Route path="/sensei/comunicados" element={<ProtectedRoute requiredRole="professor"><Comunicados /></ProtectedRoute>} />
+            <Route path="/sensei/calendario" element={<ProtectedRoute requiredRole="professor"><Calendario /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
