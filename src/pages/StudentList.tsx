@@ -3,12 +3,18 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import { Search, UserPlus } from "lucide-react";
+import { Search, UserPlus, Pencil, Trash2, X, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Aluno {
   id: string;
   nome: string;
+  email: string;
   faixa: string;
   progresso_faixa: number;
   unidade_id: string;
@@ -41,22 +47,32 @@ const StudentList = () => {
   const [selectedFaixa, setSelectedFaixa] = useState("Todos");
   const [search, setSearch] = useState("");
 
+  // Edit state
+  const [editDialog, setEditDialog] = useState(false);
+  const [editAluno, setEditAluno] = useState<Aluno | null>(null);
+  const [editNome, setEditNome] = useState("");
+  const [editFaixa, setEditFaixa] = useState("");
+  const [editUnidade, setEditUnidade] = useState("");
+  const [editProgresso, setEditProgresso] = useState(0);
+  const [saving, setSaving] = useState(false);
+
+  const fetchData = async () => {
+    if (!usuario) return;
+
+    const { data: unidadesData } = await supabase
+      .from("unidades")
+      .select("id, nome")
+      .order("nome");
+    setUnidades((unidadesData as Unidade[]) || []);
+
+    const { data: alunosData } = await supabase
+      .from("usuarios")
+      .select("id, nome, email, faixa, progresso_faixa, unidade_id")
+      .eq("role", "aluno");
+    setAlunos((alunosData as Aluno[]) || []);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (!usuario) return;
-
-      const { data: unidadesData } = await supabase
-        .from("unidades")
-        .select("id, nome")
-        .order("nome");
-      setUnidades((unidadesData as Unidade[]) || []);
-
-      const { data: alunosData } = await supabase
-        .from("usuarios")
-        .select("id, nome, faixa, progresso_faixa, unidade_id")
-        .eq("role", "aluno");
-      setAlunos((alunosData as Aluno[]) || []);
-    };
     fetchData();
   }, [usuario]);
 
@@ -68,6 +84,48 @@ const StudentList = () => {
   });
 
   const getUnidadeNome = (uid: string) => unidades.find((u) => u.id === uid)?.nome || "";
+
+  const openEdit = (a: Aluno) => {
+    setEditAluno(a);
+    setEditNome(a.nome);
+    setEditFaixa(a.faixa);
+    setEditUnidade(a.unidade_id);
+    setEditProgresso(a.progresso_faixa);
+    setEditDialog(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editAluno || !editNome.trim()) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("usuarios")
+      .update({
+        nome: editNome.trim(),
+        faixa: editFaixa,
+        unidade_id: editUnidade,
+        progresso_faixa: editProgresso,
+      })
+      .eq("id", editAluno.id);
+    setSaving(false);
+    if (error) {
+      toast.error("Erro ao salvar: " + error.message);
+    } else {
+      toast.success("Dados do aluno atualizados!");
+      setEditDialog(false);
+      fetchData();
+    }
+  };
+
+  const handleDelete = async (aluno: Aluno) => {
+    if (!confirm(`Deseja realmente excluir o aluno ${aluno.nome}?`)) return;
+    const { error } = await supabase.from("usuarios").delete().eq("id", aluno.id);
+    if (error) {
+      toast.error("Erro ao excluir: " + error.message);
+    } else {
+      toast.success("Aluno excluído.");
+      fetchData();
+    }
+  };
 
   return (
     <MobileLayout showBrush={false} showNav={true} fullWidth={true}>
@@ -166,18 +224,30 @@ const StudentList = () => {
                   style={{ animationDelay: `${i * 0.03}s` }}
                 >
                   <div className="flex items-center justify-between mb-1.5">
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="font-serif font-bold text-foreground text-sm">{a.nome}</p>
                       <p className="text-[10px] text-muted-foreground">
                         Dojo {getUnidadeNome(a.unidade_id)} · Faixa {a.faixa}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <span
                         className="w-3 h-3 rounded-full border border-border/30"
                         style={{ backgroundColor: FAIXA_COLORS[a.faixa] || "#999" }}
                       />
                       <span className="text-xs text-muted-foreground font-medium">{a.progresso_faixa}%</span>
+                      <button
+                        onClick={() => openEdit(a)}
+                        className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground ml-1"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(a)}
+                        className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </div>
                   <div className="progress-bar-track">
@@ -189,6 +259,69 @@ const StudentList = () => {
           )}
         </div>
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialog} onOpenChange={(open) => { if (!open) setEditDialog(false); }}>
+        <DialogContent className="sm:max-w-md bg-background">
+          <DialogHeader>
+            <DialogTitle className="font-serif">Editar Aluno</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Nome</Label>
+              <Input value={editNome} onChange={(e) => setEditNome(e.target.value)} />
+            </div>
+            <div>
+              <Label>Faixa</Label>
+              <Select value={editFaixa} onValueChange={setEditFaixa}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {FAIXAS.filter((f) => f !== "Todos").map((f) => (
+                    <SelectItem key={f} value={f}>
+                      <span className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: FAIXA_COLORS[f] }} />
+                        {f}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Unidade</Label>
+              <Select value={editUnidade} onValueChange={setEditUnidade}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {unidades.map((u) => (
+                    <SelectItem key={u.id} value={u.id}>Dojo {u.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Progresso da Faixa (%)</Label>
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                value={editProgresso}
+                onChange={(e) => setEditProgresso(Number(e.target.value))}
+              />
+            </div>
+            <button
+              onClick={handleSaveEdit}
+              disabled={saving}
+              className="dojo-btn w-full text-sm"
+            >
+              {saving ? "Salvando..." : "Salvar Alterações"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </MobileLayout>
   );
 };
