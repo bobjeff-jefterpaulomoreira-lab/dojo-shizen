@@ -49,7 +49,11 @@ const RegisterStudent = () => {
       });
 
       if (res.error || res.data?.error) {
-        toast.error(res.data?.error || res.error?.message || "Erro ao cadastrar");
+        const msg = res.data?.error || res.error?.message || "Erro ao cadastrar";
+        const translated = msg.includes("already been registered")
+          ? "Já existe um aluno cadastrado com este e-mail."
+          : msg;
+        toast.error(translated);
       } else {
         toast.success("Aluno cadastrado com sucesso!");
         navigate("/sensei/alunos");
