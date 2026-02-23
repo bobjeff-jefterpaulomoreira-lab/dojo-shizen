@@ -42,20 +42,22 @@ const RegisterStudent = () => {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password: senha,
-      options: {
-        data: { nome, role: "aluno", unidade_id: unidadeId },
-      },
-    });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("register-student", {
+        body: { nome, email, senha, unidade_id: unidadeId },
+      });
 
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Aluno cadastrado com sucesso!");
-      navigate("/sensei/alunos");
+      if (res.error || res.data?.error) {
+        toast.error(res.data?.error || res.error?.message || "Erro ao cadastrar");
+      } else {
+        toast.success("Aluno cadastrado com sucesso!");
+        navigate("/sensei/alunos");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao cadastrar");
+    } finally {
+      setLoading(false);
     }
   };
 
