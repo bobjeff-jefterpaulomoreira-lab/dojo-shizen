@@ -1,4 +1,4 @@
-import { Home, TrendingUp, ClipboardList, User } from "lucide-react";
+import { Home, TrendingUp, ClipboardList, User, Bell } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface BottomNavProps {
@@ -12,7 +12,7 @@ const BottomNav = ({ role }: BottomNavProps) => {
   const alunoItems = [
     { icon: Home, label: "Início", path: "/dashboard" },
     { icon: TrendingUp, label: "Evolução", path: "/evolucao" },
-    { icon: ClipboardList, label: "Presença", path: "/presenca" },
+    { icon: Bell, label: "Avisos", path: "/comunicados" },
     { icon: User, label: "Perfil", path: "/perfil" },
   ];
 
