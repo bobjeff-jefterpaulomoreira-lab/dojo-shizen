@@ -122,4 +122,21 @@
     @apply h-full rounded-full transition-all duration-500;
     background-color: hsl(var(--primary));
   }
+
+  /* Calendar event dots */
+  .calendar-dot-treino::after,
+  .calendar-dot-evento::after {
+    content: '';
+    @apply absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full;
+  }
+  .calendar-dot-treino::after {
+    background-color: hsl(var(--primary));
+  }
+  .calendar-dot-evento::after {
+    background-color: hsl(var(--dojo-green));
+  }
+  .calendar-dot-treino.calendar-dot-evento::after {
+    @apply w-3;
+    background: linear-gradient(to right, hsl(var(--primary)) 50%, hsl(var(--dojo-green)) 50%);
+  }
 }
