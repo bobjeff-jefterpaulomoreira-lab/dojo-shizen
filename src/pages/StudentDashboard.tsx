@@ -19,9 +19,22 @@ const JURAMENTOS = [
   "Toda a nossa vida através da disciplina do Kyokushin Karatê, procuraremos preencher a verdadeira significação da filosofia da vida.",
 ];
 
+const BELT_COLORS: Record<string, string> = {
+  branca: "#FFFFFF",
+  amarela: "#FFD700",
+  vermelha: "#CC0000",
+  laranja: "#FF8C00",
+  azul: "#1E90FF",
+  verde: "#228B22",
+  marrom: "#8B4513",
+  roxa: "#6A0DAD",
+  preta: "#111111",
+};
+
 const StudentDashboard = () => {
   const { usuario } = useAuth();
   const navigate = useNavigate();
+  const beltColor = BELT_COLORS[(usuario?.faixa || "branca").toLowerCase()] || "#FFFFFF";
 
   const { data: comunicados } = useQuery({
     queryKey: ["comunicados-aluno-dash"],
@@ -49,7 +62,7 @@ const StudentDashboard = () => {
       {/* Dark header with bg */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${karatekaBack})` }} />
-        <div className="absolute inset-0" style={{ backgroundColor: "hsla(0, 100%, 12%, 0.75)" }} />
+        <div className="absolute inset-0" style={{ backgroundColor: "hsla(0, 100%, 10%, 0.85)" }} />
         <div className="relative z-10 px-5 pt-6 pb-5 max-w-3xl mx-auto">
           {/* Logo */}
           <div className="mb-4">
@@ -68,7 +81,7 @@ const StudentDashboard = () => {
 
           {/* Belt card */}
           <div className="mt-4 rounded-xl p-4 flex items-center gap-4" style={{ backgroundColor: "hsl(0 100% 27%)" }}>
-            <div className="w-16 h-10 rounded bg-primary-foreground flex-shrink-0" />
+            <div className="w-16 h-10 rounded flex-shrink-0" style={{ backgroundColor: beltColor }} />
             <div className="flex-1 min-w-0">
               <p className="text-primary-foreground font-bold text-sm">Faixa {usuario?.faixa || "Branca"}</p>
               <p className="text-primary-foreground/60 text-xs">Progresso: {usuario?.progresso_faixa || 0}%</p>
@@ -87,7 +100,7 @@ const StudentDashboard = () => {
       </div>
 
       {/* Content area */}
-      <div className="flex-1 overflow-y-auto pb-20 md:pb-10" style={{ backgroundColor: "hsla(0, 100%, 12%, 0.85)" }}>
+      <div className="flex-1 overflow-y-auto pb-20 md:pb-10" style={{ backgroundColor: "hsl(0, 0%, 15%)" }}>
         <div className="px-5 pt-5 pb-6 max-w-3xl mx-auto space-y-5">
 
           {/* Quick Actions */}
@@ -97,7 +110,7 @@ const StudentDashboard = () => {
                 key={action.label}
                 onClick={action.onClick}
                 className="rounded-xl py-4 flex flex-col items-center gap-2 transition-colors relative"
-                style={{ backgroundColor: "hsla(0, 0%, 100%, 0.08)" }}
+                style={{ backgroundColor: "hsl(0, 0%, 22%)" }}
               >
                 <div className="relative">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "hsla(0, 100%, 27%, 0.6)" }}>
@@ -115,14 +128,14 @@ const StudentDashboard = () => {
           </div>
 
           {/* Últimos Comunicados */}
-          <div className="rounded-xl p-4" style={{ backgroundColor: "hsla(0, 100%, 27%, 0.5)" }}>
+          <div className="rounded-xl p-4" style={{ backgroundColor: "hsl(0, 100%, 25%)" }}>
             <h2 className="text-primary-foreground font-serif font-bold text-base flex items-center gap-2 mb-3">
               <Bell size={18} />
               Últimos Comunicados
             </h2>
             <div className="space-y-2">
               {comunicados && comunicados.length > 0 ? comunicados.map((c) => (
-                <div key={c.id} className="rounded-lg px-4 py-3" style={{ backgroundColor: "hsla(0, 0%, 100%, 0.08)" }}>
+                <div key={c.id} className="rounded-lg px-4 py-3" style={{ backgroundColor: "hsla(0, 0%, 100%, 0.1)" }}>
                   <p className="text-primary-foreground text-sm font-medium truncate">{c.titulo}</p>
                   <p className="text-primary-foreground/50 text-xs mt-0.5">
                     {format(new Date(c.created_at), "dd/MM/yyyy", { locale: ptBR })}
