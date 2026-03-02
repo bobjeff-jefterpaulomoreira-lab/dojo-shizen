@@ -10,6 +10,54 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 const CATEGORIAS = ["Todas", "Kihon", "Kata", "Kumite", "Idogeiko"];
 type StatusType = "aprovado" | "acompanhamento" | "nao_iniciado";
 
+const TECNICAS_POR_CATEGORIA: Record<string, string[]> = {
+  Kihon: [
+    "Mae Geri (Chute Frontal)",
+    "Mawashi Geri (Chute Circular)",
+    "Yoko Geri (Chute Lateral)",
+    "Ushiro Geri (Chute para Trás)",
+    "Soto Uke (Defesa Externa)",
+    "Uchi Uke (Defesa Interna)",
+    "Gedan Barai (Defesa Baixa)",
+    "Age Uke (Defesa Alta)",
+    "Seiken (Soco Básico)",
+    "Uraken (Soco com Dorso)",
+    "Shuto Uchi (Golpe com Mão Aberta)",
+  ],
+  Kata: [
+    "Taikyoku Sono Ichi",
+    "Taikyoku Sono Ni",
+    "Taikyoku Sono San",
+    "Pinan Sono Ichi",
+    "Pinan Sono Ni",
+    "Pinan Sono San",
+    "Pinan Sono Yon",
+    "Pinan Sono Go",
+    "Sanchin",
+    "Tensho",
+    "Gekisai Dai",
+    "Gekisai Sho",
+  ],
+  Kumite: [
+    "Sanbon Kumite (3 passos)",
+    "Ippon Kumite (1 passo)",
+    "Jiyu Kumite (Luta Livre)",
+    "Yakusoku Kumite (Combinado)",
+    "Shiai Kumite (Competição)",
+  ],
+  Idogeiko: [
+    "Ido Geiko Mae Geri",
+    "Ido Geiko Mawashi Geri",
+    "Ido Geiko Yoko Geri",
+    "Ido Geiko Oi Tsuki",
+    "Ido Geiko Gyaku Tsuki",
+    "Ido Geiko Soto Uke",
+    "Ido Geiko Uchi Uke",
+    "Ido Geiko Gedan Barai",
+    "Ido Geiko Combinações",
+  ],
+};
+
 interface Aluno {
   id: string;
   nome: string;
