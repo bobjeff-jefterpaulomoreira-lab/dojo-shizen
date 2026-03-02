@@ -191,8 +191,22 @@ const Assessment = () => {
       <PageHeader title="Avalie o progresso técnico dos alunos" showBack={true} />
 
       <div className="flex-1 overflow-hidden flex flex-col md:flex-row bg-background">
-        {/* Sidebar - Student List */}
-        <div className="w-full md:w-[280px] md:min-w-[280px] border-r border-border bg-card flex flex-col md:h-full">
+        {/* Mobile: compact student selector */}
+        <div className="md:hidden px-4 pt-3 pb-2 bg-card border-b border-border">
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">Aluno</label>
+          <select
+            value={selectedAluno}
+            onChange={(e) => setSelectedAluno(e.target.value)}
+            className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
+          >
+            {alunos.map((a) => (
+              <option key={a.id} value={a.id}>{a.nome} — Faixa {a.faixa}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Desktop: Sidebar - Student List */}
+        <div className="hidden md:flex w-[280px] min-w-[280px] border-r border-border bg-card flex-col h-full">
           <div className="px-4 pt-4 pb-2">
             <h3 className="font-bold text-foreground text-sm mb-3">Selecionar Aluno</h3>
             <div className="relative">
@@ -206,7 +220,7 @@ const Assessment = () => {
               />
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto pb-20 md:pb-4">
+          <div className="flex-1 overflow-y-auto pb-4">
             {alunosFiltrados.map((a) => {
               const isSelected = a.id === selectedAluno;
               const beltKey = a.faixa.toLowerCase();
