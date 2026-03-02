@@ -314,13 +314,16 @@ const Assessment = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Técnica</label>
-              <input
-                type="text"
+              <select
                 value={novaTecnica}
                 onChange={(e) => setNovaTecnica(e.target.value)}
-                placeholder="Ex: Mae Geri, Soto Uke..."
-                className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground"
-              />
+                className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
+              >
+                <option value="">Selecione...</option>
+                {(TECNICAS_POR_CATEGORIA[novaCategoria] || []).map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Status</label>
