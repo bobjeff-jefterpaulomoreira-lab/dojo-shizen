@@ -304,11 +304,11 @@ const Assessment = () => {
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Categoria</label>
               <select
                 value={novaCategoria}
-                onChange={(e) => setNovaCategoria(e.target.value)}
+                onChange={(e) => { setNovaCategoria(e.target.value); setNovaTecnica(""); }}
                 className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
               >
                 {CATEGORIAS.filter((c) => c !== "Todas").map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>{c === "Kihon" ? "Kihon (Básico)" : c}</option>
                 ))}
               </select>
             </div>
