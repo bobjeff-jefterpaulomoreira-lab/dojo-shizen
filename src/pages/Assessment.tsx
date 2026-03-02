@@ -10,6 +10,54 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 const CATEGORIAS = ["Todas", "Kihon", "Kata", "Kumite", "Idogeiko"];
 type StatusType = "aprovado" | "acompanhamento" | "nao_iniciado";
 
+const TECNICAS_POR_CATEGORIA: Record<string, string[]> = {
+  Kihon: [
+    "Mae Geri (Chute Frontal)",
+    "Mawashi Geri (Chute Circular)",
+    "Yoko Geri (Chute Lateral)",
+    "Ushiro Geri (Chute para Trás)",
+    "Soto Uke (Defesa Externa)",
+    "Uchi Uke (Defesa Interna)",
+    "Gedan Barai (Defesa Baixa)",
+    "Age Uke (Defesa Alta)",
+    "Seiken (Soco Básico)",
+    "Uraken (Soco com Dorso)",
+    "Shuto Uchi (Golpe com Mão Aberta)",
+  ],
+  Kata: [
+    "Taikyoku Sono Ichi",
+    "Taikyoku Sono Ni",
+    "Taikyoku Sono San",
+    "Pinan Sono Ichi",
+    "Pinan Sono Ni",
+    "Pinan Sono San",
+    "Pinan Sono Yon",
+    "Pinan Sono Go",
+    "Sanchin",
+    "Tensho",
+    "Gekisai Dai",
+    "Gekisai Sho",
+  ],
+  Kumite: [
+    "Sanbon Kumite (3 passos)",
+    "Ippon Kumite (1 passo)",
+    "Jiyu Kumite (Luta Livre)",
+    "Yakusoku Kumite (Combinado)",
+    "Shiai Kumite (Competição)",
+  ],
+  Idogeiko: [
+    "Ido Geiko Mae Geri",
+    "Ido Geiko Mawashi Geri",
+    "Ido Geiko Yoko Geri",
+    "Ido Geiko Oi Tsuki",
+    "Ido Geiko Gyaku Tsuki",
+    "Ido Geiko Soto Uke",
+    "Ido Geiko Uchi Uke",
+    "Ido Geiko Gedan Barai",
+    "Ido Geiko Combinações",
+  ],
+};
+
 interface Aluno {
   id: string;
   nome: string;
@@ -256,23 +304,26 @@ const Assessment = () => {
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Categoria</label>
               <select
                 value={novaCategoria}
-                onChange={(e) => setNovaCategoria(e.target.value)}
+                onChange={(e) => { setNovaCategoria(e.target.value); setNovaTecnica(""); }}
                 className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
               >
                 {CATEGORIAS.filter((c) => c !== "Todas").map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>{c === "Kihon" ? "Kihon (Básico)" : c}</option>
                 ))}
               </select>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Técnica</label>
-              <input
-                type="text"
+              <select
                 value={novaTecnica}
                 onChange={(e) => setNovaTecnica(e.target.value)}
-                placeholder="Ex: Mae Geri, Soto Uke..."
-                className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground"
-              />
+                className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
+              >
+                <option value="">Selecione...</option>
+                {(TECNICAS_POR_CATEGORIA[novaCategoria] || []).map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Status</label>
