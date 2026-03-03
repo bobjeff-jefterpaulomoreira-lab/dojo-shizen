@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import QRCodePage from "./pages/QRCodePage";
+import ScanQRCode from "./pages/ScanQRCode";
 import Evolution from "./pages/Evolution";
 import Assessment from "./pages/Assessment";
 import AttendanceReport from "./pages/AttendanceReport";
@@ -68,7 +69,8 @@ const App = () => (
             <Route path="/" element={<AuthRedirect />} />
             <Route path="/dashboard" element={<ProtectedRoute requiredRole="aluno"><StudentDashboard /></ProtectedRoute>} />
             <Route path="/evolucao" element={<ProtectedRoute requiredRole="aluno"><Evolution /></ProtectedRoute>} />
-            <Route path="/presenca" element={<ProtectedRoute><AttendanceReport /></ProtectedRoute>} />
+            <Route path="/presenca" element={<ProtectedRoute requiredRole="aluno"><ScanQRCode /></ProtectedRoute>} />
+            <Route path="/presenca/relatorio" element={<ProtectedRoute requiredRole="aluno"><AttendanceReport /></ProtectedRoute>} />
             <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/sensei" element={<ProtectedRoute requiredRole="professor"><TeacherDashboard /></ProtectedRoute>} />
             <Route path="/sensei/qrcode" element={<ProtectedRoute requiredRole="professor"><QRCodePage /></ProtectedRoute>} />
