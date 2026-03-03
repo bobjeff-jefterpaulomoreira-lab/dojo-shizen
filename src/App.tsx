@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import QRCodePage from "./pages/QRCodePage";
+import ScanQRCode from "./pages/ScanQRCode";
 import Evolution from "./pages/Evolution";
 import Assessment from "./pages/Assessment";
 import AttendanceReport from "./pages/AttendanceReport";
