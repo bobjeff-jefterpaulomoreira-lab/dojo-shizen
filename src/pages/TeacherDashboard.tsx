@@ -18,7 +18,7 @@ const TeacherDashboard = () => {
 
   return (
     <MobileLayout bgImage={karatekaBack} darkOverlay={true} showBrush={false} showNav={true} fullWidth={true}>
-      <div className="flex-1 flex flex-col items-start md:items-center justify-center px-5 py-10">
+      <div className="flex-1 flex flex-col items-start md:items-start justify-center px-5 md:px-[15%] py-10">
         {/* Shizen Logo */}
         <div className="w-20 h-20 md:w-24 md:h-24 mb-4 animate-fade-in">
           <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg rounded-2xl" />
