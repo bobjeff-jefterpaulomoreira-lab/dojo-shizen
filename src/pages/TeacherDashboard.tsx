@@ -18,10 +18,10 @@ const TeacherDashboard = () => {
 
   return (
     <MobileLayout bgImage={karatekaBack} darkOverlay={true} showBrush={false} showNav={true} fullWidth={true}>
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-10">
+      <div className="flex-1 flex flex-col items-start justify-center px-5 py-10">
         {/* Shizen Logo */}
-        <div className="w-24 h-24 md:w-28 md:h-28 mb-4 animate-fade-in">
-          <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg" />
+        <div className="w-20 h-20 md:w-24 md:h-24 mb-4 animate-fade-in">
+          <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg rounded-2xl" />
         </div>
 
         {/* Welcome text */}
