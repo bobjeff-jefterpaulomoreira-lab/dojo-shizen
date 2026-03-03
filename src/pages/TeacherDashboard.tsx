@@ -18,7 +18,7 @@ const TeacherDashboard = () => {
 
   return (
     <MobileLayout bgImage={karatekaBack} darkOverlay={true} showBrush={false} showNav={true} fullWidth={true}>
-      <div className="flex-1 flex flex-col items-start justify-center px-5 py-10">
+      <div className="flex-1 flex flex-col items-start md:items-center justify-center px-5 py-10">
         {/* Shizen Logo */}
         <div className="w-20 h-20 md:w-24 md:h-24 mb-4 animate-fade-in">
           <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg rounded-2xl" />
@@ -36,7 +36,7 @@ const TeacherDashboard = () => {
         </p>
 
         {/* 2x2 Grid */}
-        <div className="grid grid-cols-2 gap-4 w-full max-w-md animate-fade-in" style={{ animationDelay: "0.3s" }}>
+        <div className="grid grid-cols-2 gap-4 w-full max-w-md md:max-w-lg animate-fade-in" style={{ animationDelay: "0.3s" }}>
           {buttons.map((btn, i) => (
             <button
               key={btn.path}
