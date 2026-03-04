@@ -358,6 +358,46 @@ const StudentList = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Transfer Dialog */}
+      <Dialog open={transferDialog} onOpenChange={(open) => { if (!open) setTransferDialog(false); }}>
+        <DialogContent className="sm:max-w-md bg-background">
+          <DialogHeader>
+            <DialogTitle className="font-serif flex items-center gap-2">
+              <ArrowRightLeft size={18} />
+              Transferir Aluno
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="dojo-card">
+              <p className="font-serif font-bold text-foreground text-sm">{transferAluno?.nome}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Atualmente: Dojo {getUnidadeNome(transferAluno?.unidade_id || "")}
+              </p>
+            </div>
+            <div>
+              <Label>Nova Academia (Destino)</Label>
+              <Select value={transferUnidade} onValueChange={setTransferUnidade}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {unidades.filter((u) => u.id !== transferAluno?.unidade_id).map((u) => (
+                    <SelectItem key={u.id} value={u.id}>Dojo {u.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <button
+              onClick={handleTransfer}
+              disabled={saving || !transferUnidade || transferUnidade === transferAluno?.unidade_id}
+              className="dojo-btn w-full text-sm disabled:opacity-50"
+            >
+              {saving ? "Transferindo..." : "Confirmar Transferência"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </MobileLayout>
   );
 };
