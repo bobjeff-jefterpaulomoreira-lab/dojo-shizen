@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import { Search, UserPlus, Pencil, Trash2, X, Check } from "lucide-react";
+import { Search, UserPlus, Pencil, Trash2, X, Check, ArrowRightLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
