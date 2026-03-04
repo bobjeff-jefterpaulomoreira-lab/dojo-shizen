@@ -17,6 +17,8 @@ import RegisterStudent from "./pages/RegisterStudent";
 import Comunicados from "./pages/Comunicados";
 import Calendario from "./pages/Calendario";
 import Profile from "./pages/Profile";
+import Notificacoes from "./pages/Notificacoes";
+import NotificacoesAluno from "./pages/NotificacoesAluno";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
