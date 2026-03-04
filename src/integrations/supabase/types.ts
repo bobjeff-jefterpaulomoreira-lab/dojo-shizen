@@ -136,6 +136,68 @@ export type Database = {
         }
         Relationships: []
       }
+      notificacao_leituras: {
+        Row: {
+          id: string
+          lida_em: string
+          notificacao_id: string
+          usuario_id: string
+        }
+        Insert: {
+          id?: string
+          lida_em?: string
+          notificacao_id: string
+          usuario_id: string
+        }
+        Update: {
+          id?: string
+          lida_em?: string
+          notificacao_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacao_leituras_notificacao_id_fkey"
+            columns: ["notificacao_id"]
+            isOneToOne: false
+            referencedRelation: "notificacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notificacoes: {
+        Row: {
+          created_at: string
+          destinatario_filtro: Json | null
+          destinatario_tipo: string
+          id: string
+          mensagem: string
+          professor_id: string
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          created_at?: string
+          destinatario_filtro?: Json | null
+          destinatario_tipo?: string
+          id?: string
+          mensagem: string
+          professor_id: string
+          tipo?: string
+          titulo: string
+        }
+        Update: {
+          created_at?: string
+          destinatario_filtro?: Json | null
+          destinatario_tipo?: string
+          id?: string
+          mensagem?: string
+          professor_id?: string
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: []
+      }
       presencas: {
         Row: {
           aluno_id: string

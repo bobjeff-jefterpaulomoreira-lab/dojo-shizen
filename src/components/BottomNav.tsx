@@ -12,7 +12,7 @@ const BottomNav = ({ role }: BottomNavProps) => {
   const alunoItems = [
     { icon: Home, label: "Início", path: "/dashboard" },
     { icon: TrendingUp, label: "Evolução", path: "/evolucao" },
-    { icon: Bell, label: "Avisos", path: "/comunicados" },
+    { icon: Bell, label: "Notificações", path: "/notificacoes" },
     { icon: User, label: "Perfil", path: "/perfil" },
   ];
 

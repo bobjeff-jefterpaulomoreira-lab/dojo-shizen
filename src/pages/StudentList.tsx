@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import { Search, UserPlus, Pencil, Trash2, X, Check } from "lucide-react";
+import { Search, UserPlus, Pencil, Trash2, X, Check, ArrowRightLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -55,6 +55,11 @@ const StudentList = () => {
   const [editUnidade, setEditUnidade] = useState("");
   const [editProgresso, setEditProgresso] = useState(0);
   const [saving, setSaving] = useState(false);
+
+  // Transfer state
+  const [transferDialog, setTransferDialog] = useState(false);
+  const [transferAluno, setTransferAluno] = useState<Aluno | null>(null);
+  const [transferUnidade, setTransferUnidade] = useState("");
 
   const fetchData = async () => {
     if (!usuario) return;
@@ -123,6 +128,30 @@ const StudentList = () => {
       toast.error("Erro ao excluir: " + error.message);
     } else {
       toast.success("Aluno excluído.");
+      fetchData();
+    }
+  };
+
+  const openTransfer = (a: Aluno) => {
+    setTransferAluno(a);
+    setTransferUnidade(a.unidade_id);
+    setTransferDialog(true);
+  };
+
+  const handleTransfer = async () => {
+    if (!transferAluno || !transferUnidade || transferUnidade === transferAluno.unidade_id) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("usuarios")
+      .update({ unidade_id: transferUnidade })
+      .eq("id", transferAluno.id);
+    setSaving(false);
+    if (error) {
+      toast.error("Erro ao transferir: " + error.message);
+    } else {
+      const destNome = unidades.find((u) => u.id === transferUnidade)?.nome || "";
+      toast.success(`${transferAluno.nome} transferido para Dojo ${destNome}!`);
+      setTransferDialog(false);
       fetchData();
     }
   };
@@ -237,8 +266,15 @@ const StudentList = () => {
                       />
                       <span className="text-xs text-muted-foreground font-medium">{a.progresso_faixa}%</span>
                       <button
+                        onClick={() => openTransfer(a)}
+                        className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+                        title="Transferir de academia"
+                      >
+                        <ArrowRightLeft size={14} />
+                      </button>
+                      <button
                         onClick={() => openEdit(a)}
-                        className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground ml-1"
+                        className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground ml-0.5"
                       >
                         <Pencil size={14} />
                       </button>
@@ -318,6 +354,46 @@ const StudentList = () => {
               className="dojo-btn w-full text-sm"
             >
               {saving ? "Salvando..." : "Salvar Alterações"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Transfer Dialog */}
+      <Dialog open={transferDialog} onOpenChange={(open) => { if (!open) setTransferDialog(false); }}>
+        <DialogContent className="sm:max-w-md bg-background">
+          <DialogHeader>
+            <DialogTitle className="font-serif flex items-center gap-2">
+              <ArrowRightLeft size={18} />
+              Transferir Aluno
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="dojo-card">
+              <p className="font-serif font-bold text-foreground text-sm">{transferAluno?.nome}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Atualmente: Dojo {getUnidadeNome(transferAluno?.unidade_id || "")}
+              </p>
+            </div>
+            <div>
+              <Label>Nova Academia (Destino)</Label>
+              <Select value={transferUnidade} onValueChange={setTransferUnidade}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {unidades.filter((u) => u.id !== transferAluno?.unidade_id).map((u) => (
+                    <SelectItem key={u.id} value={u.id}>Dojo {u.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <button
+              onClick={handleTransfer}
+              disabled={saving || !transferUnidade || transferUnidade === transferAluno?.unidade_id}
+              className="dojo-btn w-full text-sm disabled:opacity-50"
+            >
+              {saving ? "Transferindo..." : "Confirmar Transferência"}
             </button>
           </div>
         </DialogContent>
