@@ -266,8 +266,15 @@ const StudentList = () => {
                       />
                       <span className="text-xs text-muted-foreground font-medium">{a.progresso_faixa}%</span>
                       <button
+                        onClick={() => openTransfer(a)}
+                        className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+                        title="Transferir de academia"
+                      >
+                        <ArrowRightLeft size={14} />
+                      </button>
+                      <button
                         onClick={() => openEdit(a)}
-                        className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground ml-1"
+                        className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground ml-0.5"
                       >
                         <Pencil size={14} />
                       </button>
