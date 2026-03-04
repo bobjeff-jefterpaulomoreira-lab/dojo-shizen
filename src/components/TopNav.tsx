@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import shizenLogo from "@/assets/shizen-logo.png";
+import NotificationBell from "@/components/NotificationBell";
 import { LogOut, Home, QrCode, Users, Bell, Calendar, ClipboardCheck } from "lucide-react";
 
 const TopNav = () => {
@@ -63,8 +64,9 @@ const TopNav = () => {
           })}
         </div>
 
-        {/* Right: User + Logout */}
-        <div className="flex items-center gap-3">
+        {/* Right: Bell + User + Logout */}
+        <div className="flex items-center gap-2">
+          <NotificationBell />
           <div className="text-right">
             <p className="text-primary-foreground text-sm font-medium">{usuario?.nome}</p>
             <p className="text-primary text-[10px] font-bold">{usuario?.faixa}</p>

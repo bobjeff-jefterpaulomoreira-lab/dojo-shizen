@@ -82,8 +82,10 @@ const App = () => (
             <Route path="/sensei/relatorio" element={<ProtectedRoute requiredRole="professor"><AttendanceReport /></ProtectedRoute>} />
             <Route path="/sensei/comunicados" element={<ProtectedRoute requiredRole="professor"><Comunicados /></ProtectedRoute>} />
             <Route path="/sensei/calendario" element={<ProtectedRoute requiredRole="professor"><Calendario /></ProtectedRoute>} />
+            <Route path="/sensei/notificacoes" element={<ProtectedRoute requiredRole="professor"><Notificacoes /></ProtectedRoute>} />
             <Route path="/comunicados" element={<ProtectedRoute requiredRole="aluno"><Comunicados /></ProtectedRoute>} />
             <Route path="/calendario" element={<ProtectedRoute requiredRole="aluno"><Calendario /></ProtectedRoute>} />
+            <Route path="/notificacoes" element={<ProtectedRoute requiredRole="aluno"><NotificacoesAluno /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
