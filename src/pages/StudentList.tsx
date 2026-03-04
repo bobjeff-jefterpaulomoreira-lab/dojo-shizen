@@ -56,6 +56,11 @@ const StudentList = () => {
   const [editProgresso, setEditProgresso] = useState(0);
   const [saving, setSaving] = useState(false);
 
+  // Transfer state
+  const [transferDialog, setTransferDialog] = useState(false);
+  const [transferAluno, setTransferAluno] = useState<Aluno | null>(null);
+  const [transferUnidade, setTransferUnidade] = useState("");
+
   const fetchData = async () => {
     if (!usuario) return;
 
