@@ -132,6 +132,30 @@ const StudentList = () => {
     }
   };
 
+  const openTransfer = (a: Aluno) => {
+    setTransferAluno(a);
+    setTransferUnidade(a.unidade_id);
+    setTransferDialog(true);
+  };
+
+  const handleTransfer = async () => {
+    if (!transferAluno || !transferUnidade || transferUnidade === transferAluno.unidade_id) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("usuarios")
+      .update({ unidade_id: transferUnidade })
+      .eq("id", transferAluno.id);
+    setSaving(false);
+    if (error) {
+      toast.error("Erro ao transferir: " + error.message);
+    } else {
+      const destNome = unidades.find((u) => u.id === transferUnidade)?.nome || "";
+      toast.success(`${transferAluno.nome} transferido para Dojo ${destNome}!`);
+      setTransferDialog(false);
+      fetchData();
+    }
+  };
+
   return (
     <MobileLayout showBrush={false} showNav={true} fullWidth={true}>
       <PageHeader title="Alunos" showBack={true} />
