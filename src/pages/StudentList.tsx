@@ -160,7 +160,7 @@ const StudentList = () => {
     <MobileLayout showBrush={false} showNav={true} fullWidth={true}>
       <PageHeader title="Alunos" showBack={true} />
 
-      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
+      <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
         <div className="px-4 pt-4 space-y-3">
           {/* Unit tabs */}
           <div className="flex gap-2">

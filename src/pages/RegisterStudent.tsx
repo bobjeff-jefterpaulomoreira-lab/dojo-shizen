@@ -69,7 +69,7 @@ const RegisterStudent = () => {
     <MobileLayout showBrush={false} showNav={true} fullWidth={true}>
       <PageHeader title="Cadastrar Aluno" showBack={true} />
 
-      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
+      <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
         <form onSubmit={handleSubmit} className="px-5 pt-5 space-y-4">
           <div>
             <label className="text-xs font-bold text-foreground mb-1 block">Nome completo</label>

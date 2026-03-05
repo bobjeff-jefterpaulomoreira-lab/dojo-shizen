@@ -52,7 +52,7 @@ const AttendanceReport = () => {
     <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Relatório de Presença" showBack={true} />
 
-      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
+      <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
         {/* Month navigation */}
         <div className="flex items-center justify-between px-5 py-4">
           <button onClick={() => changeMonth(-1)} className="p-1.5 rounded-lg hover:bg-muted">

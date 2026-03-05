@@ -19,7 +19,7 @@ const Profile = () => {
     <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Perfil" showBack={false} />
 
-      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
+      <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
         <div className="px-5 pt-5">
           {/* Avatar area */}
           <div className="flex flex-col items-center mb-6">
