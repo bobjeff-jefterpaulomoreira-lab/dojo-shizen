@@ -4,7 +4,7 @@ import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 
 import shizenLogo from "@/assets/shizen-logo.png";
-import { LogOut } from "lucide-react";
+import { LogOut, FileText } from "lucide-react";
 
 const Profile = () => {
   const { usuario, signOut } = useAuth();
@@ -46,7 +46,17 @@ const Profile = () => {
             <p className="text-[10px] text-muted-foreground mt-1 text-right">{usuario?.progresso_faixa || 0}%</p>
           </div>
 
-          <button onClick={handleSignOut} className="dojo-btn w-full mt-4">
+          {usuario?.role === "aluno" && (
+            <button
+              onClick={() => navigate("/documentos")}
+              className="dojo-card w-full flex items-center gap-3 py-3 px-4 mb-3"
+            >
+              <FileText size={18} className="text-primary" />
+              <span className="font-medium text-foreground text-sm">Meus Documentos</span>
+            </button>
+          )}
+
+          <button onClick={handleSignOut} className="dojo-btn w-full mt-1">
             <LogOut size={18} />
             Sair
           </button>

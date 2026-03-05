@@ -136,6 +136,33 @@ export type Database = {
         }
         Relationships: []
       }
+      documentos: {
+        Row: {
+          arquivo_url: string
+          created_at: string
+          id: string
+          nome: string
+          tipo: string
+          usuario_id: string
+        }
+        Insert: {
+          arquivo_url: string
+          created_at?: string
+          id?: string
+          nome: string
+          tipo?: string
+          usuario_id: string
+        }
+        Update: {
+          arquivo_url?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          tipo?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       notificacao_leituras: {
         Row: {
           id: string

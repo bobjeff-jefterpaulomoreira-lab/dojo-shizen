@@ -19,6 +19,7 @@ import Calendario from "./pages/Calendario";
 import Profile from "./pages/Profile";
 import Notificacoes from "./pages/Notificacoes";
 import NotificacoesAluno from "./pages/NotificacoesAluno";
+import MeusDocumentos from "./pages/MeusDocumentos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -86,6 +87,7 @@ const App = () => (
             <Route path="/comunicados" element={<ProtectedRoute requiredRole="aluno"><Comunicados /></ProtectedRoute>} />
             <Route path="/calendario" element={<ProtectedRoute requiredRole="aluno"><Calendario /></ProtectedRoute>} />
             <Route path="/notificacoes" element={<ProtectedRoute requiredRole="aluno"><NotificacoesAluno /></ProtectedRoute>} />
+            <Route path="/documentos" element={<ProtectedRoute requiredRole="aluno"><MeusDocumentos /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
