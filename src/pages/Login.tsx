@@ -80,7 +80,7 @@ const Login = () => {
 
       {/* Brush strokes at bottom */}
       <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
-        <img src={brushRedBottom} alt="" className="w-full h-36 object-cover object-bottom opacity-80" />
+        <img src={brushRedBottom} alt="" className="w-full h-16 object-cover object-bottom opacity-50" />
       </div>
     </MobileLayout>
   );
