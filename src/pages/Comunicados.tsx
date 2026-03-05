@@ -175,7 +175,7 @@ const Comunicados = () => {
     <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Comunicados do Dojo" subtitle="Fique por dentro dos eventos e avisos" showBack={true} />
 
-      <div className="flex-1 overflow-y-auto pb-20" style={{ backgroundColor: "hsl(var(--dojo-paper))" }}>
+      <div className="flex-1 overflow-y-auto pb-24" style={{ backgroundColor: "hsl(var(--dojo-paper))" }}>
         <div className="px-4 md:px-8 pt-4 max-w-3xl mx-auto">
           {/* Novo Comunicado Button */}
           {isProfessor && (

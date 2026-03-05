@@ -61,7 +61,7 @@ const Evolution = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-20 md:pb-10 bg-dojo-paper -mt-6 rounded-t-3xl relative z-10">
+      <div className="flex-1 overflow-y-auto pb-24 md:pb-10 bg-dojo-paper -mt-6 rounded-t-3xl relative z-10">
         <div className="px-5 pt-6 pb-4 max-w-3xl mx-auto">
           <h1 className="text-xl font-serif font-bold text-foreground mb-1">Evolução</h1>
           <h2 className="text-sm text-muted-foreground mb-5">Técnicas da Faixa</h2>

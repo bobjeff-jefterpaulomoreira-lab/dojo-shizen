@@ -26,7 +26,7 @@ const Login = () => {
 
   return (
     <MobileLayout bgImage={karatekaBack} showBrush={false} darkOverlay={true}>
-      <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
+      <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 pb-24">
         {/* Shizen Logo */}
         <div className="w-36 h-36 mb-4 animate-fade-in">
           <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg" />
@@ -80,7 +80,7 @@ const Login = () => {
 
       {/* Brush strokes at bottom */}
       <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
-        <img src={brushRedBottom} alt="" className="w-full h-36 object-cover object-bottom opacity-80" />
+        <img src={brushRedBottom} alt="" className="w-full h-16 object-cover object-bottom opacity-50" />
       </div>
     </MobileLayout>
   );

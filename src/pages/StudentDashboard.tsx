@@ -100,7 +100,7 @@ const StudentDashboard = () => {
       </div>
 
       {/* Content area */}
-      <div className="flex-1 overflow-y-auto pb-20 md:pb-10" style={{ backgroundColor: "hsl(0, 0%, 15%)" }}>
+      <div className="flex-1 overflow-y-auto pb-24 md:pb-10" style={{ backgroundColor: "hsl(0, 0%, 15%)" }}>
         <div className="px-5 pt-5 pb-6 max-w-3xl mx-auto space-y-5">
 
           {/* Quick Actions */}
