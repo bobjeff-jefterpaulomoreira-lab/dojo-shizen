@@ -164,7 +164,7 @@ const Calendario = () => {
     <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Calendário" subtitle="Treinos e Eventos" showBack={true} />
 
-      <div className="flex-1 overflow-y-auto pb-20 bg-dojo-paper">
+      <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
         <div className="px-3 pt-4">
           <div className="dojo-card p-2">
             <CalendarUI

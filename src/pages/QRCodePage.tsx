@@ -40,7 +40,7 @@ const QRCodePage = () => {
     <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Registrar Presença" showBack={true} />
 
-      <div className="flex-1 bg-dojo-paper px-5 py-6">
+      <div className="flex-1 bg-dojo-paper px-5 py-6 pb-24">
         <div className="dojo-card p-6 flex flex-col items-center gap-5 animate-fade-in">
           {token ? (
             <div className="bg-card p-3 rounded-xl border border-border">

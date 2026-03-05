@@ -248,7 +248,7 @@ const Assessment = () => {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 overflow-y-auto pb-20 md:pb-4">
+        <div className="flex-1 overflow-y-auto pb-24 md:pb-4">
           <div className="p-5">
             {/* Header row */}
             <div className="flex items-center justify-between mb-4">
