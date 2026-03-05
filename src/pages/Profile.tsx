@@ -4,7 +4,7 @@ import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 
 import shizenLogo from "@/assets/shizen-logo.png";
-import { LogOut } from "lucide-react";
+import { LogOut, FileText } from "lucide-react";
 
 const Profile = () => {
   const { usuario, signOut } = useAuth();
