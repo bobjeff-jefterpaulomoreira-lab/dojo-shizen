@@ -19,6 +19,7 @@ import Calendario from "./pages/Calendario";
 import Profile from "./pages/Profile";
 import Notificacoes from "./pages/Notificacoes";
 import NotificacoesAluno from "./pages/NotificacoesAluno";
+import MeusDocumentos from "./pages/MeusDocumentos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
