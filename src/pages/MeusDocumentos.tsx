@@ -16,7 +16,7 @@ interface Documento {
 }
 
 const MeusDocumentos = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [carteirinha, setCarteirinha] = useState<Documento | null>(null);
   const [certificados, setCertificados] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +39,13 @@ const MeusDocumentos = () => {
   };
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     fetchDocumentos();
-  }, [user]);
+  }, [user, authLoading]);
 
   const uploadFile = async (file: File, tipo: "carteirinha" | "certificado") => {
     if (!user) return;
