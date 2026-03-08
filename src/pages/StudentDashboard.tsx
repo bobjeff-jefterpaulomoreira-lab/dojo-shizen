@@ -135,7 +135,12 @@ const StudentDashboard = () => {
             </h2>
             <div className="space-y-2">
               {comunicados && comunicados.length > 0 ? comunicados.map((c) => (
-                <div key={c.id} className="rounded-lg px-4 py-3" style={{ backgroundColor: "hsla(0, 0%, 100%, 0.1)" }}>
+                <div
+                  key={c.id}
+                  className="rounded-lg px-4 py-3 cursor-pointer hover:bg-white/20 active:bg-white/25 transition-colors"
+                  style={{ backgroundColor: "hsla(0, 0%, 100%, 0.1)" }}
+                  onClick={() => navigate("/comunicados")}
+                >
                   <p className="text-primary-foreground text-sm font-medium truncate">{c.titulo}</p>
                   <p className="text-primary-foreground/50 text-xs mt-0.5">
                     {format(new Date(c.created_at), "dd/MM/yyyy", { locale: ptBR })}
