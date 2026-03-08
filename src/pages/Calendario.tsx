@@ -26,8 +26,8 @@ type EventItem = {
 const typeConfig = {
   treino: { label: "Treino", icon: Dumbbell, color: "bg-dojo-green text-white", dotColor: "bg-dojo-green" },
   evento: { label: "Evento", icon: CalendarDays, color: "bg-blue-500 text-white", dotColor: "bg-blue-500" },
-  aviso: { label: "Aviso", icon: Megaphone, color: "bg-destructive text-white", dotColor: "bg-destructive" },
-  avaliacao: { label: "Avaliação", icon: Star, color: "bg-dojo-yellow text-foreground", dotColor: "bg-dojo-yellow" },
+  aviso: { label: "Aviso", icon: Megaphone, color: "bg-dojo-yellow text-foreground", dotColor: "bg-dojo-yellow" },
+  avaliacao: { label: "Avaliação", icon: Star, color: "bg-destructive text-white", dotColor: "bg-destructive" },
 };
 
 const TIPOS = ["Aviso Geral", "Evento", "Avaliação", "Treino Especial"];
