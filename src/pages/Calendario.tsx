@@ -24,10 +24,10 @@ type EventItem = {
 };
 
 const typeConfig = {
-  treino: { label: "Treino", icon: Dumbbell, color: "bg-primary text-primary-foreground" },
-  evento: { label: "Evento", icon: CalendarDays, color: "bg-dojo-green text-primary-foreground" },
-  aviso: { label: "Aviso", icon: Megaphone, color: "bg-dojo-yellow text-foreground" },
-  avaliacao: { label: "Avaliação", icon: Star, color: "bg-dojo-red-status text-primary-foreground" },
+  treino: { label: "Treino", icon: Dumbbell, color: "bg-dojo-green text-white", dotColor: "bg-dojo-green" },
+  evento: { label: "Evento", icon: CalendarDays, color: "bg-blue-500 text-white", dotColor: "bg-blue-500" },
+  aviso: { label: "Aviso", icon: Megaphone, color: "bg-destructive text-white", dotColor: "bg-destructive" },
+  avaliacao: { label: "Avaliação", icon: Star, color: "bg-dojo-yellow text-foreground", dotColor: "bg-dojo-yellow" },
 };
 
 const TIPOS = ["Aviso Geral", "Evento", "Avaliação", "Treino Especial"];
@@ -110,12 +110,16 @@ const Calendario = () => {
   const modifiers = useMemo(() => {
     const hasTreino: Date[] = [];
     const hasEvento: Date[] = [];
+    const hasAviso: Date[] = [];
+    const hasAvaliacao: Date[] = [];
     eventDates.forEach((types, key) => {
       const d = parseISO(key);
       if (types.includes("treino")) hasTreino.push(d);
-      if (types.some((t) => t !== "treino")) hasEvento.push(d);
+      if (types.includes("evento")) hasEvento.push(d);
+      if (types.includes("aviso")) hasAviso.push(d);
+      if (types.includes("avaliacao")) hasAvaliacao.push(d);
     });
-    return { hasTreino, hasEvento };
+    return { hasTreino, hasEvento, hasAviso, hasAvaliacao };
   }, [eventDates]);
 
   const handleDayClick = (day: Date) => {
@@ -179,6 +183,8 @@ const Calendario = () => {
               modifiersClassNames={{
                 hasTreino: "calendar-dot-treino",
                 hasEvento: "calendar-dot-evento",
+                hasAviso: "calendar-dot-aviso",
+                hasAvaliacao: "calendar-dot-avaliacao",
               }}
             />
           </div>

@@ -123,20 +123,45 @@
     background-color: hsl(var(--primary));
   }
 
-  /* Calendar event dots */
+  /* Calendar event dots - each type gets a unique color */
+  .calendar-dot-treino,
+  .calendar-dot-evento,
+  .calendar-dot-aviso,
+  .calendar-dot-avaliacao {
+    @apply relative;
+  }
+
   .calendar-dot-treino::after,
-  .calendar-dot-evento::after {
+  .calendar-dot-evento::after,
+  .calendar-dot-aviso::after,
+  .calendar-dot-avaliacao::after {
     content: '';
-    @apply absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full;
+    @apply absolute bottom-0.5 w-1.5 h-1.5 rounded-full;
   }
+
+  /* Position dots side by side */
   .calendar-dot-treino::after {
-    background-color: hsl(var(--primary));
+    background-color: hsl(var(--dojo-green));
+    left: calc(50% - 5px);
   }
   .calendar-dot-evento::after {
-    background-color: hsl(var(--dojo-green));
+    background-color: #3b82f6;
+    left: calc(50% - 1.5px);
   }
-  .calendar-dot-treino.calendar-dot-evento::after {
-    @apply w-3;
-    background: linear-gradient(to right, hsl(var(--primary)) 50%, hsl(var(--dojo-green)) 50%);
+  .calendar-dot-aviso::after {
+    background-color: hsl(var(--destructive));
+    left: calc(50% + 2px);
+  }
+  .calendar-dot-avaliacao::after {
+    background-color: hsl(var(--dojo-yellow));
+    left: calc(50% + 5.5px);
+  }
+
+  /* When only one type, center it */
+  .calendar-dot-treino:not(.calendar-dot-evento):not(.calendar-dot-aviso):not(.calendar-dot-avaliacao)::after,
+  .calendar-dot-evento:not(.calendar-dot-treino):not(.calendar-dot-aviso):not(.calendar-dot-avaliacao)::after,
+  .calendar-dot-aviso:not(.calendar-dot-treino):not(.calendar-dot-evento):not(.calendar-dot-avaliacao)::after,
+  .calendar-dot-avaliacao:not(.calendar-dot-treino):not(.calendar-dot-evento):not(.calendar-dot-aviso)::after {
+    left: calc(50% - 3px);
   }
 }
