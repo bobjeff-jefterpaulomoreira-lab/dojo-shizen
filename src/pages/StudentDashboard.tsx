@@ -5,7 +5,7 @@ import shizenLogo from "@/assets/shizen-logo.png";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { QrCode, FileText, Bell } from "lucide-react";
+import { QrCode, FileText, Bell, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -53,6 +53,7 @@ const StudentDashboard = () => {
 
   const quickActions = [
     { icon: QrCode, label: "Presença", onClick: () => navigate("/presenca") },
+    { icon: CalendarDays, label: "Calendário", onClick: () => navigate("/calendario") },
     { icon: FileText, label: "Documentos", onClick: () => navigate("/documentos") },
     { icon: Bell, label: "Notificações", badge: unreadCount, onClick: () => navigate("/notificacoes") },
   ];
@@ -104,7 +105,7 @@ const StudentDashboard = () => {
         <div className="px-5 pt-5 pb-6 max-w-3xl mx-auto space-y-5">
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-4 gap-3">
             {quickActions.map((action) => (
               <button
                 key={action.label}
