@@ -110,12 +110,16 @@ const Calendario = () => {
   const modifiers = useMemo(() => {
     const hasTreino: Date[] = [];
     const hasEvento: Date[] = [];
+    const hasAviso: Date[] = [];
+    const hasAvaliacao: Date[] = [];
     eventDates.forEach((types, key) => {
       const d = parseISO(key);
       if (types.includes("treino")) hasTreino.push(d);
-      if (types.some((t) => t !== "treino")) hasEvento.push(d);
+      if (types.includes("evento")) hasEvento.push(d);
+      if (types.includes("aviso")) hasAviso.push(d);
+      if (types.includes("avaliacao")) hasAvaliacao.push(d);
     });
-    return { hasTreino, hasEvento };
+    return { hasTreino, hasEvento, hasAviso, hasAvaliacao };
   }, [eventDates]);
 
   const handleDayClick = (day: Date) => {
