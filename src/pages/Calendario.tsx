@@ -183,6 +183,8 @@ const Calendario = () => {
               modifiersClassNames={{
                 hasTreino: "calendar-dot-treino",
                 hasEvento: "calendar-dot-evento",
+                hasAviso: "calendar-dot-aviso",
+                hasAvaliacao: "calendar-dot-avaliacao",
               }}
             />
           </div>
