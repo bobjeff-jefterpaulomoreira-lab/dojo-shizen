@@ -169,8 +169,8 @@ const Calendario = () => {
       <PageHeader title="Calendário" subtitle="Treinos e Eventos" showBack={true} />
 
       <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
-        <div className="px-3 pt-4">
-          <div className="dojo-card p-2">
+        <div className="px-2 pt-3">
+          <div className="dojo-card p-1">
             <CalendarUI
               mode="single"
               selected={selectedDate}
@@ -178,7 +178,7 @@ const Calendario = () => {
               month={month}
               onMonthChange={setMonth}
               locale={ptBR}
-              className="p-2 pointer-events-auto w-full"
+              className="p-1 pointer-events-auto w-full calendar-with-dots"
               modifiers={modifiers}
               modifiersClassNames={{
                 hasTreino: "calendar-dot-treino",
@@ -191,10 +191,10 @@ const Calendario = () => {
         </div>
 
         {/* Legend */}
-        <div className="px-5 pt-3 flex gap-3 flex-wrap">
+        <div className="px-4 pt-2 flex gap-3 flex-wrap">
           {Object.entries(typeConfig).map(([key, cfg]) => (
             <div key={key} className="flex items-center gap-1.5">
-              <span className={cn("w-2.5 h-2.5 rounded-full", cfg.color)} />
+              <span className={cn("w-2.5 h-2.5 rounded-full", cfg.dotColor)} />
               <span className="text-xs text-muted-foreground">{cfg.label}</span>
             </div>
           ))}
