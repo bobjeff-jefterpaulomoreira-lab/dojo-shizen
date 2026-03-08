@@ -169,13 +169,23 @@ const Calendario = () => {
               month={month}
               onMonthChange={setMonth}
               locale={ptBR}
-              className="p-1 pointer-events-auto w-full calendar-with-dots"
-              modifiers={modifiers}
-              modifiersClassNames={{
-                hasTreino: "calendar-dot-treino",
-                hasEvento: "calendar-dot-evento",
-                hasAviso: "calendar-dot-aviso",
-                hasAvaliacao: "calendar-dot-avaliacao",
+              className="p-1 pointer-events-auto w-full"
+              components={{
+                DayContent: ({ date }: { date: Date }) => {
+                  const dayTypes = getTypesForDay(date);
+                  return (
+                    <div className="relative flex h-9 w-9 items-center justify-center">
+                      <span>{date.getDate()}</span>
+                      {dayTypes.length > 0 && (
+                        <span className="pointer-events-none absolute bottom-0.5 left-1/2 flex -translate-x-1/2 items-center gap-0.5">
+                          {dayTypes.map((type) => (
+                            <span key={type} className={cn("h-1.5 w-1.5 rounded-full", typeConfig[type].dotColor)} />
+                          ))}
+                        </span>
+                      )}
+                    </div>
+                  );
+                },
               }}
             />
           </div>
