@@ -5,7 +5,7 @@ import shizenLogo from "@/assets/shizen-logo.png";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { QrCode, FileText, Bell } from "lucide-react";
+import { QrCode, FileText, Bell, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
