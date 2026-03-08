@@ -105,7 +105,7 @@ const StudentDashboard = () => {
         <div className="px-5 pt-5 pb-6 max-w-3xl mx-auto space-y-5">
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-4 gap-3">
             {quickActions.map((action) => (
               <button
                 key={action.label}
