@@ -107,20 +107,11 @@ const Calendario = () => {
 
   const selectedEvents = events.filter((e) => isSameDay(e.date, selectedDate));
 
-  const modifiers = useMemo(() => {
-    const hasTreino: Date[] = [];
-    const hasEvento: Date[] = [];
-    const hasAviso: Date[] = [];
-    const hasAvaliacao: Date[] = [];
-    eventDates.forEach((types, key) => {
-      const d = parseISO(key);
-      if (types.includes("treino")) hasTreino.push(d);
-      if (types.includes("evento")) hasEvento.push(d);
-      if (types.includes("aviso")) hasAviso.push(d);
-      if (types.includes("avaliacao")) hasAvaliacao.push(d);
-    });
-    return { hasTreino, hasEvento, hasAviso, hasAvaliacao };
-  }, [eventDates]);
+  const getTypesForDay = (day: Date) => {
+    const key = format(day, "yyyy-MM-dd");
+    const types = eventDates.get(key) ?? [];
+    return Array.from(new Set(types));
+  };
 
   const handleDayClick = (day: Date) => {
     setSelectedDate(day);
@@ -178,13 +169,23 @@ const Calendario = () => {
               month={month}
               onMonthChange={setMonth}
               locale={ptBR}
-              className="p-1 pointer-events-auto w-full calendar-with-dots"
-              modifiers={modifiers}
-              modifiersClassNames={{
-                hasTreino: "calendar-dot-treino",
-                hasEvento: "calendar-dot-evento",
-                hasAviso: "calendar-dot-aviso",
-                hasAvaliacao: "calendar-dot-avaliacao",
+              className="p-1 pointer-events-auto w-full"
+              components={{
+                DayContent: ({ date }: { date: Date }) => {
+                  const dayTypes = getTypesForDay(date);
+                  return (
+                    <div className="relative flex h-9 w-9 items-center justify-center">
+                      <span>{date.getDate()}</span>
+                      {dayTypes.length > 0 && (
+                        <span className="pointer-events-none absolute bottom-0.5 left-1/2 flex -translate-x-1/2 items-center gap-0.5">
+                          {dayTypes.map((type) => (
+                            <span key={type} className={cn("h-1.5 w-1.5 rounded-full", typeConfig[type].dotColor)} />
+                          ))}
+                        </span>
+                      )}
+                    </div>
+                  );
+                },
               }}
             />
           </div>
