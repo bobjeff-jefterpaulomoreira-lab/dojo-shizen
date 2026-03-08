@@ -26,8 +26,8 @@ type EventItem = {
 const typeConfig = {
   treino: { label: "Treino", icon: Dumbbell, color: "bg-dojo-green text-white", dotColor: "bg-dojo-green" },
   evento: { label: "Evento", icon: CalendarDays, color: "bg-blue-500 text-white", dotColor: "bg-blue-500" },
-  aviso: { label: "Aviso", icon: Megaphone, color: "bg-destructive text-white", dotColor: "bg-destructive" },
-  avaliacao: { label: "Avaliação", icon: Star, color: "bg-dojo-yellow text-foreground", dotColor: "bg-dojo-yellow" },
+  aviso: { label: "Aviso", icon: Megaphone, color: "bg-dojo-yellow text-foreground", dotColor: "bg-dojo-yellow" },
+  avaliacao: { label: "Avaliação", icon: Star, color: "bg-destructive text-white", dotColor: "bg-destructive" },
 };
 
 const TIPOS = ["Aviso Geral", "Evento", "Avaliação", "Treino Especial"];
@@ -169,8 +169,8 @@ const Calendario = () => {
       <PageHeader title="Calendário" subtitle="Treinos e Eventos" showBack={true} />
 
       <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
-        <div className="px-3 pt-4">
-          <div className="dojo-card p-2">
+        <div className="px-2 pt-3">
+          <div className="dojo-card p-1">
             <CalendarUI
               mode="single"
               selected={selectedDate}
@@ -178,7 +178,7 @@ const Calendario = () => {
               month={month}
               onMonthChange={setMonth}
               locale={ptBR}
-              className="p-2 pointer-events-auto w-full"
+              className="p-1 pointer-events-auto w-full calendar-with-dots"
               modifiers={modifiers}
               modifiersClassNames={{
                 hasTreino: "calendar-dot-treino",
@@ -191,10 +191,10 @@ const Calendario = () => {
         </div>
 
         {/* Legend */}
-        <div className="px-5 pt-3 flex gap-3 flex-wrap">
+        <div className="px-4 pt-2 flex gap-3 flex-wrap">
           {Object.entries(typeConfig).map(([key, cfg]) => (
             <div key={key} className="flex items-center gap-1.5">
-              <span className={cn("w-2.5 h-2.5 rounded-full", cfg.color)} />
+              <span className={cn("w-2.5 h-2.5 rounded-full", cfg.dotColor)} />
               <span className="text-xs text-muted-foreground">{cfg.label}</span>
             </div>
           ))}
@@ -214,27 +214,27 @@ const Calendario = () => {
           </div>
 
           {selectedEvents.length === 0 ? (
-            <div className="dojo-card text-center py-8">
-              <CalendarDays size={32} className="mx-auto text-muted-foreground/40 mb-2" />
+            <div className="dojo-card text-center py-6">
+              <CalendarDays size={28} className="mx-auto text-muted-foreground/40 mb-1" />
               <p className="text-muted-foreground text-xs">Nenhum evento neste dia.</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {selectedEvents.map((event) => {
                 const cfg = typeConfig[event.type];
                 const Icon = cfg.icon;
                 return (
-                  <div key={event.id} className="dojo-card flex items-center gap-3 py-3 px-4">
-                    <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", cfg.color)}>
-                      <Icon size={16} />
+                  <div key={event.id} className="dojo-card flex items-center gap-2.5 py-2 px-3">
+                    <div className={cn("w-7 h-7 rounded-md flex items-center justify-center shrink-0", cfg.color)}>
+                      <Icon size={14} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-serif font-bold text-foreground text-sm truncate">{event.title}</p>
-                      <p className="text-muted-foreground text-xs">
+                      <p className="font-serif font-bold text-foreground text-xs truncate">{event.title}</p>
+                      <p className="text-muted-foreground text-[10px]">
                         {format(event.date, "HH:mm") !== "00:00" ? format(event.date, "HH:mm") : cfg.label}
                       </p>
                     </div>
-                    <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full", cfg.color)}>
+                    <span className={cn("text-[9px] font-medium px-1.5 py-0.5 rounded-full", cfg.color)}>
                       {cfg.label}
                     </span>
                   </div>

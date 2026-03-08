@@ -123,12 +123,24 @@
     background-color: hsl(var(--primary));
   }
 
+  /* Calendar with dots - ensure day cells have room for dots */
+  .calendar-with-dots .rdp-cell {
+    @apply relative;
+    height: 2.75rem;
+  }
+
+  .calendar-with-dots .rdp-day {
+    @apply relative;
+    overflow: visible;
+  }
+
   /* Calendar event dots - each type gets a unique color */
   .calendar-dot-treino,
   .calendar-dot-evento,
   .calendar-dot-aviso,
   .calendar-dot-avaliacao {
-    @apply relative;
+    position: relative !important;
+    overflow: visible !important;
   }
 
   .calendar-dot-treino::after,
@@ -136,25 +148,30 @@
   .calendar-dot-aviso::after,
   .calendar-dot-avaliacao::after {
     content: '';
-    @apply absolute bottom-0.5 w-1.5 h-1.5 rounded-full;
+    position: absolute;
+    bottom: 2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    pointer-events: none;
   }
 
   /* Position dots side by side */
   .calendar-dot-treino::after {
     background-color: hsl(var(--dojo-green));
-    left: calc(50% - 5px);
+    left: calc(50% - 6px);
   }
   .calendar-dot-evento::after {
     background-color: #3b82f6;
-    left: calc(50% - 1.5px);
+    left: calc(50% - 2px);
   }
   .calendar-dot-aviso::after {
-    background-color: hsl(var(--destructive));
+    background-color: hsl(var(--dojo-yellow));
     left: calc(50% + 2px);
   }
   .calendar-dot-avaliacao::after {
-    background-color: hsl(var(--dojo-yellow));
-    left: calc(50% + 5.5px);
+    background-color: hsl(var(--destructive));
+    left: calc(50% + 6px);
   }
 
   /* When only one type, center it */
@@ -162,6 +179,6 @@
   .calendar-dot-evento:not(.calendar-dot-treino):not(.calendar-dot-aviso):not(.calendar-dot-avaliacao)::after,
   .calendar-dot-aviso:not(.calendar-dot-treino):not(.calendar-dot-evento):not(.calendar-dot-avaliacao)::after,
   .calendar-dot-avaliacao:not(.calendar-dot-treino):not(.calendar-dot-evento):not(.calendar-dot-aviso)::after {
-    left: calc(50% - 3px);
+    left: calc(50% - 2.5px);
   }
 }
