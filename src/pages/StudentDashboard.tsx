@@ -53,6 +53,7 @@ const StudentDashboard = () => {
 
   const quickActions = [
     { icon: QrCode, label: "Presença", onClick: () => navigate("/presenca") },
+    { icon: CalendarDays, label: "Calendário", onClick: () => navigate("/calendario") },
     { icon: FileText, label: "Documentos", onClick: () => navigate("/documentos") },
     { icon: Bell, label: "Notificações", badge: unreadCount, onClick: () => navigate("/notificacoes") },
   ];
