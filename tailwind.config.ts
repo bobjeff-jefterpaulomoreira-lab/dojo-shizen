@@ -57,6 +57,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        dojo: {
+          red: "hsl(var(--dojo-red))",
+          "red-hover": "hsl(var(--dojo-red-hover))",
+          green: "hsl(var(--dojo-green))",
+          yellow: "hsl(var(--dojo-yellow))",
+          "red-status": "hsl(var(--dojo-red-status))",
+          offwhite: "hsl(var(--dojo-offwhite))",
+          paper: "hsl(var(--dojo-paper))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
