@@ -90,7 +90,7 @@ const StudentDashboard = () => {
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${usuario?.progresso_faixa || 0}%`,
-                    backgroundColor: "hsl(var(--dojo-red-status))",
+                    backgroundColor: "white",
                   }}
                 />
               </div>
