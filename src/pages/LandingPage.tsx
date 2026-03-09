@@ -260,7 +260,7 @@ const LandingPage = () => {
                 className={`dojo-card p-6 flex flex-col relative ${
                   p.highlight ? "border-2 ring-2 ring-offset-2 scale-[1.02]" : ""
                 }`}
-                style={p.highlight ? { borderColor: "hsl(var(--primary))", ringColor: "hsl(var(--primary))" } : {}}
+                style={p.highlight ? { borderColor: "hsl(var(--primary))" } : {}}
               >
                 {p.highlight && (
                   <div
