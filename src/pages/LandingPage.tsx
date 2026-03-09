@@ -4,6 +4,10 @@ import { useRef } from "react";
 import shizenLogo from "@/assets/shizen-logo.png";
 import karatekaBack from "@/assets/karateka-back.jpg";
 import dojoInterior from "@/assets/dojo-interior.jpg";
+import screenAlunos from "@/assets/screenshots/screen-alunos.jpg";
+import screenQrcode from "@/assets/screenshots/screen-qrcode.jpg";
+import screenRelatorio from "@/assets/screenshots/screen-relatorio.jpg";
+import screenAluno from "@/assets/screenshots/screen-aluno.jpg";
 import {
   QrCode, Users, ClipboardCheck, Bell, Calendar, Shield,
   BarChart3, Smartphone, Zap, CheckCircle2, ArrowRight,
