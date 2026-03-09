@@ -23,6 +23,7 @@ import MeusDocumentos from "./pages/MeusDocumentos";
 import NotFound from "./pages/NotFound";
 import RelatorioAulas from "./pages/RelatorioAulas";
 import Documentacao from "./pages/Documentacao";
+import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient();
 
