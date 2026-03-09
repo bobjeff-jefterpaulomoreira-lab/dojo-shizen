@@ -4,8 +4,8 @@ import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import { useAuth } from "@/lib/auth";
-import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Bell, Calendar, ClipboardCheck, ClipboardList, Clock, Home, LogOut, QrCode, Users } from "lucide-react";
 import shizenLogo from "@/assets/shizen-logo.png";
 
 interface MobileLayoutProps {
@@ -29,7 +29,20 @@ const MobileLayout = ({
 }: MobileLayoutProps) => {
   const { usuario, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const role = usuario?.role === "professor" ? "professor" : "aluno";
+
+  const professorQuickItems = [
+    { icon: Home, label: "Painel", path: "/sensei" },
+    { icon: QrCode, label: "Aula", path: "/sensei/qrcode" },
+    { icon: Users, label: "Alunos", path: "/sensei/alunos" },
+    { icon: ClipboardList, label: "Relatório", path: "/sensei/relatorio" },
+    { icon: ClipboardCheck, label: "Avaliações", path: "/sensei/avaliacao" },
+    { icon: Bell, label: "Comunicados", path: "/sensei/comunicados" },
+    { icon: Calendar, label: "Calendário", path: "/sensei/calendario" },
+    { icon: Clock, label: "Aulas", path: "/sensei/aulas" },
+  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -72,11 +85,36 @@ const MobileLayout = ({
               </button>
             </div>
           </div>
+
+          {/* Sensei quick actions (mobile) */}
+          {role === "professor" && (
+            <div className="px-2 pb-2">
+              <div className="flex items-center gap-2 overflow-x-auto">
+                {professorQuickItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => navigate(item.path)}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                        isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                      }`}
+                    >
+                      <item.icon size={14} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       <div
-        className={`${fullWidth ? "w-full" : "w-full max-w-[430px] md:max-w-full"} min-h-[calc(100vh-3.5rem)] md:min-h-0 relative overflow-hidden flex-1 ${className}`}
+        className={`${fullWidth ? "w-full" : "w-full max-w-[430px] md:max-w-full"} relative overflow-hidden flex-1 min-h-0 ${className}`}
         style={{ position: "relative" }}
       >
         {bgImage && (
@@ -88,7 +126,7 @@ const MobileLayout = ({
         {bgImage && darkOverlay && (
           <div className="absolute inset-0 z-[1]" style={{ backgroundColor: "rgba(0,0,0,0.45)" }} />
         )}
-        <div className="relative z-10 min-h-screen md:min-h-0 flex flex-col flex-1">
+        <div className="relative z-10 flex flex-col flex-1 min-h-0">
           {children}
         </div>
         {showBrush && (
@@ -113,4 +151,5 @@ const MobileLayout = ({
 };
 
 export default MobileLayout;
+
 
