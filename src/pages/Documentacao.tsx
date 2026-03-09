@@ -283,13 +283,26 @@ const Documentacao = () => {
             </div>
           </div>
 
-          {/* Botão imprimir */}
-          <button
-            onClick={handlePrint}
-            className="dojo-btn w-full text-sm print:hidden"
-          >
-            🖨️ Imprimir Documentação
-          </button>
+          {/* Botões */}
+          <div className="space-y-3 print:hidden">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={generating}
+              className="dojo-btn w-full text-sm flex items-center justify-center gap-2"
+            >
+              {generating ? (
+                <><Loader2 size={16} className="animate-spin" /> Gerando PDF...</>
+              ) : (
+                <><Download size={16} /> Baixar PDF</>
+              )}
+            </button>
+            <button
+              onClick={handlePrint}
+              className="dojo-btn w-full text-sm opacity-80"
+            >
+              🖨️ Imprimir Documentação
+            </button>
+          </div>
 
           <p className="text-center text-[10px] text-muted-foreground/50 print:text-foreground">
             押忍 — Dojo Shizen © 2026 — Todos os direitos reservados — Jefter Paulo Moreira
