@@ -117,7 +117,7 @@ const AttendanceReport = () => {
         // Para alunos: continuar como antes
         const { data } = await supabase
           .from("presencas")
-          .select("id, data, presente")
+          .select("id, data, presente, hora_entrada, hora_saida")
           .eq("aluno_id", usuario.id)
           .gte("data", startOfMonth)
           .lte("data", endOfMonth)
