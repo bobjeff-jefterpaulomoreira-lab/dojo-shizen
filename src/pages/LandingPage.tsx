@@ -417,7 +417,7 @@ const LandingPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <motion.a
-              href="https://wa.me/5500000000000?text=Olá! Quero saber mais sobre o Dojo Shizen"
+              href="https://wa.me/5531971310564?text=Olá! Quero saber mais sobre o Dojo Shizen"
               target="_blank"
               rel="noopener noreferrer"
               className="dojo-btn text-base px-8 py-4 rounded-xl"
