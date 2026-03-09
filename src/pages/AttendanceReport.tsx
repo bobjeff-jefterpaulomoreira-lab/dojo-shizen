@@ -132,6 +132,21 @@ const AttendanceReport = () => {
   const isAluno = usuario?.role === "aluno";
   const isProfessor = usuario?.role === "professor";
 
+  const formatTime = (iso?: string | null) => {
+    if (!iso) return null;
+    return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const calcDuration = (entrada?: string | null, saida?: string | null) => {
+    if (!entrada || !saida) return null;
+    const diff = Math.round((new Date(saida).getTime() - new Date(entrada).getTime()) / 60000);
+    if (diff < 0) return null;
+    if (diff < 60) return `${diff}min`;
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    return m > 0 ? `${h}h ${m}min` : `${h}h`;
+  };
+
   return (
     <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
       <PageHeader title="Relatório de Presença" showBack={true} />
