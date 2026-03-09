@@ -343,6 +343,55 @@ const QRCodePage = () => {
           </div>
         </div>
 
+        {/* Lista de Alunos Presentes */}
+        {aulaId && (
+          <div className="dojo-card mt-5 p-5 animate-fade-in">
+            <div className="flex items-center gap-2 mb-4">
+              <Users size={18} className="text-primary" />
+              <h3 className="font-serif font-bold text-foreground text-base">
+                Alunos Presentes
+              </h3>
+              <span className="ml-auto bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">
+                {presencas.length}
+              </span>
+            </div>
+
+            {presencas.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhum aluno registrou presença ainda
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {presencas.map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {p.aluno?.nome || "Aluno"}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {p.aluno?.faixa || "—"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] shrink-0">
+                      <div className="flex items-center gap-1 text-green-700">
+                        <LogIn size={12} />
+                        <span>{formatTime(p.hora_entrada)}</span>
+                      </div>
+                      <div className={`flex items-center gap-1 ${p.hora_saida ? "text-red-600" : "text-muted-foreground/40"}`}>
+                        <LogOut size={12} />
+                        <span>{formatTime(p.hora_saida)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Karateka image */}
         <div className="mt-5 rounded-2xl overflow-hidden shadow-md">
           <img src={karatekaDojo} alt="Karateka" className="w-full h-48 object-cover" />
