@@ -5,7 +5,7 @@ import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-import { Check, X, ChevronLeft, ChevronRight, ChevronDown, User, Calendar } from "lucide-react";
+import { Check, X, ChevronLeft, ChevronRight, ChevronDown, User, Calendar, Clock, LogIn, LogOut } from "lucide-react";
 
 interface Presenca {
   id: string;
@@ -13,6 +13,8 @@ interface Presenca {
   presente: boolean;
   aluno_nome?: string;
   aluno_faixa?: string;
+  hora_entrada?: string | null;
+  hora_saida?: string | null;
 }
 
 interface AlunoStats {
