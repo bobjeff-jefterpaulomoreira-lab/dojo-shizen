@@ -7,8 +7,16 @@ import QRCode from "react-qr-code";
 import karatekaDojo from "@/assets/karateka-dojo.jpg";
 import shizenLogo from "@/assets/shizen-logo.png";
 import { Button } from "@/components/ui/button";
-import { X, Play, Printer } from "lucide-react";
+import { X, Play, Printer, LogIn, LogOut, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+
+interface PresencaAluno {
+  id: string;
+  hora_entrada: string | null;
+  hora_saida: string | null;
+  aluno: { nome: string; faixa: string } | null;
+}
 
 const QRCodePage = () => {
   const { usuario } = useAuth();
@@ -18,6 +26,57 @@ const QRCodePage = () => {
   const [aulaAtiva, setAulaAtiva] = useState(true);
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
+
+  // Realtime student attendance list
+  const { data: presencas = [], refetch: refetchPresencas } = useQuery({
+    queryKey: ["presencas-aula", aulaId],
+    enabled: !!aulaId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("presencas")
+        .select("id, hora_entrada, hora_saida, aluno_id")
+        .eq("aula_id", aulaId)
+        .order("hora_entrada", { ascending: true });
+      if (error) throw error;
+      // Fetch student names
+      if (!data || data.length === 0) return [] as PresencaAluno[];
+      const alunoIds = data.map(p => p.aluno_id);
+      const { data: alunos } = await supabase
+        .from("usuarios")
+        .select("id, nome, faixa")
+        .in("id", alunoIds);
+      const alunoMap = new Map((alunos || []).map(a => [a.id, a]));
+      return data.map(p => ({
+        id: p.id,
+        hora_entrada: p.hora_entrada,
+        hora_saida: p.hora_saida,
+        aluno: alunoMap.get(p.aluno_id) || null,
+      })) as PresencaAluno[];
+    },
+    refetchInterval: 10000, // Refresh every 10s for realtime feel
+  });
+
+  // Subscribe to realtime changes on presencas for this aula
+  useEffect(() => {
+    if (!aulaId) return;
+    const channel = supabase
+      .channel(`presencas-aula-${aulaId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'presencas',
+        filter: `aula_id=eq.${aulaId}`,
+      }, () => {
+        refetchPresencas();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [aulaId, refetchPresencas]);
+
+  const formatTime = (iso: string | null) => {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  };
 
   const imprimirQRCode = () => {
     if (!token || !aulaAtiva) return;
@@ -283,6 +342,55 @@ const QRCodePage = () => {
             )}
           </div>
         </div>
+
+        {/* Lista de Alunos Presentes */}
+        {aulaId && (
+          <div className="dojo-card mt-5 p-5 animate-fade-in">
+            <div className="flex items-center gap-2 mb-4">
+              <Users size={18} className="text-primary" />
+              <h3 className="font-serif font-bold text-foreground text-base">
+                Alunos Presentes
+              </h3>
+              <span className="ml-auto bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">
+                {presencas.length}
+              </span>
+            </div>
+
+            {presencas.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhum aluno registrou presença ainda
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {presencas.map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {p.aluno?.nome || "Aluno"}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {p.aluno?.faixa || "—"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] shrink-0">
+                      <div className="flex items-center gap-1 text-green-700">
+                        <LogIn size={12} />
+                        <span>{formatTime(p.hora_entrada)}</span>
+                      </div>
+                      <div className={`flex items-center gap-1 ${p.hora_saida ? "text-red-600" : "text-muted-foreground/40"}`}>
+                        <LogOut size={12} />
+                        <span>{formatTime(p.hora_saida)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Karateka image */}
         <div className="mt-5 rounded-2xl overflow-hidden shadow-md">
