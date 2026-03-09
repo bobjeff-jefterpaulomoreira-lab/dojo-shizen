@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import QRCode from "react-qr-code";
 import karatekaDojo from "@/assets/karateka-dojo.jpg";
+import shizenLogo from "@/assets/shizen-logo.png";
 import { Button } from "@/components/ui/button";
-import { X, Play } from "lucide-react";
+import { X, Play, Printer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const QRCodePage = () => {
