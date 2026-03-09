@@ -15,31 +15,42 @@ const ScanQRCode = () => {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const startScanner = async () => {
-    if (!containerRef.current) return;
+  const startScanner = () => {
     setStatus("scanning");
     setMessage("");
-
-    try {
-      const scanner = new Html5Qrcode("qr-reader");
-      scannerRef.current = scanner;
-
-      await scanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 220, height: 220 } },
-        async (decodedText) => {
-          // Stop scanning immediately
-          await scanner.stop();
-          scannerRef.current = null;
-          handleScan(decodedText);
-        },
-        () => {} // ignore errors during scanning
-      );
-    } catch (err: any) {
-      setStatus("error");
-      setMessage("Não foi possível acessar a câmera. Verifique as permissões.");
-    }
   };
+
+  // Start the actual scanner after the DOM element is rendered
+  useEffect(() => {
+    if (status !== "scanning") return;
+
+    const initScanner = async () => {
+      // Small delay to ensure DOM is ready
+      await new Promise((r) => setTimeout(r, 100));
+
+      try {
+        const scanner = new Html5Qrcode("qr-reader");
+        scannerRef.current = scanner;
+
+        await scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 220, height: 220 } },
+          async (decodedText) => {
+            await scanner.stop();
+            scannerRef.current = null;
+            handleScan(decodedText);
+          },
+          () => {}
+        );
+      } catch (err: any) {
+        console.error("Camera error:", err);
+        setStatus("error");
+        setMessage("Não foi possível acessar a câmera. Verifique as permissões.");
+      }
+    };
+
+    initScanner();
+  }, [status]);
 
   const handleScan = async (token: string) => {
     if (!usuario) return;
