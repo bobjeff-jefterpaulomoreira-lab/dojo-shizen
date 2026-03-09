@@ -239,17 +239,28 @@ const QRCodePage = () => {
           )}
 
           {/* Botões de Controle */}
-          <div className="flex gap-3 mt-4">
+          <div className="flex gap-3 mt-4 flex-wrap justify-center">
             {aulaAtiva ? (
-              <Button 
-                onClick={fecharAula}
-                variant="destructive"
-                size="sm"
-                className="gap-2"
-              >
-                <X size={16} />
-                Fechar Aula
-              </Button>
+              <>
+                <Button 
+                  onClick={imprimirQRCode}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Printer size={16} />
+                  Imprimir QR Code
+                </Button>
+                <Button 
+                  onClick={fecharAula}
+                  variant="destructive"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <X size={16} />
+                  Fechar Aula
+                </Button>
+              </>
             ) : (
               <Button 
                 onClick={abrirNovaAula}
