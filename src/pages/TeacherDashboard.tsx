@@ -12,8 +12,9 @@ const TeacherDashboard = () => {
   const buttons = [
     { icon: QrCode, label: "Abrir Aula", subtitle: "(QR Code)", path: "/sensei/qrcode" },
     { icon: Users, label: "Alunos", subtitle: "Gestão", path: "/sensei/alunos" },
-    { icon: ClipboardCheck, label: "Relatório", subtitle: "Presença", path: "/sensei/relatorio" },
-    { icon: Bell, label: "Notificações", subtitle: "Enviar Avisos", path: "/sensei/notificacoes" },
+    { icon: ClipboardCheck, label: "Presença", subtitle: "Relatório", path: "/sensei/relatorio" },
+    { icon: Clock, label: "Aulas", subtitle: "Histórico", path: "/sensei/aulas" },
+    { icon: Bell, label: "Avisos", subtitle: "Notificações", path: "/sensei/notificacoes" },
   ];
 
   return (
