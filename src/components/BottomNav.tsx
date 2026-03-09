@@ -27,7 +27,7 @@ const BottomNav = ({ role }: BottomNavProps) => {
   const items = role === "professor" ? professorItems : alunoItems;
 
   return (
-    <nav className="sticky bottom-0 z-30 border-t border-border bg-card shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+    <nav className="sticky bottom-0 z-30 border-t border-border/20 bg-foreground/90 backdrop-blur-md shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
       <div className="flex items-center justify-around py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         {items.map((item) => {
           const isActive = location.pathname === item.path;
