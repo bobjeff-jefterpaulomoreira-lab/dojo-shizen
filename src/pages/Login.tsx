@@ -28,8 +28,8 @@ const Login = () => {
     <MobileLayout bgImage={karatekaBack} showBrush={false} darkOverlay={true}>
       <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 pb-24">
         {/* Shizen Logo */}
-        <div className="w-36 h-36 mb-4 animate-fade-in">
-          <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg" />
+        <div className="w-36 h-36 mb-4 animate-fade-in rounded-full overflow-hidden bg-black/30 p-1">
+          <img src={shizenLogo} alt="Dojo Shizen" className="w-full h-full object-contain drop-shadow-lg rounded-full" />
         </div>
 
         <h1 className="text-3xl font-serif font-bold text-primary-foreground mb-1 animate-fade-in drop-shadow-md" style={{ animationDelay: "0.1s" }}>
