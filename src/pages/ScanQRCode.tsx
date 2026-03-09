@@ -126,6 +126,7 @@ const ScanQRCode = () => {
       setStatus("error");
       setMessage("Erro inesperado. Tente novamente.");
     }
+  };
 
   // CRITICAL: Start scanner directly in click handler to preserve user gesture context
   const startScanner = async () => {
