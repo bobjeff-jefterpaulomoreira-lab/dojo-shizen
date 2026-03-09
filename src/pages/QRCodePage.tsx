@@ -139,16 +139,30 @@ const QRCodePage = () => {
 
       <div className="flex-1 bg-dojo-paper px-5 py-6 pb-24">
         <div className="dojo-card p-6 flex flex-col items-center gap-5 animate-fade-in">
-          {token ? (
+          {/* Status da Aula */}
+          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+            aulaAtiva 
+              ? "bg-green-100 text-green-800 border border-green-200" 
+              : "bg-red-100 text-red-800 border border-red-200"
+          }`}>
+            {aulaAtiva ? "🟢 Aula Ativa" : "🔴 Aula Encerrada"}
+          </div>
+
+          {/* QR Code */}
+          {token && aulaAtiva ? (
             <div className="bg-card p-3 rounded-xl border border-border">
               <QRCode value={token} size={180} />
             </div>
           ) : (
-            <div className="w-[180px] h-[180px] bg-muted rounded-xl animate-pulse" />
+            <div className="w-[180px] h-[180px] bg-muted rounded-xl flex items-center justify-center">
+              <p className="text-muted-foreground text-sm text-center">
+                {aulaAtiva ? "Carregando..." : "Aula Encerrada"}
+              </p>
+            </div>
           )}
 
           <p className="text-sm text-foreground font-medium text-center">
-            Escaneie para marcar presença
+            {aulaAtiva ? "Escaneie para marcar presença" : "QR Code indisponível"}
           </p>
 
           <div className="text-center">
@@ -156,9 +170,39 @@ const QRCodePage = () => {
             <p className="text-sm text-muted-foreground">{date}</p>
           </div>
 
-          <p className="text-[10px] text-muted-foreground/60">
-            Token válido por 60 minutos
-          </p>
+          {aulaAtiva ? (
+            <p className="text-[10px] text-muted-foreground/60">
+              Token válido por 60 minutos
+            </p>
+          ) : (
+            <p className="text-[10px] text-muted-foreground/60">
+              Aula finalizada pelo sensei
+            </p>
+          )}
+
+          {/* Botões de Controle */}
+          <div className="flex gap-3 mt-4">
+            {aulaAtiva ? (
+              <Button 
+                onClick={fecharAula}
+                variant="destructive"
+                size="sm"
+                className="gap-2"
+              >
+                <X size={16} />
+                Fechar Aula
+              </Button>
+            ) : (
+              <Button 
+                onClick={abrirNovaAula}
+                className="gap-2 bg-primary hover:bg-primary/90"
+                size="sm"
+              >
+                <Play size={16} />
+                Abrir Nova Aula
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Karateka image */}
