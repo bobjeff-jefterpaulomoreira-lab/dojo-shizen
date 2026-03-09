@@ -206,6 +206,27 @@ const ScanQRCode = () => {
               >
                 Abrir Câmera
               </button>
+
+              {/* Manual attendance option */}
+              {aulaAtiva && (
+                <>
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground">ou</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                  <button
+                    onClick={handleManualAttendance}
+                    className="w-full py-3 rounded-xl font-medium text-foreground bg-muted border border-border transition-colors hover:bg-muted/80 flex items-center justify-center gap-2"
+                  >
+                    <Hand size={18} />
+                    Marcar Presença Manualmente
+                  </button>
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    Use se o QR Code não funcionar
+                  </p>
+                </>
+              )}
             </>
           )}
 
