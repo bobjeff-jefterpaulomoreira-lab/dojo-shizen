@@ -7,8 +7,16 @@ import QRCode from "react-qr-code";
 import karatekaDojo from "@/assets/karateka-dojo.jpg";
 import shizenLogo from "@/assets/shizen-logo.png";
 import { Button } from "@/components/ui/button";
-import { X, Play, Printer } from "lucide-react";
+import { X, Play, Printer, LogIn, LogOut, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+
+interface PresencaAluno {
+  id: string;
+  hora_entrada: string | null;
+  hora_saida: string | null;
+  aluno: { nome: string; faixa: string } | null;
+}
 
 const QRCodePage = () => {
   const { usuario } = useAuth();
