@@ -2,7 +2,11 @@ import { ReactNode } from "react";
 import brushRedBottom from "@/assets/brush-red-bottom.png";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
+import NotificationBell from "@/components/NotificationBell";
 import { useAuth } from "@/lib/auth";
+import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
+import shizenLogo from "@/assets/shizen-logo.png";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -23,8 +27,14 @@ const MobileLayout = ({
   showNav = false,
   fullWidth = false,
 }: MobileLayoutProps) => {
-  const { usuario } = useAuth();
+  const { usuario, signOut } = useAuth();
+  const navigate = useNavigate();
   const role = usuario?.role === "professor" ? "professor" : "aluno";
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen bg-muted flex flex-col items-center">
@@ -32,6 +42,36 @@ const MobileLayout = ({
       {showNav && (
         <div className="hidden md:block w-full sticky top-0 z-50">
           <TopNav />
+        </div>
+      )}
+
+      {/* Mobile top header - hidden on desktop */}
+      {showNav && (
+        <div className="md:hidden w-full sticky top-0 z-50 bg-foreground/90 backdrop-blur-md border-b border-border/20">
+          <div className="flex items-center justify-between px-4 h-14">
+            {/* Logo + name */}
+            <div
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => navigate(role === "professor" ? "/sensei" : "/dashboard")}
+            >
+              <img src={shizenLogo} alt="Shizen" className="w-8 h-8 object-contain rounded-full" />
+              <div className="leading-tight">
+                <p className="text-primary-foreground text-sm font-serif font-bold">極真空手</p>
+                <p className="text-primary-foreground/60 text-[10px]">Dojo Shizen</p>
+              </div>
+            </div>
+            {/* Actions */}
+            <div className="flex items-center gap-1">
+              <NotificationBell />
+              <button
+                onClick={handleSignOut}
+                className="p-2 rounded-lg text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
+                title="Sair"
+              >
+                <LogOut size={18} />
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -73,3 +113,4 @@ const MobileLayout = ({
 };
 
 export default MobileLayout;
+

@@ -1,4 +1,4 @@
-import { Home, TrendingUp, ClipboardList, User, Bell } from "lucide-react";
+import { Home, TrendingUp, ClipboardList, User, Bell, QrCode, Calendar, MessageSquare } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface BottomNavProps {
@@ -18,9 +18,10 @@ const BottomNav = ({ role }: BottomNavProps) => {
 
   const professorItems = [
     { icon: Home, label: "Início", path: "/sensei" },
+    { icon: QrCode, label: "Aula", path: "/sensei/qrcode" },
     { icon: ClipboardList, label: "Alunos", path: "/sensei/alunos" },
+    { icon: MessageSquare, label: "Avisos", path: "/sensei/notificacoes" },
     { icon: TrendingUp, label: "Avaliar", path: "/sensei/avaliacao" },
-    { icon: User, label: "Perfil", path: "/perfil" },
   ];
 
   const items = role === "professor" ? professorItems : alunoItems;
@@ -34,12 +35,12 @@ const BottomNav = ({ role }: BottomNavProps) => {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center gap-1 px-4 py-1 transition-colors ${
+              className={`flex flex-col items-center gap-1 px-2 py-1 transition-colors ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
               <item.icon size={22} strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className="text-[11px] font-medium">{item.label}</span>
+              <span className="text-[10px] font-medium">{item.label}</span>
             </button>
           );
         })}
