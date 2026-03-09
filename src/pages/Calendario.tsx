@@ -160,7 +160,7 @@ const Calendario = () => {
       <PageHeader title="Calendário" subtitle="Treinos e Eventos" showBack={true} />
 
       <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
-        <div className="px-2 pt-3">
+        <div className="px-2 pt-3 max-w-lg mx-auto">
           <div className="dojo-card p-1">
             <CalendarUI
               mode="single"
