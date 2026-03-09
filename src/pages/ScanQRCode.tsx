@@ -22,8 +22,9 @@ const ScanQRCode = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("aulas")
-        .select("id, unidade_id")
+        .select("id, unidade_id, status")
         .eq("unidade_id", usuario!.unidade_id)
+        .eq("status", "aberta")
         .gte("expires_at", new Date().toISOString())
         .limit(1)
         .maybeSingle();

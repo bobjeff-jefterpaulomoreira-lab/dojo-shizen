@@ -82,6 +82,7 @@ const QRCodePage = () => {
         .from("aulas")
         .select("*")
         .eq("professor_id", usuario.id)
+        .eq("status", "aberta")
         .gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: false })
         .limit(1)
