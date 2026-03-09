@@ -21,6 +21,7 @@ import Notificacoes from "./pages/Notificacoes";
 import NotificacoesAluno from "./pages/NotificacoesAluno";
 import MeusDocumentos from "./pages/MeusDocumentos";
 import NotFound from "./pages/NotFound";
+import RelatorioAulas from "./pages/RelatorioAulas";
 
 const queryClient = new QueryClient();
 

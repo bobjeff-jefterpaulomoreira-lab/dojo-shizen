@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Camera, CheckCircle2, XCircle, Loader2, Hand } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 type ScanStatus = "idle" | "scanning" | "processing" | "success" | "error";
 
