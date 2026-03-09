@@ -174,7 +174,7 @@ const Calendario = () => {
                 DayContent: ({ date }: { date: Date }) => {
                   const dayTypes = getTypesForDay(date);
                   return (
-                    <div className="relative flex h-9 w-9 items-center justify-center">
+                    <div className="relative flex h-full w-full items-center justify-center">
                       <span>{date.getDate()}</span>
                       {dayTypes.length > 0 && (
                         <span className="pointer-events-none absolute bottom-0.5 left-1/2 flex -translate-x-1/2 items-center gap-0.5">
