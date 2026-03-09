@@ -13,51 +13,12 @@ const ScanQRCode = () => {
   const [status, setStatus] = useState<ScanStatus>("idle");
   const [message, setMessage] = useState("");
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const startScanner = () => {
-    setStatus("scanning");
-    setMessage("");
-  };
-
-  // Start the actual scanner after the DOM element is rendered
-  useEffect(() => {
-    if (status !== "scanning") return;
-
-    const initScanner = async () => {
-      // Small delay to ensure DOM is ready
-      await new Promise((r) => setTimeout(r, 100));
-
-      try {
-        const scanner = new Html5Qrcode("qr-reader");
-        scannerRef.current = scanner;
-
-        await scanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 220, height: 220 } },
-          async (decodedText) => {
-            await scanner.stop();
-            scannerRef.current = null;
-            handleScan(decodedText);
-          },
-          () => {}
-        );
-      } catch (err: any) {
-        console.error("Camera error:", err);
-        setStatus("error");
-        setMessage("Não foi possível acessar a câmera. Verifique as permissões.");
-      }
-    };
-
-    initScanner();
-  }, [status]);
 
   const handleScan = async (token: string) => {
     if (!usuario) return;
     setStatus("processing");
 
     try {
-      // Find the aula with this token that hasn't expired
       const { data: aula, error: aulaError } = await supabase
         .from("aulas")
         .select("id, unidade_id")
@@ -71,7 +32,6 @@ const ScanQRCode = () => {
         return;
       }
 
-      // Check if already registered today
       const today = new Date().toISOString().split("T")[0];
       const { data: existing } = await supabase
         .from("presencas")
@@ -86,7 +46,6 @@ const ScanQRCode = () => {
         return;
       }
 
-      // Register presence
       const { error: insertError } = await supabase.from("presencas").insert({
         aluno_id: usuario.id,
         unidade_id: aula.unidade_id,
@@ -108,15 +67,47 @@ const ScanQRCode = () => {
     }
   };
 
+  // CRITICAL: Start scanner directly in click handler to preserve user gesture context
+  const startScanner = async () => {
+    setStatus("scanning");
+    setMessage("");
+
+    try {
+      const scanner = new Html5Qrcode("qr-reader");
+      scannerRef.current = scanner;
+
+      await scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        async (decodedText) => {
+          await scanner.stop();
+          scannerRef.current = null;
+          handleScan(decodedText);
+        },
+        () => {}
+      );
+    } catch (err: any) {
+      console.error("Camera error:", err);
+      setStatus("error");
+      setMessage("Não foi possível acessar a câmera. Verifique as permissões do navegador.");
+    }
+  };
+
+  const stopScanner = async () => {
+    if (scannerRef.current) {
+      await scannerRef.current.stop().catch(() => {});
+      scannerRef.current = null;
+    }
+  };
+
   useEffect(() => {
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
-      }
+      stopScanner();
     };
   }, []);
 
   const reset = () => {
+    stopScanner();
     setStatus("idle");
     setMessage("");
   };
@@ -127,11 +118,18 @@ const ScanQRCode = () => {
 
       <div className="flex-1 bg-dojo-paper px-5 py-6">
         <div className="dojo-card p-6 flex flex-col items-center gap-5 animate-fade-in">
+          {/* QR reader div always in DOM so it exists when scanner starts */}
+          <div
+            id="qr-reader"
+            className={`w-full max-w-[280px] aspect-square rounded-xl overflow-hidden ${
+              status === "scanning" ? "block" : "hidden"
+            }`}
+          />
+
           {status === "idle" && (
             <>
               <div
-                className="w-24 h-24 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "hsla(0, 100%, 27%, 0.15)" }}
+                className="w-24 h-24 rounded-full flex items-center justify-center bg-primary/15"
               >
                 <Camera size={40} className="text-primary" />
               </div>
@@ -143,8 +141,7 @@ const ScanQRCode = () => {
               </div>
               <button
                 onClick={startScanner}
-                className="w-full py-3 rounded-xl font-bold text-primary-foreground transition-colors"
-                style={{ backgroundColor: "hsl(0, 100%, 27%)" }}
+                className="w-full py-3 rounded-xl font-bold text-primary-foreground bg-primary transition-colors"
               >
                 Abrir Câmera
               </button>
@@ -153,22 +150,11 @@ const ScanQRCode = () => {
 
           {status === "scanning" && (
             <>
-              <div
-                id="qr-reader"
-                ref={containerRef}
-                className="w-full max-w-[280px] aspect-square rounded-xl overflow-hidden"
-              />
               <p className="text-sm text-muted-foreground text-center">
                 Posicione o QR Code dentro da área
               </p>
               <button
-                onClick={async () => {
-                  if (scannerRef.current) {
-                    await scannerRef.current.stop();
-                    scannerRef.current = null;
-                  }
-                  reset();
-                }}
+                onClick={reset}
                 className="text-sm text-primary font-medium"
               >
                 Cancelar
