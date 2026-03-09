@@ -276,40 +276,79 @@ const LandingPage = () => {
             </p>
           </FadeInSection>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          {/* Primary showcase - 2 large screens */}
+          <div className="grid grid-cols-2 gap-8 md:gap-16 mb-16 max-w-3xl mx-auto">
             {[
-              { img: screenQrcode, label: "QR Code Check-in", desc: "Abra a aula e gere o QR Code" },
-              { img: screenAlunos, label: "Gestão de Alunos", desc: "Lista completa com faixas e presença" },
-              { img: screenRelatorio, label: "Relatórios", desc: "Dados de presença e frequência" },
-              { img: screenAluno, label: "Progresso do Aluno", desc: "Evolução técnica e metas" },
+              { img: screenQrcode, label: "QR Code Check-in", desc: "Gere o QR Code instantaneamente" },
+              { img: screenAlunos, label: "Gestão de Alunos", desc: "Faixas, presença e progresso" },
             ].map((screen, i) => (
-              <FadeInSection key={i} delay={i * 0.15}>
+              <FadeInSection key={i} delay={i * 0.2}>
                 <motion.div
                   className="flex flex-col items-center"
-                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                  whileHover={{ y: -10, transition: { duration: 0.3 } }}
                 >
-                  {/* Phone mockup frame */}
-                  <div className="relative w-full max-w-[180px] md:max-w-[220px] mx-auto">
+                  <div className="relative w-full max-w-[220px] md:max-w-[260px] mx-auto">
                     <div
-                      className="rounded-[24px] overflow-hidden shadow-2xl border-[3px]"
-                      style={{ borderColor: "hsl(var(--foreground) / 0.2)" }}
+                      className="absolute -inset-4 rounded-[36px] blur-2xl opacity-20"
+                      style={{ background: "hsl(var(--primary) / 0.4)" }}
+                    />
+                    <div
+                      className="relative rounded-[28px] overflow-hidden shadow-2xl border-[4px] bg-black"
+                      style={{ borderColor: "hsl(var(--foreground) / 0.25)" }}
                     >
-                      {/* Notch */}
-                      <div
-                        className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 rounded-b-xl z-10"
-                        style={{ backgroundColor: "hsl(var(--foreground) / 0.15)" }}
-                      />
+                      <div className="absolute top-0 left-0 right-0 h-6 bg-black z-10 flex items-center justify-center">
+                        <div className="w-14 h-3.5 rounded-b-xl bg-foreground/20" />
+                      </div>
                       <img
                         src={screen.img}
                         alt={screen.label}
                         className="w-full aspect-[9/19] object-cover object-top"
                         loading="lazy"
                       />
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-20 h-1 rounded-full bg-white/30" />
                     </div>
                   </div>
-                  <div className="text-center mt-4">
-                    <p className="font-serif font-bold text-foreground text-sm">{screen.label}</p>
-                    <p className="text-muted-foreground text-xs mt-1">{screen.desc}</p>
+                  <div className="text-center mt-5">
+                    <p className="font-serif font-bold text-foreground text-sm md:text-base">{screen.label}</p>
+                    <p className="text-muted-foreground text-xs md:text-sm mt-1">{screen.desc}</p>
+                  </div>
+                </motion.div>
+              </FadeInSection>
+            ))}
+          </div>
+
+          {/* Secondary showcase - 3 smaller screens */}
+          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-3xl mx-auto">
+            {[
+              { img: screenRelatorio, label: "Relatórios", desc: "Presença e frequência" },
+              { img: screenAluno, label: "Progresso", desc: "Evolução do aluno" },
+              { img: screenCalendario, label: "Calendário", desc: "Treinos e eventos" },
+            ].map((screen, i) => (
+              <FadeInSection key={i} delay={i * 0.15}>
+                <motion.div
+                  className="flex flex-col items-center"
+                  whileHover={{ y: -6, transition: { duration: 0.3 } }}
+                >
+                  <div className="relative w-full max-w-[150px] md:max-w-[190px] mx-auto">
+                    <div
+                      className="relative rounded-[20px] overflow-hidden shadow-xl border-[3px] bg-black"
+                      style={{ borderColor: "hsl(var(--foreground) / 0.2)" }}
+                    >
+                      <div className="absolute top-0 left-0 right-0 h-5 bg-black z-10 flex items-center justify-center">
+                        <div className="w-10 h-2.5 rounded-b-lg bg-foreground/20" />
+                      </div>
+                      <img
+                        src={screen.img}
+                        alt={screen.label}
+                        className="w-full aspect-[9/19] object-cover object-top"
+                        loading="lazy"
+                      />
+                      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-14 h-1 rounded-full bg-white/30" />
+                    </div>
+                  </div>
+                  <div className="text-center mt-3">
+                    <p className="font-serif font-bold text-foreground text-xs md:text-sm">{screen.label}</p>
+                    <p className="text-muted-foreground text-[10px] md:text-xs mt-0.5">{screen.desc}</p>
                   </div>
                 </motion.div>
               </FadeInSection>
