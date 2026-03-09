@@ -76,6 +76,8 @@ const AttendanceReport = () => {
             id: p.id,
             data: p.data,
             presente: p.presente,
+            hora_entrada: (p as any).hora_entrada,
+            hora_saida: (p as any).hora_saida,
             aluno_nome: (p.usuarios as any).nome,
             aluno_faixa: (p.usuarios as any).faixa
           }));
