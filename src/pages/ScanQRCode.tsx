@@ -86,6 +86,47 @@ const ScanQRCode = () => {
     }
   };
 
+  // Manual attendance without QR code
+  const handleManualAttendance = async () => {
+    if (!usuario || !aulaAtiva) return;
+    setStatus("processing");
+
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const { data: existing } = await supabase
+        .from("presencas")
+        .select("id")
+        .eq("aluno_id", usuario.id)
+        .eq("data", today)
+        .maybeSingle();
+
+      if (existing) {
+        setStatus("success");
+        setMessage("Sua presença já foi registrada hoje! 押忍");
+        return;
+      }
+
+      const { error: insertError } = await supabase.from("presencas").insert({
+        aluno_id: usuario.id,
+        unidade_id: aulaAtiva.unidade_id,
+        data: today,
+        presente: true,
+      });
+
+      if (insertError) {
+        setStatus("error");
+        setMessage("Erro ao registrar presença. Tente novamente.");
+        return;
+      }
+
+      setStatus("success");
+      setMessage("Presença registrada com sucesso! 押忍");
+      refetchAula();
+    } catch {
+      setStatus("error");
+      setMessage("Erro inesperado. Tente novamente.");
+    }
+
   // CRITICAL: Start scanner directly in click handler to preserve user gesture context
   const startScanner = async () => {
     setStatus("scanning");
