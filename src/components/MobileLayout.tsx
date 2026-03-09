@@ -35,10 +35,7 @@ const MobileLayout = ({
 
   const professorQuickItems = [
     { icon: Home, label: "Painel", path: "/sensei" },
-    { icon: QrCode, label: "Aula", path: "/sensei/qrcode" },
-    { icon: Users, label: "Alunos", path: "/sensei/alunos" },
     { icon: ClipboardList, label: "Relatório", path: "/sensei/relatorio" },
-    { icon: ClipboardCheck, label: "Avaliações", path: "/sensei/avaliacao" },
     { icon: Bell, label: "Comunicados", path: "/sensei/comunicados" },
     { icon: Calendar, label: "Calendário", path: "/sensei/calendario" },
     { icon: Clock, label: "Aulas", path: "/sensei/aulas" },
