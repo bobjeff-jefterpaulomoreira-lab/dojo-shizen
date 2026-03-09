@@ -121,24 +121,45 @@ const ScanQRCode = () => {
 
     try {
       const today = new Date().toISOString().split("T")[0];
+      // Check existing presença for this aula
       const { data: existing } = await supabase
         .from("presencas")
-        .select("id")
+        .select("id, hora_saida")
         .eq("aluno_id", usuario.id)
-        .eq("data", today)
+        .eq("aula_id", aulaAtiva.id)
         .maybeSingle();
 
       if (existing) {
+        if (existing.hora_saida) {
+          setStatus("success");
+          setMessage("Você já fez check-in e check-out nesta aula! 押忍");
+          return;
+        }
+        // Register check-out
+        const { error: updateError } = await supabase
+          .from("presencas")
+          .update({ hora_saida: new Date().toISOString() })
+          .eq("id", existing.id);
+
+        if (updateError) {
+          setStatus("error");
+          setMessage("Erro ao registrar saída. Tente novamente.");
+          return;
+        }
+
         setStatus("success");
-        setMessage("Sua presença já foi registrada hoje! 押忍");
+        setMessage("Saída registrada com sucesso! Até a próxima aula! 押忍");
         return;
       }
 
+      // New check-in
       const { error: insertError } = await supabase.from("presencas").insert({
         aluno_id: usuario.id,
         unidade_id: aulaAtiva.unidade_id,
         data: today,
         presente: true,
+        hora_entrada: new Date().toISOString(),
+        aula_id: aulaAtiva.id,
       });
 
       if (insertError) {
@@ -148,7 +169,7 @@ const ScanQRCode = () => {
       }
 
       setStatus("success");
-      setMessage("Presença registrada com sucesso! 押忍");
+      setMessage("Entrada registrada com sucesso! 押忍");
       refetchAula();
     } catch {
       setStatus("error");

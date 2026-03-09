@@ -129,9 +129,10 @@ const QRCodePage = () => {
   const fecharAula = async () => {
     if (!aulaId) return;
 
+    // 1. Close the aula
     const { error } = await supabase
       .from("aulas")
-      .update({ expires_at: new Date().toISOString() })
+      .update({ expires_at: new Date().toISOString(), status: "fechada" })
       .eq("id", aulaId);
 
     if (error) {
@@ -143,10 +144,18 @@ const QRCodePage = () => {
       return;
     }
 
+    // 2. Auto-checkout: set hora_saida for students who didn't check out
+    const now = new Date().toISOString();
+    await supabase
+      .from("presencas")
+      .update({ hora_saida: now })
+      .eq("aula_id", aulaId)
+      .is("hora_saida", null);
+
     setAulaAtiva(false);
     toast({
-      title: "Aula Fechada",
-      description: "A aula foi encerrada com sucesso",
+      title: "Aula Encerrada",
+      description: "Check-out automático registrado para todos os alunos",
     });
   };
 
