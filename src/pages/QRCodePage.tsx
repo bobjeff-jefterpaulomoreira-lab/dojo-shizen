@@ -207,7 +207,9 @@ const QRCodePage = () => {
           {/* QR Code */}
           {token && aulaAtiva ? (
             <div className="bg-card p-3 rounded-xl border border-border">
-              <QRCode value={token} size={180} />
+              <div className="qr-print-source">
+                <QRCode value={token} size={180} />
+              </div>
             </div>
           ) : (
             <div className="w-[180px] h-[180px] bg-muted rounded-xl flex items-center justify-center">
