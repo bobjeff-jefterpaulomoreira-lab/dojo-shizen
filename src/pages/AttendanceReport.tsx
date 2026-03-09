@@ -213,27 +213,47 @@ const AttendanceReport = () => {
                               Nenhuma presença registrada
                             </p>
                           ) : (
-                            aluno.presencas.map((p) => (
-                              <div key={p.id} className="flex items-center justify-between py-1">
-                                <div className="flex items-center gap-2">
-                                  <Calendar size={12} className="text-muted-foreground" />
-                                  <span className="text-xs text-foreground">
-                                    {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                    })}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {p.presente ? "Presente" : "Ausente"}
-                                  </span>
+                            aluno.presencas.map((p) => {
+                              const duracao = calcDuration(p.hora_entrada, p.hora_saida);
+                              return (
+                                <div key={p.id} className="flex items-center justify-between py-1.5 gap-2">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <Calendar size={12} className="text-muted-foreground shrink-0" />
+                                    <span className="text-xs text-foreground">
+                                      {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    {formatTime(p.hora_entrada) && (
+                                      <span className="flex items-center gap-0.5 text-[10px] text-green-700">
+                                        <LogIn size={10} />
+                                        {formatTime(p.hora_entrada)}
+                                      </span>
+                                    )}
+                                    {formatTime(p.hora_saida) && (
+                                      <span className="flex items-center gap-0.5 text-[10px] text-red-600">
+                                        <LogOut size={10} />
+                                        {formatTime(p.hora_saida)}
+                                      </span>
+                                    )}
+                                    {duracao && (
+                                      <span className="flex items-center gap-0.5 text-[10px] text-primary font-medium bg-primary/10 px-1.5 py-0.5 rounded">
+                                        <Clock size={10} />
+                                        {duracao}
+                                      </span>
+                                    )}
+                                    {p.presente ? (
+                                      <Check size={14} className="text-dojo-green" strokeWidth={2} />
+                                    ) : (
+                                      <X size={14} className="text-dojo-red-status" strokeWidth={2} />
+                                    )}
+                                  </div>
                                 </div>
-                                {p.presente ? (
-                                  <Check size={14} className="text-dojo-green" strokeWidth={2} />
-                                ) : (
-                                  <X size={14} className="text-dojo-red-status" strokeWidth={2} />
-                                )}
-                              </div>
-                            ))
+                              );
+                            })
                           )}
                         </div>
                       </CollapsibleContent>
