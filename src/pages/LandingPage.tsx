@@ -379,7 +379,7 @@ const LandingPage = () => {
                   </ul>
 
                   <motion.a
-                    href="https://wa.me/5500000000000?text=Olá! Tenho interesse no plano "
+                    href="https://wa.me/5531971310564?text=Olá! Tenho interesse no plano "
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`w-full py-3 rounded-xl font-semibold text-center transition-all block ${
