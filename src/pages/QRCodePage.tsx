@@ -27,7 +27,57 @@ const QRCodePage = () => {
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
 
-  const imprimirQRCode = () => {
+  // Realtime student attendance list
+  const { data: presencas = [], refetch: refetchPresencas } = useQuery({
+    queryKey: ["presencas-aula", aulaId],
+    enabled: !!aulaId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("presencas")
+        .select("id, hora_entrada, hora_saida, aluno_id")
+        .eq("aula_id", aulaId)
+        .order("hora_entrada", { ascending: true });
+      if (error) throw error;
+      // Fetch student names
+      if (!data || data.length === 0) return [] as PresencaAluno[];
+      const alunoIds = data.map(p => p.aluno_id);
+      const { data: alunos } = await supabase
+        .from("usuarios")
+        .select("id, nome, faixa")
+        .in("id", alunoIds);
+      const alunoMap = new Map((alunos || []).map(a => [a.id, a]));
+      return data.map(p => ({
+        id: p.id,
+        hora_entrada: p.hora_entrada,
+        hora_saida: p.hora_saida,
+        aluno: alunoMap.get(p.aluno_id) || null,
+      })) as PresencaAluno[];
+    },
+    refetchInterval: 10000, // Refresh every 10s for realtime feel
+  });
+
+  // Subscribe to realtime changes on presencas for this aula
+  useEffect(() => {
+    if (!aulaId) return;
+    const channel = supabase
+      .channel(`presencas-aula-${aulaId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'presencas',
+        filter: `aula_id=eq.${aulaId}`,
+      }, () => {
+        refetchPresencas();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [aulaId, refetchPresencas]);
+
+  const formatTime = (iso: string | null) => {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  };
+
     if (!token || !aulaAtiva) return;
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
