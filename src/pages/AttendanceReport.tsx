@@ -270,30 +270,50 @@ const AttendanceReport = () => {
               </div>
             ) : (
               <div className="space-y-2">
-                {presencas.map((p, i) => (
-                  <div
-                    key={p.id}
-                    className="dojo-card flex items-center justify-between animate-fade-in"
-                    style={{ animationDelay: `${i * 0.05}s` }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-foreground w-12">
-                        {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
-                          day: "2-digit",
-                          month: "2-digit",
-                        })}
-                      </span>
-                      <span className="text-sm text-foreground">
-                        {p.presente ? "Presente" : "Ausente"}
-                      </span>
+                {presencas.map((p, i) => {
+                  const duracao = calcDuration(p.hora_entrada, p.hora_saida);
+                  return (
+                    <div
+                      key={p.id}
+                      className="dojo-card flex items-center justify-between animate-fade-in"
+                      style={{ animationDelay: `${i * 0.05}s` }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-foreground w-12">
+                          {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                          })}
+                        </span>
+                        {formatTime(p.hora_entrada) && (
+                          <span className="flex items-center gap-0.5 text-[11px] text-green-700">
+                            <LogIn size={11} />
+                            {formatTime(p.hora_entrada)}
+                          </span>
+                        )}
+                        {formatTime(p.hora_saida) && (
+                          <span className="flex items-center gap-0.5 text-[11px] text-red-600">
+                            <LogOut size={11} />
+                            {formatTime(p.hora_saida)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {duracao && (
+                          <span className="flex items-center gap-0.5 text-[10px] text-primary font-medium bg-primary/10 px-1.5 py-0.5 rounded">
+                            <Clock size={10} />
+                            {duracao}
+                          </span>
+                        )}
+                        {p.presente ? (
+                          <Check size={18} className="text-dojo-green" strokeWidth={3} />
+                        ) : (
+                          <X size={18} className="text-dojo-red-status" strokeWidth={3} />
+                        )}
+                      </div>
                     </div>
-                    {p.presente ? (
-                      <Check size={18} className="text-dojo-green" strokeWidth={3} />
-                    ) : (
-                      <X size={18} className="text-dojo-red-status" strokeWidth={3} />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )
           )}
