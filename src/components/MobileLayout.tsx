@@ -5,7 +5,7 @@ import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import { useAuth } from "@/lib/auth";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Bell, Calendar, ClipboardCheck, Clock, Home, LogOut, QrCode, Users } from "lucide-react";
+import { Bell, Calendar, ClipboardCheck, ClipboardList, Clock, Home, LogOut, QrCode, Users } from "lucide-react";
 import shizenLogo from "@/assets/shizen-logo.png";
 
 interface MobileLayoutProps {
@@ -37,7 +37,7 @@ const MobileLayout = ({
     { icon: Home, label: "Painel", path: "/sensei" },
     { icon: QrCode, label: "Aula", path: "/sensei/qrcode" },
     { icon: Users, label: "Alunos", path: "/sensei/alunos" },
-    { icon: Calendar, label: "Relatório", path: "/sensei/relatorio" },
+    { icon: ClipboardList, label: "Relatório", path: "/sensei/relatorio" },
     { icon: ClipboardCheck, label: "Avaliações", path: "/sensei/avaliacao" },
     { icon: Bell, label: "Comunicados", path: "/sensei/comunicados" },
     { icon: Calendar, label: "Calendário", path: "/sensei/calendario" },
