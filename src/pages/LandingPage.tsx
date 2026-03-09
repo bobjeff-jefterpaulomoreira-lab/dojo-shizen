@@ -4,6 +4,10 @@ import { useRef } from "react";
 import shizenLogo from "@/assets/shizen-logo.png";
 import karatekaBack from "@/assets/karateka-back.jpg";
 import dojoInterior from "@/assets/dojo-interior.jpg";
+import screenAlunos from "@/assets/screenshots/screen-alunos.jpg";
+import screenQrcode from "@/assets/screenshots/screen-qrcode.jpg";
+import screenRelatorio from "@/assets/screenshots/screen-relatorio.jpg";
+import screenAluno from "@/assets/screenshots/screen-aluno.jpg";
 import {
   QrCode, Users, ClipboardCheck, Bell, Calendar, Shield,
   BarChart3, Smartphone, Zap, CheckCircle2, ArrowRight,
@@ -256,7 +260,63 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* ═══════ TECH BADGES ═══════ */}
+      {/* ═══════ VEJA O APP ═══════ */}
+      <section className="py-20 px-6 bg-muted overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <FadeInSection className="text-center mb-16">
+            <p className="text-sm tracking-[0.3em] uppercase font-medium mb-3" style={{ color: "hsl(var(--primary))" }}>
+              Conheça o Sistema
+            </p>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Veja o app em ação
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Interface profissional, intuitiva e pensada para o dia a dia do sensei e do aluno.
+            </p>
+          </FadeInSection>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            {[
+              { img: screenQrcode, label: "QR Code Check-in", desc: "Abra a aula e gere o QR Code" },
+              { img: screenAlunos, label: "Gestão de Alunos", desc: "Lista completa com faixas e presença" },
+              { img: screenRelatorio, label: "Relatórios", desc: "Dados de presença e frequência" },
+              { img: screenAluno, label: "Progresso do Aluno", desc: "Evolução técnica e metas" },
+            ].map((screen, i) => (
+              <FadeInSection key={i} delay={i * 0.15}>
+                <motion.div
+                  className="flex flex-col items-center"
+                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                >
+                  {/* Phone mockup frame */}
+                  <div className="relative w-full max-w-[180px] md:max-w-[220px] mx-auto">
+                    <div
+                      className="rounded-[24px] overflow-hidden shadow-2xl border-[3px]"
+                      style={{ borderColor: "hsl(var(--foreground) / 0.2)" }}
+                    >
+                      {/* Notch */}
+                      <div
+                        className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 rounded-b-xl z-10"
+                        style={{ backgroundColor: "hsl(var(--foreground) / 0.15)" }}
+                      />
+                      <img
+                        src={screen.img}
+                        alt={screen.label}
+                        className="w-full aspect-[9/19] object-cover object-top"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-center mt-4">
+                    <p className="font-serif font-bold text-foreground text-sm">{screen.label}</p>
+                    <p className="text-muted-foreground text-xs mt-1">{screen.desc}</p>
+                  </div>
+                </motion.div>
+              </FadeInSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="py-12 px-6 bg-muted border-y border-border">
         <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-6 items-center">
           {[
