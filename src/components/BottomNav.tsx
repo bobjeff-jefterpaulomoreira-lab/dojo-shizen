@@ -18,10 +18,8 @@ const BottomNav = ({ role }: BottomNavProps) => {
 
   const professorItems = [
     { icon: Home, label: "Início", path: "/sensei" },
-    { icon: QrCode, label: "Aula", path: "/sensei/qrcode" },
-    { icon: ClipboardList, label: "Alunos", path: "/sensei/alunos" },
-    { icon: Calendar, label: "Relatório", path: "/sensei/relatorio" },
-    { icon: MessageSquare, label: "Avisos", path: "/sensei/notificacoes" },
+    { icon: Bell, label: "Avisos", path: "/sensei/notificacoes" },
+    { icon: User, label: "Perfil", path: "/perfil" },
   ];
 
   const items = role === "professor" ? professorItems : alunoItems;
