@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import shizenLogo from "@/assets/shizen-logo.png";
 import karatekaBack from "@/assets/karateka-back.jpg";
-import { QrCode, Users, Bell, ClipboardCheck } from "lucide-react";
+import { QrCode, Users, Bell, ClipboardCheck, Clock } from "lucide-react";
 
 const TeacherDashboard = () => {
   const { usuario } = useAuth();

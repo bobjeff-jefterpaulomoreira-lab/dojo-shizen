@@ -15,6 +15,24 @@ const ScanQRCode = () => {
   const [message, setMessage] = useState("");
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
+  // Check for active class in student's unit
+  const { data: aulaAtiva, refetch: refetchAula } = useQuery({
+    queryKey: ["aula-ativa", usuario?.unidade_id],
+    enabled: !!usuario?.unidade_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("aulas")
+        .select("id, unidade_id")
+        .eq("unidade_id", usuario!.unidade_id)
+        .gte("expires_at", new Date().toISOString())
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    refetchInterval: 30000, // Refresh every 30s
+  });
+
   const handleScan = async (token: string) => {
     if (!usuario) return;
     setStatus("processing");
