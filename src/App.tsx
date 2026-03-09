@@ -21,6 +21,7 @@ import Notificacoes from "./pages/Notificacoes";
 import NotificacoesAluno from "./pages/NotificacoesAluno";
 import MeusDocumentos from "./pages/MeusDocumentos";
 import NotFound from "./pages/NotFound";
+import RelatorioAulas from "./pages/RelatorioAulas";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const App = () => (
             <Route path="/sensei/comunicados" element={<ProtectedRoute requiredRole="professor"><Comunicados /></ProtectedRoute>} />
             <Route path="/sensei/calendario" element={<ProtectedRoute requiredRole="professor"><Calendario /></ProtectedRoute>} />
             <Route path="/sensei/notificacoes" element={<ProtectedRoute requiredRole="professor"><Notificacoes /></ProtectedRoute>} />
+            <Route path="/sensei/aulas" element={<ProtectedRoute requiredRole="professor"><RelatorioAulas /></ProtectedRoute>} />
             <Route path="/comunicados" element={<ProtectedRoute requiredRole="aluno"><Comunicados /></ProtectedRoute>} />
             <Route path="/calendario" element={<ProtectedRoute requiredRole="aluno"><Calendario /></ProtectedRoute>} />
             <Route path="/notificacoes" element={<ProtectedRoute requiredRole="aluno"><NotificacoesAluno /></ProtectedRoute>} />

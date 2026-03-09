@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Camera, CheckCircle2, XCircle, Loader2, Hand } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 type ScanStatus = "idle" | "scanning" | "processing" | "success" | "error";
 
@@ -13,6 +14,24 @@ const ScanQRCode = () => {
   const [status, setStatus] = useState<ScanStatus>("idle");
   const [message, setMessage] = useState("");
   const scannerRef = useRef<Html5Qrcode | null>(null);
+
+  // Check for active class in student's unit
+  const { data: aulaAtiva, refetch: refetchAula } = useQuery({
+    queryKey: ["aula-ativa", usuario?.unidade_id],
+    enabled: !!usuario?.unidade_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("aulas")
+        .select("id, unidade_id")
+        .eq("unidade_id", usuario!.unidade_id)
+        .gte("expires_at", new Date().toISOString())
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    refetchInterval: 30000, // Refresh every 30s
+  });
 
   const handleScan = async (token: string) => {
     if (!usuario) return;
@@ -61,6 +80,48 @@ const ScanQRCode = () => {
 
       setStatus("success");
       setMessage("Presença registrada com sucesso! 押忍");
+    } catch {
+      setStatus("error");
+      setMessage("Erro inesperado. Tente novamente.");
+    }
+  };
+
+  // Manual attendance without QR code
+  const handleManualAttendance = async () => {
+    if (!usuario || !aulaAtiva) return;
+    setStatus("processing");
+
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const { data: existing } = await supabase
+        .from("presencas")
+        .select("id")
+        .eq("aluno_id", usuario.id)
+        .eq("data", today)
+        .maybeSingle();
+
+      if (existing) {
+        setStatus("success");
+        setMessage("Sua presença já foi registrada hoje! 押忍");
+        return;
+      }
+
+      const { error: insertError } = await supabase.from("presencas").insert({
+        aluno_id: usuario.id,
+        unidade_id: aulaAtiva.unidade_id,
+        data: today,
+        presente: true,
+      });
+
+      if (insertError) {
+        setStatus("error");
+        setMessage("Erro ao registrar presença. Tente novamente.");
+        return;
+      }
+
+      setStatus("success");
+      setMessage("Presença registrada com sucesso! 押忍");
+      refetchAula();
     } catch {
       setStatus("error");
       setMessage("Erro inesperado. Tente novamente.");
@@ -145,6 +206,27 @@ const ScanQRCode = () => {
               >
                 Abrir Câmera
               </button>
+
+              {/* Manual attendance option */}
+              {aulaAtiva && (
+                <>
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground">ou</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                  <button
+                    onClick={handleManualAttendance}
+                    className="w-full py-3 rounded-xl font-medium text-foreground bg-muted border border-border transition-colors hover:bg-muted/80 flex items-center justify-center gap-2"
+                  >
+                    <Hand size={18} />
+                    Marcar Presença Manualmente
+                  </button>
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    Use se o QR Code não funcionar
+                  </p>
+                </>
+              )}
             </>
           )}
 

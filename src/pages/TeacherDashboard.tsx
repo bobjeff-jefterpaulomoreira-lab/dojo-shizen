@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import shizenLogo from "@/assets/shizen-logo.png";
 import karatekaBack from "@/assets/karateka-back.jpg";
-import { QrCode, Users, Bell, ClipboardCheck } from "lucide-react";
+import { QrCode, Users, Bell, ClipboardCheck, Clock } from "lucide-react";
 
 const TeacherDashboard = () => {
   const { usuario } = useAuth();
@@ -12,8 +12,9 @@ const TeacherDashboard = () => {
   const buttons = [
     { icon: QrCode, label: "Abrir Aula", subtitle: "(QR Code)", path: "/sensei/qrcode" },
     { icon: Users, label: "Alunos", subtitle: "Gestão", path: "/sensei/alunos" },
-    { icon: ClipboardCheck, label: "Relatório", subtitle: "Presença", path: "/sensei/relatorio" },
-    { icon: Bell, label: "Notificações", subtitle: "Enviar Avisos", path: "/sensei/notificacoes" },
+    { icon: ClipboardCheck, label: "Presença", subtitle: "Relatório", path: "/sensei/relatorio" },
+    { icon: Clock, label: "Aulas", subtitle: "Histórico", path: "/sensei/aulas" },
+    { icon: Bell, label: "Avisos", subtitle: "Notificações", path: "/sensei/notificacoes" },
   ];
 
   return (
