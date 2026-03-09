@@ -91,6 +91,7 @@ const App = () => (
             <Route path="/calendario" element={<ProtectedRoute requiredRole="aluno"><Calendario /></ProtectedRoute>} />
             <Route path="/notificacoes" element={<ProtectedRoute requiredRole="aluno"><NotificacoesAluno /></ProtectedRoute>} />
             <Route path="/documentos" element={<ProtectedRoute requiredRole="aluno"><MeusDocumentos /></ProtectedRoute>} />
+            <Route path="/documentacao" element={<Documentacao />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
