@@ -1,9 +1,54 @@
+import { useRef, useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import { Shield, Code, Database, Smartphone, Users, Lock, Server, Award, FileText, Calendar } from "lucide-react";
+import { Shield, Code, Database, Smartphone, Users, Lock, Server, Award, FileText, Calendar, Download, Loader2 } from "lucide-react";
 import shizenLogo from "@/assets/shizen-logo.png";
 
 const Documentacao = () => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [generating, setGenerating] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    if (!contentRef.current) return;
+    setGenerating(true);
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const { jsPDF } = await import("jspdf");
+
+      const element = contentRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#faf6f1",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight - 20;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight - 20;
+      }
+
+      pdf.save("Dojo_Shizen_Documentacao_Jefter_Paulo_Moreira.pdf");
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+    } finally {
+      setGenerating(false);
+    }
+  };
   const dataAtual = new Date().toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "long",
