@@ -23,6 +23,7 @@ import MeusDocumentos from "./pages/MeusDocumentos";
 import NotFound from "./pages/NotFound";
 import RelatorioAulas from "./pages/RelatorioAulas";
 import Documentacao from "./pages/Documentacao";
+import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,7 @@ const App = () => (
             <Route path="/notificacoes" element={<ProtectedRoute requiredRole="aluno"><NotificacoesAluno /></ProtectedRoute>} />
             <Route path="/documentos" element={<ProtectedRoute requiredRole="aluno"><MeusDocumentos /></ProtectedRoute>} />
             <Route path="/documentacao" element={<Documentacao />} />
+            <Route path="/landing" element={<LandingPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
