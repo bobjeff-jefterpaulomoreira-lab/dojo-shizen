@@ -14,6 +14,7 @@ const TeacherDashboard = () => {
     { icon: Users, label: "Alunos", subtitle: "Gestão", path: "/sensei/alunos" },
     { icon: ClipboardCheck, label: "Presença", subtitle: "Relatório", path: "/sensei/relatorio" },
     { icon: Clock, label: "Aulas", subtitle: "Histórico", path: "/sensei/aulas" },
+    { icon: Bell, label: "Avisos", subtitle: "Notificações", path: "/sensei/notificacoes" },
   ];
 
   return (
