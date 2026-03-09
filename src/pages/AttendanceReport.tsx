@@ -62,7 +62,7 @@ const AttendanceReport = () => {
         const { data } = await supabase
           .from("presencas")
           .select(`
-            id, data, presente, aluno_id,
+            id, data, presente, hora_entrada, hora_saida, aluno_id,
             usuarios!inner(nome, faixa)
           `)
           .eq("unidade_id", usuario.unidade_id)
