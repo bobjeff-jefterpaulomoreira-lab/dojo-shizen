@@ -5,7 +5,7 @@ import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-import { Check, X, ChevronLeft, ChevronRight, ChevronDown, User, Calendar } from "lucide-react";
+import { Check, X, ChevronLeft, ChevronRight, ChevronDown, User, Calendar, Clock, LogIn, LogOut } from "lucide-react";
 
 interface Presenca {
   id: string;
@@ -13,6 +13,8 @@ interface Presenca {
   presente: boolean;
   aluno_nome?: string;
   aluno_faixa?: string;
+  hora_entrada?: string | null;
+  hora_saida?: string | null;
 }
 
 interface AlunoStats {
@@ -60,7 +62,7 @@ const AttendanceReport = () => {
         const { data } = await supabase
           .from("presencas")
           .select(`
-            id, data, presente, aluno_id,
+            id, data, presente, hora_entrada, hora_saida, aluno_id,
             usuarios!inner(nome, faixa)
           `)
           .eq("unidade_id", usuario.unidade_id)
@@ -74,6 +76,8 @@ const AttendanceReport = () => {
             id: p.id,
             data: p.data,
             presente: p.presente,
+            hora_entrada: (p as any).hora_entrada,
+            hora_saida: (p as any).hora_saida,
             aluno_nome: (p.usuarios as any).nome,
             aluno_faixa: (p.usuarios as any).faixa
           }));
@@ -113,7 +117,7 @@ const AttendanceReport = () => {
         // Para alunos: continuar como antes
         const { data } = await supabase
           .from("presencas")
-          .select("id, data, presente")
+          .select("id, data, presente, hora_entrada, hora_saida")
           .eq("aluno_id", usuario.id)
           .gte("data", startOfMonth)
           .lte("data", endOfMonth)
@@ -127,6 +131,21 @@ const AttendanceReport = () => {
 
   const isAluno = usuario?.role === "aluno";
   const isProfessor = usuario?.role === "professor";
+
+  const formatTime = (iso?: string | null) => {
+    if (!iso) return null;
+    return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const calcDuration = (entrada?: string | null, saida?: string | null) => {
+    if (!entrada || !saida) return null;
+    const diff = Math.round((new Date(saida).getTime() - new Date(entrada).getTime()) / 60000);
+    if (diff < 0) return null;
+    if (diff < 60) return `${diff}min`;
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    return m > 0 ? `${h}h ${m}min` : `${h}h`;
+  };
 
   return (
     <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
@@ -194,27 +213,47 @@ const AttendanceReport = () => {
                               Nenhuma presença registrada
                             </p>
                           ) : (
-                            aluno.presencas.map((p) => (
-                              <div key={p.id} className="flex items-center justify-between py-1">
-                                <div className="flex items-center gap-2">
-                                  <Calendar size={12} className="text-muted-foreground" />
-                                  <span className="text-xs text-foreground">
-                                    {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                    })}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {p.presente ? "Presente" : "Ausente"}
-                                  </span>
+                            aluno.presencas.map((p) => {
+                              const duracao = calcDuration(p.hora_entrada, p.hora_saida);
+                              return (
+                                <div key={p.id} className="flex items-center justify-between py-1.5 gap-2">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <Calendar size={12} className="text-muted-foreground shrink-0" />
+                                    <span className="text-xs text-foreground">
+                                      {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    {formatTime(p.hora_entrada) && (
+                                      <span className="flex items-center gap-0.5 text-[10px] text-green-700">
+                                        <LogIn size={10} />
+                                        {formatTime(p.hora_entrada)}
+                                      </span>
+                                    )}
+                                    {formatTime(p.hora_saida) && (
+                                      <span className="flex items-center gap-0.5 text-[10px] text-red-600">
+                                        <LogOut size={10} />
+                                        {formatTime(p.hora_saida)}
+                                      </span>
+                                    )}
+                                    {duracao && (
+                                      <span className="flex items-center gap-0.5 text-[10px] text-primary font-medium bg-primary/10 px-1.5 py-0.5 rounded">
+                                        <Clock size={10} />
+                                        {duracao}
+                                      </span>
+                                    )}
+                                    {p.presente ? (
+                                      <Check size={14} className="text-dojo-green" strokeWidth={2} />
+                                    ) : (
+                                      <X size={14} className="text-dojo-red-status" strokeWidth={2} />
+                                    )}
+                                  </div>
                                 </div>
-                                {p.presente ? (
-                                  <Check size={14} className="text-dojo-green" strokeWidth={2} />
-                                ) : (
-                                  <X size={14} className="text-dojo-red-status" strokeWidth={2} />
-                                )}
-                              </div>
-                            ))
+                              );
+                            })
                           )}
                         </div>
                       </CollapsibleContent>
@@ -231,30 +270,50 @@ const AttendanceReport = () => {
               </div>
             ) : (
               <div className="space-y-2">
-                {presencas.map((p, i) => (
-                  <div
-                    key={p.id}
-                    className="dojo-card flex items-center justify-between animate-fade-in"
-                    style={{ animationDelay: `${i * 0.05}s` }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-foreground w-12">
-                        {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
-                          day: "2-digit",
-                          month: "2-digit",
-                        })}
-                      </span>
-                      <span className="text-sm text-foreground">
-                        {p.presente ? "Presente" : "Ausente"}
-                      </span>
+                {presencas.map((p, i) => {
+                  const duracao = calcDuration(p.hora_entrada, p.hora_saida);
+                  return (
+                    <div
+                      key={p.id}
+                      className="dojo-card flex items-center justify-between animate-fade-in"
+                      style={{ animationDelay: `${i * 0.05}s` }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-foreground w-12">
+                          {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                          })}
+                        </span>
+                        {formatTime(p.hora_entrada) && (
+                          <span className="flex items-center gap-0.5 text-[11px] text-green-700">
+                            <LogIn size={11} />
+                            {formatTime(p.hora_entrada)}
+                          </span>
+                        )}
+                        {formatTime(p.hora_saida) && (
+                          <span className="flex items-center gap-0.5 text-[11px] text-red-600">
+                            <LogOut size={11} />
+                            {formatTime(p.hora_saida)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {duracao && (
+                          <span className="flex items-center gap-0.5 text-[10px] text-primary font-medium bg-primary/10 px-1.5 py-0.5 rounded">
+                            <Clock size={10} />
+                            {duracao}
+                          </span>
+                        )}
+                        {p.presente ? (
+                          <Check size={18} className="text-dojo-green" strokeWidth={3} />
+                        ) : (
+                          <X size={18} className="text-dojo-red-status" strokeWidth={3} />
+                        )}
+                      </div>
                     </div>
-                    {p.presente ? (
-                      <Check size={18} className="text-dojo-green" strokeWidth={3} />
-                    ) : (
-                      <X size={18} className="text-dojo-red-status" strokeWidth={3} />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )
           )}
