@@ -36,7 +36,7 @@ const BottomNav = ({ role }: BottomNavProps) => {
               key={item.path}
               onClick={() => navigate(item.path)}
               className={`flex flex-col items-center gap-1 px-2 py-1 transition-colors ${
-                isActive ? "text-primary" : "text-muted-foreground"
+                isActive ? "text-primary" : "text-primary-foreground/60"
               }`}
             >
               <item.icon size={22} strokeWidth={isActive ? 2.5 : 1.5} />
