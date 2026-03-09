@@ -126,6 +126,7 @@ const AttendanceReport = () => {
   }, [usuario, currentDate]);
 
   const isAluno = usuario?.role === "aluno";
+  const isProfessor = usuario?.role === "professor";
 
   return (
     <MobileLayout showBrush={true} showNav={true} fullWidth={true}>
@@ -144,42 +145,121 @@ const AttendanceReport = () => {
         </div>
 
         <div className="px-5">
-          {presencas.length === 0 ? (
-            <div className="dojo-card text-center py-8">
-              <p className="text-muted-foreground text-sm">Nenhum registro encontrado.</p>
-            </div>
+          {isProfessor ? (
+            /* Vista do Professor - Lista de Alunos com Estatísticas */
+            alunosStats.length === 0 ? (
+              <div className="dojo-card text-center py-8">
+                <p className="text-muted-foreground text-sm">Nenhum registro encontrado.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {alunosStats.map((aluno, i) => (
+                  <Collapsible key={aluno.nome}>
+                    <div 
+                      className="dojo-card animate-fade-in"
+                      style={{ animationDelay: `${i * 0.05}s` }}
+                    >
+                      <CollapsibleTrigger 
+                        className="w-full flex items-center justify-between p-0"
+                        onClick={() => toggleStudent(aluno.nome)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <User size={16} className="text-primary" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-sm font-medium text-foreground">{aluno.nome}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Faixa {aluno.faixa} • {aluno.totalPresencas}/{aluno.totalAulas} presenças
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className={`text-sm font-bold ${
+                            aluno.percentual >= 80 ? 'text-dojo-green' : 
+                            aluno.percentual >= 60 ? 'text-yellow-600' : 'text-dojo-red-status'
+                          }`}>
+                            {Math.round(aluno.percentual)}%
+                          </div>
+                          <ChevronDown size={16} className={`text-muted-foreground transition-transform ${
+                            openStudents.includes(aluno.nome) ? 'rotate-180' : ''
+                          }`} />
+                        </div>
+                      </CollapsibleTrigger>
+                      
+                      <CollapsibleContent className="mt-3 pt-3 border-t border-muted">
+                        <div className="space-y-2">
+                          {aluno.presencas.length === 0 ? (
+                            <p className="text-xs text-muted-foreground text-center py-2">
+                              Nenhuma presença registrada
+                            </p>
+                          ) : (
+                            aluno.presencas.map((p) => (
+                              <div key={p.id} className="flex items-center justify-between py-1">
+                                <div className="flex items-center gap-2">
+                                  <Calendar size={12} className="text-muted-foreground" />
+                                  <span className="text-xs text-foreground">
+                                    {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                    })}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {p.presente ? "Presente" : "Ausente"}
+                                  </span>
+                                </div>
+                                {p.presente ? (
+                                  <Check size={14} className="text-dojo-green" strokeWidth={2} />
+                                ) : (
+                                  <X size={14} className="text-dojo-red-status" strokeWidth={2} />
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </CollapsibleContent>
+                    </div>
+                  </Collapsible>
+                ))}
+              </div>
+            )
           ) : (
-            <div className="space-y-2">
-              {presencas.map((p, i) => (
-                <div
-                  key={p.id}
-                  className="dojo-card flex items-center justify-between animate-fade-in"
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-foreground w-12">
-                      {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                      })}
-                    </span>
-                    <span className="text-sm text-foreground">
-                      {p.presente ? "Presente" : "Ausente"}
-                    </span>
+            /* Vista do Aluno - Lista de Presenças Individual */
+            presencas.length === 0 ? (
+              <div className="dojo-card text-center py-8">
+                <p className="text-muted-foreground text-sm">Nenhum registro encontrado.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {presencas.map((p, i) => (
+                  <div
+                    key={p.id}
+                    className="dojo-card flex items-center justify-between animate-fade-in"
+                    style={{ animationDelay: `${i * 0.05}s` }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-foreground w-12">
+                        {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                        })}
+                      </span>
+                      <span className="text-sm text-foreground">
+                        {p.presente ? "Presente" : "Ausente"}
+                      </span>
+                    </div>
+                    {p.presente ? (
+                      <Check size={18} className="text-dojo-green" strokeWidth={3} />
+                    ) : (
+                      <X size={18} className="text-dojo-red-status" strokeWidth={3} />
+                    )}
                   </div>
-                  {p.presente ? (
-                    <Check size={18} className="text-dojo-green" strokeWidth={3} />
-                  ) : (
-                    <X size={18} className="text-dojo-red-status" strokeWidth={3} />
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )
           )}
         </div>
       </div>
-
-      
     </MobileLayout>
   );
 };
