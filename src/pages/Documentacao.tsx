@@ -101,7 +101,7 @@ const Documentacao = () => {
       <PageHeader title="Documentação Técnica" showBack={true} />
 
       <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper print:bg-white">
-        <div className="max-w-2xl mx-auto px-5 py-6 space-y-6">
+        <div ref={contentRef} className="max-w-2xl mx-auto px-5 py-6 space-y-6">
 
           {/* === CERTIFICADO DE AUTORIA === */}
           <div className="dojo-card p-6 border-2 border-primary/30 relative overflow-hidden print:border-primary">
