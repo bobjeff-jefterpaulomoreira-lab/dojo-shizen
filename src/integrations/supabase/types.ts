@@ -21,6 +21,7 @@ export type Database = {
           expires_at: string
           id: string
           professor_id: string
+          status: string
           token: string
           unidade_id: string
         }
@@ -30,6 +31,7 @@ export type Database = {
           expires_at: string
           id?: string
           professor_id: string
+          status?: string
           token: string
           unidade_id: string
         }
@@ -39,6 +41,7 @@ export type Database = {
           expires_at?: string
           id?: string
           professor_id?: string
+          status?: string
           token?: string
           unidade_id?: string
         }
@@ -228,24 +231,33 @@ export type Database = {
       presencas: {
         Row: {
           aluno_id: string
+          aula_id: string | null
           created_at: string
           data: string
+          hora_entrada: string | null
+          hora_saida: string | null
           id: string
           presente: boolean
           unidade_id: string
         }
         Insert: {
           aluno_id: string
+          aula_id?: string | null
           created_at?: string
           data?: string
+          hora_entrada?: string | null
+          hora_saida?: string | null
           id?: string
           presente?: boolean
           unidade_id: string
         }
         Update: {
           aluno_id?: string
+          aula_id?: string | null
           created_at?: string
           data?: string
+          hora_entrada?: string | null
+          hora_saida?: string | null
           id?: string
           presente?: boolean
           unidade_id?: string
@@ -256,6 +268,13 @@ export type Database = {
             columns: ["aluno_id"]
             isOneToOne: false
             referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presencas_aula_id_fkey"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas"
             referencedColumns: ["id"]
           },
           {
