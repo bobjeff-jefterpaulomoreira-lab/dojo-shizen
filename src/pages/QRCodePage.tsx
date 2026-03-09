@@ -78,6 +78,7 @@ const QRCodePage = () => {
     return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   };
 
+  const imprimirQRCode = () => {
     if (!token || !aulaAtiva) return;
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
