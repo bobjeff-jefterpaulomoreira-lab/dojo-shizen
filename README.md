@@ -1,73 +1,34 @@
-# Welcome to your Lovable project
+# 🥋 Shizen Dojo - Sistema de Gestão de Artes Marciais
 
-## Project info
+Este é um ecossistema completo para gestão de academias de artes marciais, focado em automatizar a rotina de Senseis e melhorar a experiência dos alunos. Desenvolvido com uma arquitetura moderna e escalável, o projeto utiliza IA para acelerar o ciclo de desenvolvimento (SDLC).
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Tecnologias Utilizadas
 
-## How can I edit this code?
+* **Front-end:** React.js com TypeScript
+* **Estilização:** Tailwind CSS (Design Responsivo e Performance)
+* **Componentes:** Shadcn/UI (Interface de usuário moderna e acessível)
+* **Gerenciamento de Estado:** React Hooks
+* **Backend & Banco de Dados:** Supabase (PostgreSQL)
+* **Ferramentas de Desenvolvimento:** Vite, Lovable e Base44
 
-There are several ways of editing your application.
+## 🛠️ Funcionalidades Principais
 
-**Use Lovable**
+### 🛡️ Módulo Administrativo (Sensei)
+* **Gestão de Alunos:** Cadastro, edição e controle de status.
+* **Controle de Presença via QR Code:** Sistema de check-in dinâmico para agilizar o início das aulas.
+* **Painel de Métricas:** Visualização de dados sobre o crescimento do Dojo e frequência das turmas.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### 🥋 Módulo do Aluno
+* **Dashboard de Progresso:** Acompanhamento de graduações e histórico de aulas.
+* **Check-in Digital:** Interface otimizada para leitura de presença.
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🔐 Acesso para Demonstração
 
-**Use your preferred IDE**
+O sistema possui rotas protegidas e autenticação configurada:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+* **URL:** [https://dojo-shizen.lovable.app/](https://dojo-shizen.lovable.app/)
+* **Sensei:** `sensei@dojo.com` / `sensei123`
+* **Aluno:** `aluno@dojo.com` / `aluno123`
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📈 Diferenciais Técnicos
+O projeto foi estruturado utilizando princípios de **Clean Code** e **Separação de Responsabilidades**. A integração com o banco de dados permite a persistência de informações em tempo real, garantindo que a gestão do Dojo seja feita de forma segura e eficiente.
