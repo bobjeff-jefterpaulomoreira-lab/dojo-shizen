@@ -20,18 +20,6 @@ const JURAMENTOS = [
   "Toda a nossa vida através da disciplina do Kyokushin Karatê, procuraremos preencher a verdadeira significação da filosofia da vida.",
 ];
 
-const BELT_COLORS: Record<string, string> = {
-  branca: "#FFFFFF",
-  amarela: "#FFD700",
-  vermelha: "#CC0000",
-  laranja: "#FF8C00",
-  azul: "#1E90FF",
-  verde: "#228B22",
-  marrom: "#8B4513",
-  roxa: "#6A0DAD",
-  preta: "#111111",
-};
-
 const StudentDashboard = () => {
   const { usuario } = useAuth();
   const navigate = useNavigate();
