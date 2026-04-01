@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { QrCode, FileText, Bell, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { BELT_COLORS } from "@/lib/constants";
 
 const JURAMENTOS = [
   "Treinaremos firmemente o nosso coração e o nosso corpo para termos um espírito inabalável.",
