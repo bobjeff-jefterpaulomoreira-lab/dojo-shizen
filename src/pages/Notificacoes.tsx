@@ -170,7 +170,11 @@ const Notificacoes = () => {
           </button>
 
           {/* List */}
-          {notificacoes.length === 0 ? (
+          {loadingData ? (
+            <div className="space-y-2">
+              {[...Array(4)].map((_, i) => <Skeleton key={i} className="w-full h-20 rounded-xl" />)}
+            </div>
+          ) : notificacoes.length === 0 ? (
             <div className="dojo-card text-center py-8">
               <Bell size={32} className="mx-auto text-muted-foreground mb-2" />
               <p className="text-muted-foreground text-sm">Nenhuma notificação enviada.</p>
