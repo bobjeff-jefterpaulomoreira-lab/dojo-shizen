@@ -239,7 +239,11 @@ const StudentList = () => {
           </div>
 
           {/* Student list */}
-          {filtered.length === 0 ? (
+          {loadingData ? (
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => <Skeleton key={i} className="w-full h-20 rounded-xl" />)}
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="dojo-card text-center py-8">
               <p className="text-muted-foreground text-sm">Nenhum aluno encontrado.</p>
             </div>
