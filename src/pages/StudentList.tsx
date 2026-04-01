@@ -38,6 +38,7 @@ const StudentList = () => {
   const { usuario } = useAuth();
   const navigate = useNavigate();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
   const [unidades, setUnidades] = useState<Unidade[]>([]);
   const [selectedUnidade, setSelectedUnidade] = useState<string>("todos");
   const [selectedFaixa, setSelectedFaixa] = useState("Todos");
