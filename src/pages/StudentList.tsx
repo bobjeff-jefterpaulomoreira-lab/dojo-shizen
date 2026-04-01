@@ -59,6 +59,7 @@ const StudentList = () => {
 
   const fetchData = async () => {
     if (!usuario) return;
+    setLoadingData(true);
 
     const { data: unidadesData } = await supabase
       .from("unidades")
@@ -71,6 +72,7 @@ const StudentList = () => {
       .select("id, nome, email, faixa, progresso_faixa, unidade_id")
       .eq("role", "aluno");
     setAlunos((alunosData as Aluno[]) || []);
+    setLoadingData(false);
   };
 
   useEffect(() => {
