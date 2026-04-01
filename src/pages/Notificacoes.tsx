@@ -52,6 +52,7 @@ const Notificacoes = () => {
   const [unidades, setUnidades] = useState<Unidade[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [sending, setSending] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
 
   // Form state
   const [titulo, setTitulo] = useState("");
