@@ -6,57 +6,10 @@ import PageHeader from "@/components/PageHeader";
 import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BELT_COLORS, CATEGORIAS, TECNICAS_POR_CATEGORIA, findCategoryForTecnica } from "@/lib/constants";
 
-const CATEGORIAS = ["Todas", "Kihon", "Kata", "Kumite", "Idogeiko"];
 type StatusType = "aprovado" | "acompanhamento" | "nao_iniciado";
-
-const TECNICAS_POR_CATEGORIA: Record<string, string[]> = {
-  Kihon: [
-    "Mae Geri (Chute Frontal)",
-    "Mawashi Geri (Chute Circular)",
-    "Yoko Geri (Chute Lateral)",
-    "Ushiro Geri (Chute para Trás)",
-    "Soto Uke (Defesa Externa)",
-    "Uchi Uke (Defesa Interna)",
-    "Gedan Barai (Defesa Baixa)",
-    "Age Uke (Defesa Alta)",
-    "Seiken (Soco Básico)",
-    "Uraken (Soco com Dorso)",
-    "Shuto Uchi (Golpe com Mão Aberta)",
-  ],
-  Kata: [
-    "Taikyoku Sono Ichi",
-    "Taikyoku Sono Ni",
-    "Taikyoku Sono San",
-    "Pinan Sono Ichi",
-    "Pinan Sono Ni",
-    "Pinan Sono San",
-    "Pinan Sono Yon",
-    "Pinan Sono Go",
-    "Sanchin",
-    "Tensho",
-    "Gekisai Dai",
-    "Gekisai Sho",
-  ],
-  Kumite: [
-    "Sanbon Kumite (3 passos)",
-    "Ippon Kumite (1 passo)",
-    "Jiyu Kumite (Luta Livre)",
-    "Yakusoku Kumite (Combinado)",
-    "Shiai Kumite (Competição)",
-  ],
-  Idogeiko: [
-    "Ido Geiko Mae Geri",
-    "Ido Geiko Mawashi Geri",
-    "Ido Geiko Yoko Geri",
-    "Ido Geiko Oi Tsuki",
-    "Ido Geiko Gyaku Tsuki",
-    "Ido Geiko Soto Uke",
-    "Ido Geiko Uchi Uke",
-    "Ido Geiko Gedan Barai",
-    "Ido Geiko Combinações",
-  ],
-};
 
 interface Aluno {
   id: string;
@@ -70,20 +23,7 @@ interface Avaliacao {
   status: string;
   observacoes: string | null;
   created_at: string;
-  categoria?: string;
 }
-
-const BELT_COLORS: Record<string, string> = {
-  branca: "#888",
-  amarela: "#DAA520",
-  vermelha: "#CC0000",
-  laranja: "#FF8C00",
-  azul: "#1E90FF",
-  verde: "#228B22",
-  marrom: "#8B4513",
-  roxa: "#6A0DAD",
-  preta: "#111",
-};
 
 const Assessment = () => {
   const { usuario } = useAuth();
@@ -92,6 +32,8 @@ const Assessment = () => {
   const [busca, setBusca] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState("Todas");
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+  const [loadingAlunos, setLoadingAlunos] = useState(true);
+  const [loadingAvaliacoes, setLoadingAvaliacoes] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   // Nova avaliação form
@@ -103,33 +45,36 @@ const Assessment = () => {
 
   const selectedAlunoData = alunos.find((a) => a.id === selectedAluno);
 
-  // Fetch ALL students (RLS already handles access)
   useEffect(() => {
     const fetchAlunos = async () => {
       if (!usuario) return;
+      setLoadingAlunos(true);
       const { data } = await supabase
         .from("usuarios")
         .select("id, nome, faixa")
         .eq("role", "aluno")
         .order("nome");
-      setAlunos((data as Aluno[]) || []);
-      if (data && data.length > 0 && !selectedAluno) {
-        setSelectedAluno(data[0].id);
+      const list = (data || []) as Aluno[];
+      setAlunos(list);
+      if (list.length > 0 && !selectedAluno) {
+        setSelectedAluno(list[0].id);
       }
+      setLoadingAlunos(false);
     };
     fetchAlunos();
   }, [usuario]);
 
-  // Fetch avaliacoes for selected student
   useEffect(() => {
     const fetchAvaliacoes = async () => {
       if (!selectedAluno) return;
+      setLoadingAvaliacoes(true);
       const { data } = await supabase
         .from("avaliacoes")
         .select("*")
         .eq("aluno_id", selectedAluno)
         .order("created_at", { ascending: false });
-      setAvaliacoes((data as Avaliacao[]) || []);
+      setAvaliacoes((data || []) as Avaliacao[]);
+      setLoadingAvaliacoes(false);
     };
     fetchAvaliacoes();
   }, [selectedAluno]);
@@ -138,9 +83,10 @@ const Assessment = () => {
     a.nome.toLowerCase().includes(busca.toLowerCase())
   );
 
+  // Filter by category using the technique name lookup
   const avaliacoesFiltradas = categoriaAtiva === "Todas"
     ? avaliacoes
-    : avaliacoes.filter((av) => (av as any).categoria === categoriaAtiva || av.tecnica.toLowerCase().includes(categoriaAtiva.toLowerCase()));
+    : avaliacoes.filter((av) => findCategoryForTecnica(av.tecnica) === categoriaAtiva);
 
   const handleNovaAvaliacao = async () => {
     if (!novaTecnica.trim()) {
@@ -153,7 +99,7 @@ const Assessment = () => {
       tecnica: novaTecnica,
       status: novoStatus,
       observacoes: novaObs || null,
-    } as any);
+    });
 
     if (error) {
       toast.error("Erro ao salvar avaliação");
@@ -163,13 +109,12 @@ const Assessment = () => {
       setNovaTecnica("");
       setNovaObs("");
       setNovoStatus("nao_iniciado");
-      // Refresh
       const { data } = await supabase
         .from("avaliacoes")
         .select("*")
         .eq("aluno_id", selectedAluno)
         .order("created_at", { ascending: false });
-      setAvaliacoes((data as Avaliacao[]) || []);
+      setAvaliacoes((data || []) as Avaliacao[]);
     }
     setSaving(false);
   };
@@ -194,15 +139,19 @@ const Assessment = () => {
         {/* Mobile: compact student selector */}
         <div className="md:hidden px-4 pt-3 pb-2 bg-card border-b border-border">
           <label className="text-xs font-medium text-muted-foreground mb-1 block">Aluno</label>
-          <select
-            value={selectedAluno}
-            onChange={(e) => setSelectedAluno(e.target.value)}
-            className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
-          >
-            {alunos.map((a) => (
-              <option key={a.id} value={a.id}>{a.nome} — Faixa {a.faixa}</option>
-            ))}
-          </select>
+          {loadingAlunos ? (
+            <Skeleton className="w-full h-10 rounded-lg" />
+          ) : (
+            <select
+              value={selectedAluno}
+              onChange={(e) => setSelectedAluno(e.target.value)}
+              className="w-full py-2 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
+            >
+              {alunos.map((a) => (
+                <option key={a.id} value={a.id}>{a.nome} — Faixa {a.faixa}</option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* Desktop: Sidebar - Student List */}
@@ -221,29 +170,35 @@ const Assessment = () => {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto pb-4">
-            {alunosFiltrados.map((a) => {
-              const isSelected = a.id === selectedAluno;
-              const beltKey = a.faixa.toLowerCase();
-              const beltColor = BELT_COLORS[beltKey] || "#888";
-              return (
-                <button
-                  key={a.id}
-                  onClick={() => setSelectedAluno(a.id)}
-                  className={`w-full text-left px-4 py-3 transition-colors border-l-4 ${
-                    isSelected
-                      ? "bg-primary text-primary-foreground border-l-primary"
-                      : "hover:bg-muted border-l-transparent"
-                  }`}
-                >
-                  <p className={`font-semibold text-sm ${isSelected ? "text-primary-foreground" : "text-foreground"}`}>
-                    {a.nome}
-                  </p>
-                  <p className="text-xs" style={{ color: isSelected ? "rgba(255,255,255,0.7)" : beltColor }}>
-                    Faixa {a.faixa}
-                  </p>
-                </button>
-              );
-            })}
+            {loadingAlunos ? (
+              <div className="space-y-2 px-4">
+                {[...Array(5)].map((_, i) => <Skeleton key={i} className="w-full h-14" />)}
+              </div>
+            ) : (
+              alunosFiltrados.map((a) => {
+                const isSelected = a.id === selectedAluno;
+                const beltKey = a.faixa.toLowerCase();
+                const beltColor = BELT_COLORS[beltKey] || "#888";
+                return (
+                  <button
+                    key={a.id}
+                    onClick={() => setSelectedAluno(a.id)}
+                    className={`w-full text-left px-4 py-3 transition-colors border-l-4 ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground border-l-primary"
+                        : "hover:bg-muted border-l-transparent"
+                    }`}
+                  >
+                    <p className={`font-semibold text-sm ${isSelected ? "text-primary-foreground" : "text-foreground"}`}>
+                      {a.nome}
+                    </p>
+                    <p className="text-xs" style={{ color: isSelected ? "rgba(255,255,255,0.7)" : beltColor }}>
+                      Faixa {a.faixa}
+                    </p>
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -282,7 +237,11 @@ const Assessment = () => {
             </div>
 
             {/* Avaliacoes list */}
-            {avaliacoesFiltradas.length === 0 ? (
+            {loadingAvaliacoes ? (
+              <div className="space-y-3">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="w-full h-16 rounded-xl" />)}
+              </div>
+            ) : avaliacoesFiltradas.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
                 <p className="text-sm">Nenhuma avaliação registrada</p>
                 <p className="text-xs mt-1">Clique em "Nova Avaliação" para começar</p>
@@ -335,7 +294,7 @@ const Assessment = () => {
               >
                 <option value="">Selecione...</option>
                 {(TECNICAS_POR_CATEGORIA[novaCategoria] || []).map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                  <option key={t.label} value={t.label}>{t.label}</option>
                 ))}
               </select>
             </div>

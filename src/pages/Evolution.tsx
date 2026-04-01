@@ -6,74 +6,10 @@ import PageHeader from "@/components/PageHeader";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Clock, XCircle, TrendingUp, Award, Calendar, Target } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { format, startOfMonth, endOfMonth } from "date-fns";
+import { BELT_COLORS, BELT_ORDER, CATEGORIAS, TECNICAS_POR_CATEGORIA } from "@/lib/constants";
 
 type StatusType = "aprovado" | "acompanhamento" | "nao_iniciado";
-
-const CATEGORIAS = ["Todas", "Kihon", "Kata", "Kumite", "Idogeiko"];
-
-const TECNICAS_POR_CATEGORIA: Record<string, { nome: string; desc: string }[]> = {
-  Kihon: [
-    { nome: "Mae Geri", desc: "Chute Frontal" },
-    { nome: "Mawashi Geri", desc: "Chute Circular" },
-    { nome: "Yoko Geri", desc: "Chute Lateral" },
-    { nome: "Ushiro Geri", desc: "Chute para Trás" },
-    { nome: "Soto Uke", desc: "Defesa Externa" },
-    { nome: "Uchi Uke", desc: "Defesa Interna" },
-    { nome: "Gedan Barai", desc: "Defesa Baixa" },
-    { nome: "Age Uke", desc: "Defesa Alta" },
-    { nome: "Seiken", desc: "Soco Básico" },
-    { nome: "Uraken", desc: "Soco com Dorso" },
-    { nome: "Shuto Uchi", desc: "Golpe com Mão Aberta" },
-  ],
-  Kata: [
-    { nome: "Taikyoku Sono Ichi", desc: "Forma Básica 1" },
-    { nome: "Taikyoku Sono Ni", desc: "Forma Básica 2" },
-    { nome: "Taikyoku Sono San", desc: "Forma Básica 3" },
-    { nome: "Pinan Sono Ichi", desc: "Pinan 1" },
-    { nome: "Pinan Sono Ni", desc: "Pinan 2" },
-    { nome: "Pinan Sono San", desc: "Pinan 3" },
-    { nome: "Pinan Sono Yon", desc: "Pinan 4" },
-    { nome: "Pinan Sono Go", desc: "Pinan 5" },
-    { nome: "Sanchin", desc: "Kata de Respiração" },
-    { nome: "Tensho", desc: "Mãos Rotativas" },
-    { nome: "Gekisai Dai", desc: "Kata Avançado" },
-    { nome: "Gekisai Sho", desc: "Kata Avançado" },
-  ],
-  Kumite: [
-    { nome: "Sanbon Kumite", desc: "3 Passos" },
-    { nome: "Ippon Kumite", desc: "1 Passo" },
-    { nome: "Jiyu Kumite", desc: "Luta Livre" },
-    { nome: "Yakusoku Kumite", desc: "Combinado" },
-    { nome: "Shiai Kumite", desc: "Competição" },
-  ],
-  Idogeiko: [
-    { nome: "Ido Geiko Mae Geri", desc: "Movimento com Chute Frontal" },
-    { nome: "Ido Geiko Mawashi Geri", desc: "Movimento com Chute Circular" },
-    { nome: "Ido Geiko Yoko Geri", desc: "Movimento com Chute Lateral" },
-    { nome: "Ido Geiko Oi Tsuki", desc: "Movimento com Soco Direto" },
-    { nome: "Ido Geiko Gyaku Tsuki", desc: "Movimento com Soco Invertido" },
-    { nome: "Ido Geiko Soto Uke", desc: "Movimento com Defesa Externa" },
-    { nome: "Ido Geiko Uchi Uke", desc: "Movimento com Defesa Interna" },
-    { nome: "Ido Geiko Gedan Barai", desc: "Movimento com Defesa Baixa" },
-    { nome: "Ido Geiko Combinações", desc: "Combinações em Movimento" },
-  ],
-};
-
-const BELT_COLORS: Record<string, string> = {
-  branca: "#CCCCCC",
-  amarela: "#DAA520",
-  vermelha: "#CC0000",
-  laranja: "#FF8C00",
-  azul: "#1E90FF",
-  verde: "#228B22",
-  marrom: "#8B4513",
-  roxa: "#6A0DAD",
-  preta: "#111111",
-};
-
-const BELT_ORDER = ["branca", "amarela", "laranja", "azul", "verde", "roxa", "marrom", "preta"];
 
 const statusConfig: Record<StatusType, { label: string; icon: typeof CheckCircle2; colorClass: string; dotClass: string }> = {
   aprovado: { label: "Aprovado", icon: CheckCircle2, colorClass: "text-dojo-green", dotClass: "bg-dojo-green" },
@@ -97,7 +33,7 @@ const Evolution = () => {
         .select("tecnica, status, observacoes")
         .eq("aluno_id", usuario.id);
       const map = new Map<string, { status: StatusType; obs: string | null }>();
-      (data || []).forEach((a: any) => map.set(a.tecnica, { status: a.status, obs: a.observacoes }));
+      (data || []).forEach((a) => map.set(a.tecnica, { status: a.status as StatusType, obs: a.observacoes }));
       setAvaliacoes(map);
     };
 
@@ -129,7 +65,7 @@ const Evolution = () => {
   }, [usuario]);
 
   const allTecnicas = useMemo(() => {
-    const items: { nome: string; desc: string; categoria: string }[] = [];
+    const items: { nome: string; desc: string; label: string; categoria: string }[] = [];
     Object.entries(TECNICAS_POR_CATEGORIA).forEach(([cat, tecnicas]) => {
       tecnicas.forEach((t) => items.push({ ...t, categoria: cat }));
     });
@@ -144,10 +80,7 @@ const Evolution = () => {
     let aprovado = 0, acompanhamento = 0, naoIniciado = 0;
     const total = allTecnicas.length;
     allTecnicas.forEach((t) => {
-      const key = t.nome;
-      // Also try matching with description format from Assessment
-      const fullKey = `${t.nome} (${t.desc})`;
-      const av = avaliacoes.get(key) || avaliacoes.get(fullKey);
+      const av = avaliacoes.get(t.label) || avaliacoes.get(t.nome) || avaliacoes.get(`${t.nome} (${t.desc})`);
       if (av?.status === "aprovado") aprovado++;
       else if (av?.status === "acompanhamento") acompanhamento++;
       else naoIniciado++;
@@ -160,8 +93,7 @@ const Evolution = () => {
     Object.entries(TECNICAS_POR_CATEGORIA).forEach(([cat, tecnicas]) => {
       let aprovado = 0;
       tecnicas.forEach((t) => {
-        const fullKey = `${t.nome} (${t.desc})`;
-        const av = avaliacoes.get(t.nome) || avaliacoes.get(fullKey);
+        const av = avaliacoes.get(t.label) || avaliacoes.get(t.nome) || avaliacoes.get(`${t.nome} (${t.desc})`);
         if (av?.status === "aprovado") aprovado++;
       });
       result[cat] = { total: tecnicas.length, aprovado };
@@ -169,15 +101,13 @@ const Evolution = () => {
     return result;
   }, [avaliacoes]);
 
-  const getStatus = (tecnica: { nome: string; desc: string }): StatusType => {
-    const fullKey = `${tecnica.nome} (${tecnica.desc})`;
-    const av = avaliacoes.get(tecnica.nome) || avaliacoes.get(fullKey);
-    return av?.status || "nao_iniciado";
+  const getStatus = (tecnica: { nome: string; desc: string; label: string }): StatusType => {
+    const av = avaliacoes.get(tecnica.label) || avaliacoes.get(tecnica.nome) || avaliacoes.get(`${tecnica.nome} (${tecnica.desc})`);
+    return (av?.status as StatusType) || "nao_iniciado";
   };
 
-  const getObs = (tecnica: { nome: string; desc: string }): string | null => {
-    const fullKey = `${tecnica.nome} (${tecnica.desc})`;
-    const av = avaliacoes.get(tecnica.nome) || avaliacoes.get(fullKey);
+  const getObs = (tecnica: { nome: string; desc: string; label: string }): string | null => {
+    const av = avaliacoes.get(tecnica.label) || avaliacoes.get(tecnica.nome) || avaliacoes.get(`${tecnica.nome} (${tecnica.desc})`);
     return av?.obs || null;
   };
 

@@ -25,18 +25,13 @@ interface Unidade {
   nome: string;
 }
 
-const FAIXAS = ["Todos", "Branca", "Laranja", "Azul", "Amarela", "Vermelha", "Verde", "Marrom", "Preta"];
+import { FAIXAS, BELT_COLORS } from "@/lib/constants";
 
-const FAIXA_COLORS: Record<string, string> = {
-  Branca: "#FFFFFF",
-  Laranja: "#FF8C00",
-  Azul: "#1E90FF",
-  Amarela: "#FFD700",
-  Vermelha: "#DC143C",
-  Verde: "#228B22",
-  Marrom: "#8B4513",
-  Preta: "#1a1a1a",
-};
+const FAIXAS_FILTER = ["Todos", ...FAIXAS];
+
+const FAIXA_COLORS = Object.fromEntries(
+  FAIXAS.map(f => [f, BELT_COLORS[f.toLowerCase()] || "#999"])
+);
 
 const StudentList = () => {
   const { usuario } = useAuth();
