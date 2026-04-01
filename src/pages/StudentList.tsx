@@ -211,7 +211,7 @@ const StudentList = () => {
           {/* Belt filter - horizontal scroll */}
           <div className="overflow-x-auto scrollbar-thin pb-1">
             <div className="flex gap-2 min-w-max">
-              {FAIXAS.map((f) => (
+              {FAIXAS_FILTER.map((f) => (
                 <button
                   key={f}
                   onClick={() => setSelectedFaixa(f)}
