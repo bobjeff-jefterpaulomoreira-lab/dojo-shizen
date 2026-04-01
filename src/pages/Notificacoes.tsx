@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -51,6 +52,7 @@ const Notificacoes = () => {
   const [unidades, setUnidades] = useState<Unidade[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [sending, setSending] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
 
   // Form state
   const [titulo, setTitulo] = useState("");
@@ -62,6 +64,7 @@ const Notificacoes = () => {
   const [selectedUnidade, setSelectedUnidade] = useState("");
 
   const fetchData = async () => {
+    setLoadingData(true);
     const [notifRes, alunosRes, unidadesRes] = await Promise.all([
       supabase.from("notificacoes").select("*").order("created_at", { ascending: false }),
       supabase.from("usuarios").select("id, nome, faixa, unidade_id").eq("role", "aluno"),
@@ -70,6 +73,7 @@ const Notificacoes = () => {
     setNotificacoes((notifRes.data as Notificacao[]) || []);
     setAlunos((alunosRes.data as Aluno[]) || []);
     setUnidades((unidadesRes.data as Unidade[]) || []);
+    setLoadingData(false);
   };
 
   useEffect(() => {
@@ -166,7 +170,11 @@ const Notificacoes = () => {
           </button>
 
           {/* List */}
-          {notificacoes.length === 0 ? (
+          {loadingData ? (
+            <div className="space-y-2">
+              {[...Array(4)].map((_, i) => <Skeleton key={i} className="w-full h-20 rounded-xl" />)}
+            </div>
+          ) : notificacoes.length === 0 ? (
             <div className="dojo-card text-center py-8">
               <Bell size={32} className="mx-auto text-muted-foreground mb-2" />
               <p className="text-muted-foreground text-sm">Nenhuma notificação enviada.</p>

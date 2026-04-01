@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -25,23 +26,19 @@ interface Unidade {
   nome: string;
 }
 
-const FAIXAS = ["Todos", "Branca", "Laranja", "Azul", "Amarela", "Vermelha", "Verde", "Marrom", "Preta"];
+import { FAIXAS, BELT_COLORS } from "@/lib/constants";
 
-const FAIXA_COLORS: Record<string, string> = {
-  Branca: "#FFFFFF",
-  Laranja: "#FF8C00",
-  Azul: "#1E90FF",
-  Amarela: "#FFD700",
-  Vermelha: "#DC143C",
-  Verde: "#228B22",
-  Marrom: "#8B4513",
-  Preta: "#1a1a1a",
-};
+const FAIXAS_FILTER = ["Todos", ...FAIXAS];
+
+const FAIXA_COLORS = Object.fromEntries(
+  FAIXAS.map(f => [f, BELT_COLORS[f.toLowerCase()] || "#999"])
+);
 
 const StudentList = () => {
   const { usuario } = useAuth();
   const navigate = useNavigate();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
   const [unidades, setUnidades] = useState<Unidade[]>([]);
   const [selectedUnidade, setSelectedUnidade] = useState<string>("todos");
   const [selectedFaixa, setSelectedFaixa] = useState("Todos");
@@ -63,6 +60,7 @@ const StudentList = () => {
 
   const fetchData = async () => {
     if (!usuario) return;
+    setLoadingData(true);
 
     const { data: unidadesData } = await supabase
       .from("unidades")
@@ -75,6 +73,7 @@ const StudentList = () => {
       .select("id, nome, email, faixa, progresso_faixa, unidade_id")
       .eq("role", "aluno");
     setAlunos((alunosData as Aluno[]) || []);
+    setLoadingData(false);
   };
 
   useEffect(() => {
@@ -216,7 +215,7 @@ const StudentList = () => {
           {/* Belt filter - horizontal scroll */}
           <div className="overflow-x-auto scrollbar-thin pb-1">
             <div className="flex gap-2 min-w-max">
-              {FAIXAS.map((f) => (
+              {FAIXAS_FILTER.map((f) => (
                 <button
                   key={f}
                   onClick={() => setSelectedFaixa(f)}
@@ -240,7 +239,11 @@ const StudentList = () => {
           </div>
 
           {/* Student list */}
-          {filtered.length === 0 ? (
+          {loadingData ? (
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => <Skeleton key={i} className="w-full h-20 rounded-xl" />)}
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="dojo-card text-center py-8">
               <p className="text-muted-foreground text-sm">Nenhum aluno encontrado.</p>
             </div>
@@ -314,7 +317,7 @@ const StudentList = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
-                  {FAIXAS.filter((f) => f !== "Todos").map((f) => (
+                  {FAIXAS.map((f) => (
                     <SelectItem key={f} value={f}>
                       <span className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: FAIXA_COLORS[f] }} />

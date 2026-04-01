@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { QrCode, FileText, Bell, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { BELT_COLORS } from "@/lib/constants";
 
 const JURAMENTOS = [
   "Treinaremos firmemente o nosso coração e o nosso corpo para termos um espírito inabalável.",
@@ -18,18 +19,6 @@ const JURAMENTOS = [
   "Olharemos para alto, para a sabedoria e para o poder, não procurando outros desejos.",
   "Toda a nossa vida através da disciplina do Kyokushin Karatê, procuraremos preencher a verdadeira significação da filosofia da vida.",
 ];
-
-const BELT_COLORS: Record<string, string> = {
-  branca: "#FFFFFF",
-  amarela: "#FFD700",
-  vermelha: "#CC0000",
-  laranja: "#FF8C00",
-  azul: "#1E90FF",
-  verde: "#228B22",
-  marrom: "#8B4513",
-  roxa: "#6A0DAD",
-  preta: "#111111",
-};
 
 const StudentDashboard = () => {
   const { usuario } = useAuth();
@@ -49,7 +38,19 @@ const StudentDashboard = () => {
     },
   });
 
-  const unreadCount = comunicados?.length || 0;
+  // Real unread notification count
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["unread-notif-count", usuario?.id],
+    enabled: !!usuario,
+    queryFn: async () => {
+      const [notifRes, leiturasRes] = await Promise.all([
+        supabase.from("notificacoes").select("id"),
+        supabase.from("notificacao_leituras").select("notificacao_id").eq("usuario_id", usuario!.id),
+      ]);
+      const readIds = new Set((leiturasRes.data || []).map((l) => l.notificacao_id));
+      return (notifRes.data || []).filter((n) => !readIds.has(n.id)).length;
+    },
+  });
 
   const quickActions = [
     { icon: QrCode, label: "Presença", onClick: () => navigate("/presenca") },

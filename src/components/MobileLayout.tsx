@@ -138,7 +138,7 @@ const MobileLayout = ({
 
       {/* Mobile bottom nav - hidden on desktop */}
       {showNav && (
-        <div className="md:hidden w-full max-w-[430px] sticky bottom-0 z-30">
+        <div className={`md:hidden w-full ${fullWidth ? "" : "max-w-[430px]"} sticky bottom-0 z-30`}>
           <BottomNav role={role} />
         </div>
       )}
