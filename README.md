@@ -71,3 +71,5 @@ npm install
 
 # Execute o projeto
 npm run dev
+## 🌐 Acesse o projeto
+Produção: https://shizen-dojo-web.vercel.app/
