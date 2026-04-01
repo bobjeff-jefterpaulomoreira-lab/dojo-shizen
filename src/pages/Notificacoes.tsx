@@ -64,6 +64,7 @@ const Notificacoes = () => {
   const [selectedUnidade, setSelectedUnidade] = useState("");
 
   const fetchData = async () => {
+    setLoadingData(true);
     const [notifRes, alunosRes, unidadesRes] = await Promise.all([
       supabase.from("notificacoes").select("*").order("created_at", { ascending: false }),
       supabase.from("usuarios").select("id, nome, faixa, unidade_id").eq("role", "aluno"),
@@ -72,6 +73,7 @@ const Notificacoes = () => {
     setNotificacoes((notifRes.data as Notificacao[]) || []);
     setAlunos((alunosRes.data as Aluno[]) || []);
     setUnidades((unidadesRes.data as Unidade[]) || []);
+    setLoadingData(false);
   };
 
   useEffect(() => {
