@@ -309,7 +309,7 @@ const StudentList = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
-                  {FAIXAS.filter((f) => f !== "Todos").map((f) => (
+                  {FAIXAS.map((f) => (
                     <SelectItem key={f} value={f}>
                       <span className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: FAIXA_COLORS[f] }} />
