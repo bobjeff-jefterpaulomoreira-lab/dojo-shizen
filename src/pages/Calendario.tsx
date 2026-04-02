@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 type EventItem = {
   id: string;
@@ -34,7 +34,6 @@ const TIPOS = ["Aviso Geral", "Evento", "Avaliação", "Treino Especial"];
 
 const Calendario = () => {
   const { usuario } = useAuth();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const isProfessor = usuario?.role === "professor";
 
@@ -115,7 +114,6 @@ const Calendario = () => {
 
   const handleDayClick = (day: Date) => {
     setSelectedDate(day);
-    // If professor and clicking a day, offer to create
   };
 
   const openCreateForDay = () => {
@@ -128,7 +126,7 @@ const Calendario = () => {
 
   const handleCreateEvent = async () => {
     if (!titulo.trim()) {
-      toast({ title: "Título obrigatório", variant: "destructive" });
+      toast.error("Título obrigatório");
       return;
     }
     setSubmitting(true);
@@ -145,11 +143,11 @@ const Calendario = () => {
         professor_id: usuario!.id,
       });
       if (error) throw error;
-      toast({ title: "Evento criado!" });
+      toast.success("Evento criado!");
       setCreateOpen(false);
       queryClient.invalidateQueries({ queryKey: ["comunicados-calendario"] });
-    } catch (err: any) {
-      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } catch {
+      toast.error("Erro ao criar evento. Tente novamente.");
     } finally {
       setSubmitting(false);
     }
@@ -208,7 +206,7 @@ const Calendario = () => {
               {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
             </h3>
             {isProfessor && (
-              <button onClick={openCreateForDay} className="dojo-btn text-xs py-1.5 px-3">
+              <button onClick={openCreateForDay} disabled={submitting} className="dojo-btn text-xs py-1.5 px-3">
                 <Plus size={14} /> Criar
               </button>
             )}
@@ -276,7 +274,7 @@ const Calendario = () => {
               <Label>Descrição (opcional)</Label>
               <Textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Detalhes..." rows={3} />
             </div>
-            <button onClick={handleCreateEvent} disabled={submitting} className="dojo-btn w-full text-sm">
+            <button onClick={handleCreateEvent} disabled={submitting} className="dojo-btn w-full text-sm disabled:opacity-50">
               {submitting ? "Criando..." : "Criar Evento"}
             </button>
           </div>

@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import { Bell, Send, Users, User, Award, Building, Trash2, Check } from "lucide-react";
+import { Bell, Send, Users, User, Award, Building, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { FAIXAS } from "@/lib/constants";
 
 interface Notificacao {
   id: string;
@@ -35,8 +36,6 @@ interface Unidade {
   id: string;
   nome: string;
 }
-
-const FAIXAS = ["Branca", "Laranja", "Azul", "Amarela", "Vermelha", "Verde", "Marrom", "Preta"];
 
 const TIPOS = [
   { value: "geral", label: "Aviso Geral", icon: Bell },
@@ -65,15 +64,23 @@ const Notificacoes = () => {
 
   const fetchData = async () => {
     setLoadingData(true);
-    const [notifRes, alunosRes, unidadesRes] = await Promise.all([
-      supabase.from("notificacoes").select("*").order("created_at", { ascending: false }),
-      supabase.from("usuarios").select("id, nome, faixa, unidade_id").eq("role", "aluno"),
-      supabase.from("unidades").select("id, nome").order("nome"),
-    ]);
-    setNotificacoes((notifRes.data as Notificacao[]) || []);
-    setAlunos((alunosRes.data as Aluno[]) || []);
-    setUnidades((unidadesRes.data as Unidade[]) || []);
-    setLoadingData(false);
+    try {
+      const [notifRes, alunosRes, unidadesRes] = await Promise.all([
+        supabase.from("notificacoes").select("*").order("created_at", { ascending: false }),
+        supabase.from("usuarios").select("id, nome, faixa, unidade_id").eq("role", "aluno"),
+        supabase.from("unidades").select("id, nome").order("nome"),
+      ]);
+      if (notifRes.error) throw notifRes.error;
+      if (alunosRes.error) throw alunosRes.error;
+      if (unidadesRes.error) throw unidadesRes.error;
+      setNotificacoes((notifRes.data as Notificacao[]) || []);
+      setAlunos((alunosRes.data as Aluno[]) || []);
+      setUnidades((unidadesRes.data as Unidade[]) || []);
+    } catch {
+      toast.error("Erro ao carregar dados.");
+    } finally {
+      setLoadingData(false);
+    }
   };
 
   useEffect(() => {
@@ -103,34 +110,38 @@ const Notificacoes = () => {
     }
 
     setSending(true);
-    const { error } = await supabase.from("notificacoes").insert({
-      titulo: titulo.trim(),
-      mensagem: mensagem.trim(),
-      tipo,
-      professor_id: usuario.id,
-      destinatario_tipo: destinatarioTipo,
-      destinatario_filtro: filtro,
-    });
-    setSending(false);
+    try {
+      const { error } = await supabase.from("notificacoes").insert({
+        titulo: titulo.trim(),
+        mensagem: mensagem.trim(),
+        tipo,
+        professor_id: usuario.id,
+        destinatario_tipo: destinatarioTipo,
+        destinatario_filtro: filtro,
+      });
 
-    if (error) {
-      toast.error("Erro ao enviar: " + error.message);
-    } else {
+      if (error) throw error;
+
       toast.success("Notificação enviada!");
       setShowDialog(false);
       resetForm();
       fetchData();
+    } catch {
+      toast.error("Erro ao enviar notificação.");
+    } finally {
+      setSending(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Excluir esta notificação?")) return;
-    const { error } = await supabase.from("notificacoes").delete().eq("id", id);
-    if (error) {
-      toast.error("Erro ao excluir: " + error.message);
-    } else {
+    try {
+      const { error } = await supabase.from("notificacoes").delete().eq("id", id);
+      if (error) throw error;
       toast.success("Notificação excluída.");
       fetchData();
+    } catch {
+      toast.error("Erro ao excluir notificação.");
     }
   };
 
@@ -159,7 +170,6 @@ const Notificacoes = () => {
 
       <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
         <div className="px-4 pt-4 space-y-3">
-          {/* Send button */}
           <button
             onClick={() => setShowDialog(true)}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-primary-foreground font-bold text-sm shadow-lg transition-all active:scale-95"
@@ -169,7 +179,6 @@ const Notificacoes = () => {
             Nova Notificação
           </button>
 
-          {/* List */}
           {loadingData ? (
             <div className="space-y-2">
               {[...Array(4)].map((_, i) => <Skeleton key={i} className="w-full h-20 rounded-xl" />)}
@@ -223,7 +232,6 @@ const Notificacoes = () => {
         </div>
       </div>
 
-      {/* Send Dialog */}
       <Dialog open={showDialog} onOpenChange={(open) => { if (!open) { setShowDialog(false); resetForm(); } }}>
         <DialogContent className="sm:max-w-md bg-background max-h-[90vh] overflow-y-auto">
           <DialogHeader>

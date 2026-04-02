@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 import { Check, X, ChevronLeft, ChevronRight, ChevronDown, User, Calendar, Clock, LogIn, LogOut } from "lucide-react";
 
@@ -26,12 +28,23 @@ interface AlunoStats {
   presencas: Presenca[];
 }
 
+interface PresencaJoin {
+  id: string;
+  data: string;
+  presente: boolean;
+  hora_entrada: string | null;
+  hora_saida: string | null;
+  aluno_id: string;
+  usuarios: { nome: string; faixa: string };
+}
+
 const AttendanceReport = () => {
   const { usuario } = useAuth();
   const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [alunosStats, setAlunosStats] = useState<AlunoStats[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [openStudents, setOpenStudents] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   const mesAtual = currentDate.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
   const changeMonth = (delta: number) => {
@@ -53,77 +66,83 @@ const AttendanceReport = () => {
   useEffect(() => {
     const fetchPresencas = async () => {
       if (!usuario) return;
+      setLoading(true);
 
       const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split("T")[0];
       const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split("T")[0];
 
-      if (usuario.role === "professor") {
-        // Para professores: buscar presenças de todos os alunos da unidade
-        const { data } = await supabase
-          .from("presencas")
-          .select(`
-            id, data, presente, hora_entrada, hora_saida, aluno_id,
-            usuarios!inner(nome, faixa)
-          `)
-          .eq("unidade_id", usuario.unidade_id)
-          .gte("data", startOfMonth)
-          .lte("data", endOfMonth)
-          .order("data", { ascending: true });
+      try {
+        if (usuario.role === "professor") {
+          const { data, error } = await supabase
+            .from("presencas")
+            .select(`
+              id, data, presente, hora_entrada, hora_saida, aluno_id,
+              usuarios!inner(nome, faixa)
+            `)
+            .eq("unidade_id", usuario.unidade_id)
+            .gte("data", startOfMonth)
+            .lte("data", endOfMonth)
+            .order("data", { ascending: true });
 
-        if (data) {
-          // Processar dados para agrupar por aluno
-          const presencasComNome = data.map(p => ({
-            id: p.id,
-            data: p.data,
-            presente: p.presente,
-            hora_entrada: (p as any).hora_entrada,
-            hora_saida: (p as any).hora_saida,
-            aluno_nome: (p.usuarios as any).nome,
-            aluno_faixa: (p.usuarios as any).faixa
-          }));
+          if (error) throw error;
 
-          // Agrupar por aluno e calcular estatísticas
-          const alunoMap = new Map<string, AlunoStats>();
-          
-          presencasComNome.forEach(p => {
-            if (!p.aluno_nome) return;
+          if (data) {
+            const typed = data as unknown as PresencaJoin[];
+            const presencasComNome = typed.map(p => ({
+              id: p.id,
+              data: p.data,
+              presente: p.presente,
+              hora_entrada: p.hora_entrada,
+              hora_saida: p.hora_saida,
+              aluno_nome: p.usuarios.nome,
+              aluno_faixa: p.usuarios.faixa,
+            }));
+
+            const alunoMap = new Map<string, AlunoStats>();
             
-            if (!alunoMap.has(p.aluno_nome)) {
-              alunoMap.set(p.aluno_nome, {
-                nome: p.aluno_nome,
-                faixa: p.aluno_faixa || "Branca",
-                totalPresencas: 0,
-                totalAulas: 0,
-                percentual: 0,
-                presencas: []
-              });
-            }
+            presencasComNome.forEach(p => {
+              if (!p.aluno_nome) return;
+              
+              if (!alunoMap.has(p.aluno_nome)) {
+                alunoMap.set(p.aluno_nome, {
+                  nome: p.aluno_nome,
+                  faixa: p.aluno_faixa || "Branca",
+                  totalPresencas: 0,
+                  totalAulas: 0,
+                  percentual: 0,
+                  presencas: []
+                });
+              }
 
-            const stats = alunoMap.get(p.aluno_nome)!;
-            stats.presencas.push(p);
-            stats.totalAulas++;
-            if (p.presente) stats.totalPresencas++;
-          });
+              const stats = alunoMap.get(p.aluno_nome)!;
+              stats.presencas.push(p);
+              stats.totalAulas++;
+              if (p.presente) stats.totalPresencas++;
+            });
 
-          // Calcular percentuais e ordenar por nome
-          const alunosArray = Array.from(alunoMap.values()).map(aluno => ({
-            ...aluno,
-            percentual: aluno.totalAulas > 0 ? (aluno.totalPresencas / aluno.totalAulas) * 100 : 0
-          })).sort((a, b) => a.nome.localeCompare(b.nome));
+            const alunosArray = Array.from(alunoMap.values()).map(aluno => ({
+              ...aluno,
+              percentual: aluno.totalAulas > 0 ? (aluno.totalPresencas / aluno.totalAulas) * 100 : 0
+            })).sort((a, b) => a.nome.localeCompare(b.nome));
 
-          setAlunosStats(alunosArray);
+            setAlunosStats(alunosArray);
+          }
+        } else {
+          const { data, error } = await supabase
+            .from("presencas")
+            .select("id, data, presente, hora_entrada, hora_saida")
+            .eq("aluno_id", usuario.id)
+            .gte("data", startOfMonth)
+            .lte("data", endOfMonth)
+            .order("data", { ascending: true });
+
+          if (error) throw error;
+          setPresencas((data as Presenca[]) || []);
         }
-      } else {
-        // Para alunos: continuar como antes
-        const { data } = await supabase
-          .from("presencas")
-          .select("id, data, presente, hora_entrada, hora_saida")
-          .eq("aluno_id", usuario.id)
-          .gte("data", startOfMonth)
-          .lte("data", endOfMonth)
-          .order("data", { ascending: true });
-
-        setPresencas((data as Presenca[]) || []);
+      } catch (err) {
+        toast.error("Erro ao carregar presenças. Tente novamente.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchPresencas();
@@ -164,8 +183,11 @@ const AttendanceReport = () => {
         </div>
 
         <div className="px-5">
-          {isProfessor ? (
-            /* Vista do Professor - Lista de Alunos com Estatísticas */
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(4)].map((_, i) => <Skeleton key={i} className="w-full h-20 rounded-xl" />)}
+            </div>
+          ) : isProfessor ? (
             alunosStats.length === 0 ? (
               <div className="dojo-card text-center py-8">
                 <p className="text-muted-foreground text-sm">Nenhum registro encontrado.</p>
@@ -263,7 +285,6 @@ const AttendanceReport = () => {
               </div>
             )
           ) : (
-            /* Vista do Aluno - Lista de Presenças Individual */
             presencas.length === 0 ? (
               <div className="dojo-card text-center py-8">
                 <p className="text-muted-foreground text-sm">Nenhum registro encontrado.</p>

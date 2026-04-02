@@ -3,13 +3,14 @@ import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Bell, Plus, Calendar, Pencil, Trash2, Image, FileText, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -37,7 +38,6 @@ const tipoBadgeColor: Record<string, string> = {
 
 const Comunicados = () => {
   const { usuario } = useAuth();
-  const { toast } = useToast();
   const isProfessor = usuario?.role === "professor";
 
   const [comunicados, setComunicados] = useState<Comunicado[]>([]);
@@ -55,12 +55,18 @@ const Comunicados = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const fetchComunicados = async () => {
-    const { data, error } = await supabase
-      .from("comunicados")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (!error && data) setComunicados(data as Comunicado[]);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from("comunicados")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setComunicados((data as Comunicado[]) || []);
+    } catch {
+      toast.error("Erro ao carregar comunicados.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -104,7 +110,7 @@ const Comunicados = () => {
 
   const handleSubmit = async () => {
     if (!titulo.trim()) {
-      toast({ title: "Título obrigatório", variant: "destructive" });
+      toast.error("Título obrigatório");
       return;
     }
     setSubmitting(true);
@@ -130,20 +136,20 @@ const Comunicados = () => {
           .update(payload)
           .eq("id", editing.id);
         if (error) throw error;
-        toast({ title: "Comunicado atualizado!" });
+        toast.success("Comunicado atualizado!");
       } else {
         const { error } = await supabase
           .from("comunicados")
           .insert({ ...payload, professor_id: usuario!.id });
         if (error) throw error;
-        toast({ title: "Comunicado publicado!" });
+        toast.success("Comunicado publicado!");
       }
 
       setDialogOpen(false);
       resetForm();
       fetchComunicados();
-    } catch (err: any) {
-      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast.error("Erro ao salvar comunicado. Tente novamente.");
     } finally {
       setSubmitting(false);
     }
@@ -151,12 +157,13 @@ const Comunicados = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Deseja realmente excluir este comunicado?")) return;
-    const { error } = await supabase.from("comunicados").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Erro ao excluir", variant: "destructive" });
-    } else {
-      toast({ title: "Comunicado excluído" });
+    try {
+      const { error } = await supabase.from("comunicados").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Comunicado excluído");
       fetchComunicados();
+    } catch {
+      toast.error("Erro ao excluir comunicado.");
     }
   };
 
@@ -177,10 +184,10 @@ const Comunicados = () => {
 
       <div className="flex-1 overflow-y-auto pb-24" style={{ backgroundColor: "hsl(var(--dojo-paper))" }}>
         <div className="px-4 md:px-8 pt-4 max-w-3xl mx-auto">
-          {/* Novo Comunicado Button */}
           {isProfessor && (
             <button
               onClick={openCreate}
+              disabled={submitting}
               className="dojo-btn w-full text-sm mb-6"
             >
               <Plus size={18} />
@@ -188,63 +195,68 @@ const Comunicados = () => {
             </button>
           )}
 
-          {/* Próximos Eventos */}
-          {eventos.length > 0 && (
-            <section className="mb-8">
-              <h2 className="font-serif font-bold text-foreground flex items-center gap-2 mb-4 text-base">
-                <Calendar size={18} className="text-primary" />
-                Próximos Eventos
-              </h2>
-              <div className="space-y-3">
-                {eventos.map((c) => (
-                  <ComunicadoCard
-                    key={c.id}
-                    comunicado={c}
-                    isProfessor={isProfessor}
-                    onEdit={() => openEdit(c)}
-                    onDelete={() => handleDelete(c.id)}
-                    formatDate={formatDate}
-                    variant="evento"
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => <Skeleton key={i} className="w-full h-28 rounded-xl" />)}
+            </div>
+          ) : (
+            <>
+              {eventos.length > 0 && (
+                <section className="mb-8">
+                  <h2 className="font-serif font-bold text-foreground flex items-center gap-2 mb-4 text-base">
+                    <Calendar size={18} className="text-primary" />
+                    Próximos Eventos
+                  </h2>
+                  <div className="space-y-3">
+                    {eventos.map((c) => (
+                      <ComunicadoCard
+                        key={c.id}
+                        comunicado={c}
+                        isProfessor={isProfessor}
+                        onEdit={() => openEdit(c)}
+                        onDelete={() => handleDelete(c.id)}
+                        formatDate={formatDate}
+                        variant="evento"
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
 
-          {/* Comunicados Recentes */}
-          <section className="mb-8">
-            <h2 className="font-serif font-bold text-foreground flex items-center gap-2 mb-4 text-base">
-              <Bell size={18} className="text-primary" />
-              Comunicados Recentes
-            </h2>
-            {recentes.length === 0 && !loading ? (
-              <div className="dojo-card text-center py-10">
-                <Bell size={36} className="mx-auto text-muted-foreground/40 mb-3" />
-                <p className="font-serif font-bold text-foreground text-sm mb-1">Nenhum comunicado</p>
-                <p className="text-muted-foreground text-xs">
-                  Os comunicados e avisos do dojo aparecerão aqui.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {recentes.map((c) => (
-                  <ComunicadoCard
-                    key={c.id}
-                    comunicado={c}
-                    isProfessor={isProfessor}
-                    onEdit={() => openEdit(c)}
-                    onDelete={() => handleDelete(c.id)}
-                    formatDate={formatDate}
-                    variant="recente"
-                  />
-                ))}
-              </div>
-            )}
-          </section>
+              <section className="mb-8">
+                <h2 className="font-serif font-bold text-foreground flex items-center gap-2 mb-4 text-base">
+                  <Bell size={18} className="text-primary" />
+                  Comunicados Recentes
+                </h2>
+                {recentes.length === 0 ? (
+                  <div className="dojo-card text-center py-10">
+                    <Bell size={36} className="mx-auto text-muted-foreground/40 mb-3" />
+                    <p className="font-serif font-bold text-foreground text-sm mb-1">Nenhum comunicado</p>
+                    <p className="text-muted-foreground text-xs">
+                      Os comunicados e avisos do dojo aparecerão aqui.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {recentes.map((c) => (
+                      <ComunicadoCard
+                        key={c.id}
+                        comunicado={c}
+                        isProfessor={isProfessor}
+                        onEdit={() => openEdit(c)}
+                        onDelete={() => handleDelete(c.id)}
+                        formatDate={formatDate}
+                        variant="recente"
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Dialog Criar / Editar */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); resetForm(); } }}>
         <DialogContent className="sm:max-w-md bg-background">
           <DialogHeader>
@@ -298,7 +310,7 @@ const Comunicados = () => {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="dojo-btn w-full text-sm"
+              className="dojo-btn w-full text-sm disabled:opacity-50"
             >
               {submitting ? "Publicando..." : editing ? "Salvar Alterações" : "Publicar Comunicado"}
             </button>
@@ -309,7 +321,6 @@ const Comunicados = () => {
   );
 };
 
-// Card component
 interface ComunicadoCardProps {
   comunicado: Comunicado;
   isProfessor: boolean;

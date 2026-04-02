@@ -49,17 +49,23 @@ const Assessment = () => {
     const fetchAlunos = async () => {
       if (!usuario) return;
       setLoadingAlunos(true);
-      const { data } = await supabase
-        .from("usuarios")
-        .select("id, nome, faixa")
-        .eq("role", "aluno")
-        .order("nome");
-      const list = (data || []) as Aluno[];
-      setAlunos(list);
-      if (list.length > 0 && !selectedAluno) {
-        setSelectedAluno(list[0].id);
+      try {
+        const { data, error } = await supabase
+          .from("usuarios")
+          .select("id, nome, faixa")
+          .eq("role", "aluno")
+          .order("nome");
+        if (error) throw error;
+        const list = (data || []) as Aluno[];
+        setAlunos(list);
+        if (list.length > 0 && !selectedAluno) {
+          setSelectedAluno(list[0].id);
+        }
+      } catch {
+        toast.error("Erro ao carregar alunos.");
+      } finally {
+        setLoadingAlunos(false);
       }
-      setLoadingAlunos(false);
     };
     fetchAlunos();
   }, [usuario]);
@@ -68,13 +74,19 @@ const Assessment = () => {
     const fetchAvaliacoes = async () => {
       if (!selectedAluno) return;
       setLoadingAvaliacoes(true);
-      const { data } = await supabase
-        .from("avaliacoes")
-        .select("*")
-        .eq("aluno_id", selectedAluno)
-        .order("created_at", { ascending: false });
-      setAvaliacoes((data || []) as Avaliacao[]);
-      setLoadingAvaliacoes(false);
+      try {
+        const { data, error } = await supabase
+          .from("avaliacoes")
+          .select("*")
+          .eq("aluno_id", selectedAluno)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        setAvaliacoes((data || []) as Avaliacao[]);
+      } catch {
+        toast.error("Erro ao carregar avaliações.");
+      } finally {
+        setLoadingAvaliacoes(false);
+      }
     };
     fetchAvaliacoes();
   }, [selectedAluno]);
@@ -83,7 +95,6 @@ const Assessment = () => {
     a.nome.toLowerCase().includes(busca.toLowerCase())
   );
 
-  // Filter by category using the technique name lookup
   const avaliacoesFiltradas = categoriaAtiva === "Todas"
     ? avaliacoes
     : avaliacoes.filter((av) => findCategoryForTecnica(av.tecnica) === categoriaAtiva);
@@ -94,29 +105,33 @@ const Assessment = () => {
       return;
     }
     setSaving(true);
-    const { error } = await supabase.from("avaliacoes").insert({
-      aluno_id: selectedAluno,
-      tecnica: novaTecnica,
-      status: novoStatus,
-      observacoes: novaObs || null,
-    });
+    try {
+      const { error } = await supabase.from("avaliacoes").insert({
+        aluno_id: selectedAluno,
+        tecnica: novaTecnica,
+        status: novoStatus,
+        observacoes: novaObs || null,
+      });
 
-    if (error) {
-      toast.error("Erro ao salvar avaliação");
-    } else {
+      if (error) throw error;
+
       toast.success("Avaliação criada!");
       setShowModal(false);
       setNovaTecnica("");
       setNovaObs("");
       setNovoStatus("nao_iniciado");
+
       const { data } = await supabase
         .from("avaliacoes")
         .select("*")
         .eq("aluno_id", selectedAluno)
         .order("created_at", { ascending: false });
       setAvaliacoes((data || []) as Avaliacao[]);
+    } catch {
+      toast.error("Erro ao salvar avaliação.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const statusColor = (s: string) => {
@@ -154,7 +169,7 @@ const Assessment = () => {
           )}
         </div>
 
-        {/* Desktop: Sidebar - Student List */}
+        {/* Desktop: Sidebar */}
         <div className="hidden md:flex w-[280px] min-w-[280px] border-r border-border bg-card flex-col h-full">
           <div className="px-4 pt-4 pb-2">
             <h3 className="font-bold text-foreground text-sm mb-3">Selecionar Aluno</h3>
@@ -205,21 +220,20 @@ const Assessment = () => {
         {/* Main content */}
         <div className="flex-1 overflow-y-auto pb-24 md:pb-4">
           <div className="p-5">
-            {/* Header row */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-foreground text-lg">
                 {selectedAlunoData?.nome || "Aluno"}
               </h2>
               <button
                 onClick={() => setShowModal(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"
+                disabled={!selectedAluno}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
               >
                 <Plus size={16} />
                 Nova Avaliação
               </button>
             </div>
 
-            {/* Category tabs */}
             <div className="flex gap-2 mb-6 flex-wrap">
               {CATEGORIAS.map((cat) => (
                 <button
@@ -236,7 +250,6 @@ const Assessment = () => {
               ))}
             </div>
 
-            {/* Avaliacoes list */}
             {loadingAvaliacoes ? (
               <div className="space-y-3">
                 {[...Array(4)].map((_, i) => <Skeleton key={i} className="w-full h-16 rounded-xl" />)}
@@ -266,7 +279,6 @@ const Assessment = () => {
         </div>
       </div>
 
-      {/* Modal Nova Avaliação */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

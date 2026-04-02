@@ -8,7 +8,7 @@ import karatekaDojo from "@/assets/karateka-dojo.jpg";
 import shizenLogo from "@/assets/shizen-logo.png";
 import { Button } from "@/components/ui/button";
 import { X, Play, Printer, LogIn, LogOut, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 
 interface PresencaAluno {
@@ -24,10 +24,9 @@ const QRCodePage = () => {
   const [date, setDate] = useState("");
   const [aulaId, setAulaId] = useState("");
   const [aulaAtiva, setAulaAtiva] = useState(true);
-  const { toast } = useToast();
+  const [actionLoading, setActionLoading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Realtime student attendance list
   const { data: presencas = [], refetch: refetchPresencas } = useQuery({
     queryKey: ["presencas-aula", aulaId],
     enabled: !!aulaId,
@@ -38,7 +37,6 @@ const QRCodePage = () => {
         .eq("aula_id", aulaId)
         .order("hora_entrada", { ascending: true });
       if (error) throw error;
-      // Fetch student names
       if (!data || data.length === 0) return [] as PresencaAluno[];
       const alunoIds = data.map(p => p.aluno_id);
       const { data: alunos } = await supabase
@@ -53,10 +51,9 @@ const QRCodePage = () => {
         aluno: alunoMap.get(p.aluno_id) || null,
       })) as PresencaAluno[];
     },
-    refetchInterval: 10000, // Refresh every 10s for realtime feel
+    refetchInterval: 10000,
   });
 
-  // Subscribe to realtime changes on presencas for this aula
   useEffect(() => {
     if (!aulaId) return;
     const channel = supabase
@@ -109,18 +106,9 @@ const QRCodePage = () => {
         <div class="footer">
           <p>押忍 - Osu! • Token válido por 60 minutos</p>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/react-qr-code@2.0.18/lib/index.js"><\/script>
-        <script>
-          const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-          svg.setAttribute("viewBox","0 0 256 256");
-          svg.setAttribute("width","220");
-          svg.setAttribute("height","220");
-          // Use a simple QR rendering via an image
-        <\/script>
       </body>
       </html>
     `);
-    // Render QR into the print window
     const qrContainer = printWindow.document.getElementById("qr-print");
     if (qrContainer) {
       const svgEl = document.querySelector(".qr-print-source svg");
@@ -136,50 +124,55 @@ const QRCodePage = () => {
     const buscarOuCriarAula = async () => {
       if (!usuario) return;
 
-      // Primeiro, busca uma aula ativa existente
-      const { data: aulaExistente } = await supabase
-        .from("aulas")
-        .select("*")
-        .eq("professor_id", usuario.id)
-        .eq("status", "aberta")
-        .gt("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      try {
+        const { data: aulaExistente, error } = await supabase
+          .from("aulas")
+          .select("*")
+          .eq("professor_id", usuario.id)
+          .eq("status", "aberta")
+          .gt("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-      if (aulaExistente) {
-        // Usa aula existente
-        setToken(aulaExistente.token);
-        setAulaId(aulaExistente.id);
-        setDate(new Date(aulaExistente.data).toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }));
-        setAulaAtiva(true);
-      } else {
-        // Cria nova aula
-        const newToken = crypto.randomUUID();
-        const now = new Date();
-        const expiresAt = new Date(now.getTime() + 60 * 60 * 1000);
+        if (error) throw error;
 
-        const { data: novaAula } = await supabase.from("aulas").insert({
-          professor_id: usuario.id,
-          unidade_id: usuario.unidade_id,
-          token: newToken,
-          expires_at: expiresAt.toISOString(),
-        }).select().single();
-
-        if (novaAula) {
-          setToken(newToken);
-          setAulaId(novaAula.id);
-          setDate(now.toLocaleDateString("pt-BR", {
+        if (aulaExistente) {
+          setToken(aulaExistente.token);
+          setAulaId(aulaExistente.id);
+          setDate(new Date(aulaExistente.data).toLocaleDateString("pt-BR", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
           }));
           setAulaAtiva(true);
+        } else {
+          const newToken = crypto.randomUUID();
+          const now = new Date();
+          const expiresAt = new Date(now.getTime() + 60 * 60 * 1000);
+
+          const { data: novaAula, error: insertError } = await supabase.from("aulas").insert({
+            professor_id: usuario.id,
+            unidade_id: usuario.unidade_id,
+            token: newToken,
+            expires_at: expiresAt.toISOString(),
+          }).select().single();
+
+          if (insertError) throw insertError;
+
+          if (novaAula) {
+            setToken(newToken);
+            setAulaId(novaAula.id);
+            setDate(now.toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }));
+            setAulaAtiva(true);
+          }
         }
+      } catch {
+        toast.error("Erro ao carregar aula. Tente recarregar a página.");
       }
     };
 
@@ -188,73 +181,65 @@ const QRCodePage = () => {
 
   const fecharAula = async () => {
     if (!aulaId) return;
+    setActionLoading(true);
 
-    // 1. Close the aula
-    const { error } = await supabase
-      .from("aulas")
-      .update({ expires_at: new Date().toISOString(), status: "fechada" })
-      .eq("id", aulaId);
+    try {
+      const { error } = await supabase
+        .from("aulas")
+        .update({ expires_at: new Date().toISOString(), status: "fechada" })
+        .eq("id", aulaId);
 
-    if (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível fechar a aula",
-        variant: "destructive",
-      });
-      return;
+      if (error) throw error;
+
+      const now = new Date().toISOString();
+      await supabase
+        .from("presencas")
+        .update({ hora_saida: now })
+        .eq("aula_id", aulaId)
+        .is("hora_saida", null);
+
+      setAulaAtiva(false);
+      toast.success("Aula encerrada. Check-out automático registrado.");
+    } catch {
+      toast.error("Erro ao fechar aula. Tente novamente.");
+    } finally {
+      setActionLoading(false);
     }
-
-    // 2. Auto-checkout: set hora_saida for students who didn't check out
-    const now = new Date().toISOString();
-    await supabase
-      .from("presencas")
-      .update({ hora_saida: now })
-      .eq("aula_id", aulaId)
-      .is("hora_saida", null);
-
-    setAulaAtiva(false);
-    toast({
-      title: "Aula Encerrada",
-      description: "Check-out automático registrado para todos os alunos",
-    });
   };
 
   const abrirNovaAula = async () => {
     if (!usuario) return;
+    setActionLoading(true);
 
-    const newToken = crypto.randomUUID();
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + 60 * 60 * 1000);
+    try {
+      const newToken = crypto.randomUUID();
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 60 * 60 * 1000);
 
-    const { data: novaAula, error } = await supabase.from("aulas").insert({
-      professor_id: usuario.id,
-      unidade_id: usuario.unidade_id,
-      token: newToken,
-      expires_at: expiresAt.toISOString(),
-    }).select().single();
+      const { data: novaAula, error } = await supabase.from("aulas").insert({
+        professor_id: usuario.id,
+        unidade_id: usuario.unidade_id,
+        token: newToken,
+        expires_at: expiresAt.toISOString(),
+      }).select().single();
 
-    if (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível abrir nova aula",
-        variant: "destructive",
-      });
-      return;
-    }
+      if (error) throw error;
 
-    if (novaAula) {
-      setToken(newToken);
-      setAulaId(novaAula.id);
-      setDate(now.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }));
-      setAulaAtiva(true);
-      toast({
-        title: "Nova Aula Aberta",
-        description: "QR Code gerado com sucesso",
-      });
+      if (novaAula) {
+        setToken(newToken);
+        setAulaId(novaAula.id);
+        setDate(now.toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }));
+        setAulaAtiva(true);
+        toast.success("Nova aula aberta! QR Code gerado.");
+      }
+    } catch {
+      toast.error("Erro ao abrir nova aula. Tente novamente.");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -264,7 +249,6 @@ const QRCodePage = () => {
 
       <div className="flex-1 bg-dojo-paper px-5 py-6 pb-24">
         <div className="dojo-card p-6 flex flex-col items-center gap-5 animate-fade-in">
-          {/* Status da Aula */}
           <div className={`px-3 py-1 rounded-full text-xs font-medium ${
             aulaAtiva 
               ? "bg-green-100 text-green-800 border border-green-200" 
@@ -273,7 +257,6 @@ const QRCodePage = () => {
             {aulaAtiva ? "🟢 Aula Ativa" : "🔴 Aula Encerrada"}
           </div>
 
-          {/* QR Code */}
           {token && aulaAtiva ? (
             <div className="bg-card p-3 rounded-xl border border-border">
               <div className="qr-print-source">
@@ -307,7 +290,6 @@ const QRCodePage = () => {
             </p>
           )}
 
-          {/* Botões de Controle */}
           <div className="flex gap-3 mt-4 flex-wrap justify-center">
             {aulaAtiva ? (
               <>
@@ -316,6 +298,7 @@ const QRCodePage = () => {
                   variant="outline"
                   size="sm"
                   className="gap-2"
+                  disabled={actionLoading}
                 >
                   <Printer size={16} />
                   Imprimir QR Code
@@ -325,9 +308,10 @@ const QRCodePage = () => {
                   variant="destructive"
                   size="sm"
                   className="gap-2"
+                  disabled={actionLoading}
                 >
                   <X size={16} />
-                  Fechar Aula
+                  {actionLoading ? "Fechando..." : "Fechar Aula"}
                 </Button>
               </>
             ) : (
@@ -335,15 +319,15 @@ const QRCodePage = () => {
                 onClick={abrirNovaAula}
                 className="gap-2 bg-primary hover:bg-primary/90"
                 size="sm"
+                disabled={actionLoading}
               >
                 <Play size={16} />
-                Abrir Nova Aula
+                {actionLoading ? "Abrindo..." : "Abrir Nova Aula"}
               </Button>
             )}
           </div>
         </div>
 
-        {/* Lista de Alunos Presentes */}
         {aulaId && (
           <div className="dojo-card mt-5 p-5 animate-fade-in">
             <div className="flex items-center gap-2 mb-4">
@@ -392,7 +376,6 @@ const QRCodePage = () => {
           </div>
         )}
 
-        {/* Karateka image */}
         <div className="mt-5 rounded-2xl overflow-hidden shadow-md">
           <img src={karatekaDojo} alt="Karateka" className="w-full h-48 object-cover" />
         </div>
