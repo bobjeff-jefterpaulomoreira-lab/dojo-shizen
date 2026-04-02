@@ -3,6 +3,8 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import { Bell, Check, AlertTriangle, Users, Award } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -26,23 +28,33 @@ const NotificacoesAluno = () => {
   const { usuario } = useAuth();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [lidas, setLidas] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [markingAll, setMarkingAll] = useState(false);
 
   const fetchData = async () => {
     if (!usuario) return;
 
-    const [notifRes, leiturasRes] = await Promise.all([
-      supabase.from("notificacoes").select("id, titulo, mensagem, tipo, created_at").order("created_at", { ascending: false }),
-      supabase.from("notificacao_leituras").select("notificacao_id").eq("usuario_id", usuario.id),
-    ]);
+    try {
+      const [notifRes, leiturasRes] = await Promise.all([
+        supabase.from("notificacoes").select("id, titulo, mensagem, tipo, created_at").order("created_at", { ascending: false }),
+        supabase.from("notificacao_leituras").select("notificacao_id").eq("usuario_id", usuario.id),
+      ]);
 
-    setNotificacoes((notifRes.data as Notificacao[]) || []);
-    setLidas(new Set((leiturasRes.data || []).map((l: any) => l.notificacao_id)));
+      if (notifRes.error) throw notifRes.error;
+      if (leiturasRes.error) throw leiturasRes.error;
+
+      setNotificacoes((notifRes.data as Notificacao[]) || []);
+      setLidas(new Set((leiturasRes.data || []).map((l) => l.notificacao_id)));
+    } catch {
+      toast.error("Erro ao carregar notificações.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchData();
 
-    // Realtime subscription
     const channel = supabase
       .channel("notificacoes-aluno")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notificacoes" }, () => {
@@ -55,11 +67,15 @@ const NotificacoesAluno = () => {
 
   const markAsRead = async (notifId: string) => {
     if (!usuario || lidas.has(notifId)) return;
-    await supabase.from("notificacao_leituras").insert({
-      notificacao_id: notifId,
-      usuario_id: usuario.id,
-    });
-    setLidas((prev) => new Set([...prev, notifId]));
+    try {
+      await supabase.from("notificacao_leituras").insert({
+        notificacao_id: notifId,
+        usuario_id: usuario.id,
+      });
+      setLidas((prev) => new Set([...prev, notifId]));
+    } catch {
+      // Silent fail for mark as read
+    }
   };
 
   const markAllAsRead = async () => {
@@ -67,10 +83,18 @@ const NotificacoesAluno = () => {
     const unread = notificacoes.filter((n) => !lidas.has(n.id));
     if (unread.length === 0) return;
     
-    await supabase.from("notificacao_leituras").insert(
-      unread.map((n) => ({ notificacao_id: n.id, usuario_id: usuario.id }))
-    );
-    setLidas(new Set(notificacoes.map((n) => n.id)));
+    setMarkingAll(true);
+    try {
+      await supabase.from("notificacao_leituras").insert(
+        unread.map((n) => ({ notificacao_id: n.id, usuario_id: usuario.id }))
+      );
+      setLidas(new Set(notificacoes.map((n) => n.id)));
+      toast.success("Todas marcadas como lidas!");
+    } catch {
+      toast.error("Erro ao marcar como lidas.");
+    } finally {
+      setMarkingAll(false);
+    }
   };
 
   const unreadCount = notificacoes.filter((n) => !lidas.has(n.id)).length;
@@ -81,18 +105,22 @@ const NotificacoesAluno = () => {
 
       <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper">
         <div className="px-4 pt-4 space-y-3">
-          {/* Mark all as read */}
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium bg-muted text-muted-foreground hover:bg-accent transition-colors"
+              disabled={markingAll}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium bg-muted text-muted-foreground hover:bg-accent transition-colors disabled:opacity-50"
             >
               <Check size={16} />
-              Marcar todas como lidas ({unreadCount})
+              {markingAll ? "Marcando..." : `Marcar todas como lidas (${unreadCount})`}
             </button>
           )}
 
-          {notificacoes.length === 0 ? (
+          {loading ? (
+            <div className="space-y-2">
+              {[...Array(4)].map((_, i) => <Skeleton key={i} className="w-full h-20 rounded-xl" />)}
+            </div>
+          ) : notificacoes.length === 0 ? (
             <div className="dojo-card text-center py-8">
               <Bell size={32} className="mx-auto text-muted-foreground mb-2" />
               <p className="text-muted-foreground text-sm">Nenhuma notificação.</p>

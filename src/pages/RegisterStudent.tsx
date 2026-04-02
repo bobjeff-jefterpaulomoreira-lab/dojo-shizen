@@ -19,16 +19,21 @@ const RegisterStudent = () => {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [unidadeId, setUnidadeId] = useState<string>((location.state as any)?.unidade_id || "");
+  const [unidadeId, setUnidadeId] = useState<string>((location.state as { unidade_id?: string })?.unidade_id || "");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUnidades = async () => {
-      const { data } = await supabase.from("unidades").select("id, nome").order("nome");
-      const list = (data as Unidade[]) || [];
-      setUnidades(list);
-      if (!unidadeId && list.length > 0) {
-        setUnidadeId(list[0].id);
+      try {
+        const { data, error } = await supabase.from("unidades").select("id, nome").order("nome");
+        if (error) throw error;
+        const list = (data as Unidade[]) || [];
+        setUnidades(list);
+        if (!unidadeId && list.length > 0) {
+          setUnidadeId(list[0].id);
+        }
+      } catch {
+        toast.error("Erro ao carregar unidades.");
       }
     };
     fetchUnidades();
@@ -43,7 +48,6 @@ const RegisterStudent = () => {
 
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("register-student", {
         body: { nome, email, senha, unidade_id: unidadeId },
       });
@@ -58,8 +62,8 @@ const RegisterStudent = () => {
         toast.success("Aluno cadastrado com sucesso!");
         navigate("/sensei/alunos");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao cadastrar");
+    } catch {
+      toast.error("Erro ao cadastrar aluno. Tente novamente.");
     } finally {
       setLoading(false);
     }

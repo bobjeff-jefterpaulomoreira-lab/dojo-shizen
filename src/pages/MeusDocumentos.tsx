@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
 import { CreditCard, Award, Upload, Download, ExternalLink, Trash2, FileText, Loader2 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface Documento {
   id: string;
@@ -24,18 +24,25 @@ const MeusDocumentos = () => {
 
   const fetchDocumentos = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("documentos")
-      .select("*")
-      .eq("usuario_id", user.id)
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("documentos")
+        .select("*")
+        .eq("usuario_id", user.id)
+        .order("created_at", { ascending: false });
 
-    if (data) {
-      const docs = data as Documento[];
-      setCarteirinha(docs.find((d) => d.tipo === "carteirinha") || null);
-      setCertificados(docs.filter((d) => d.tipo === "certificado"));
+      if (error) throw error;
+
+      if (data) {
+        const docs = data as Documento[];
+        setCarteirinha(docs.find((d) => d.tipo === "carteirinha") || null);
+        setCertificados(docs.filter((d) => d.tipo === "certificado"));
+      }
+    } catch {
+      toast.error("Erro ao carregar documentos.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -65,10 +72,8 @@ const MeusDocumentos = () => {
         .from("documentos")
         .getPublicUrl(fileName);
 
-      // If replacing carteirinha, delete old record
       if (tipo === "carteirinha" && carteirinha) {
         await supabase.from("documentos").delete().eq("id", carteirinha.id);
-        // Delete old file from storage
         const oldPath = carteirinha.arquivo_url.split("/documentos/")[1];
         if (oldPath) {
           await supabase.storage.from("documentos").remove([decodeURIComponent(oldPath)]);
@@ -84,10 +89,10 @@ const MeusDocumentos = () => {
 
       if (dbError) throw dbError;
 
-      toast({ title: "Sucesso", description: `${tipo === "carteirinha" ? "Carteirinha" : "Certificado"} enviado com sucesso!` });
+      toast.success(`${tipo === "carteirinha" ? "Carteirinha" : "Certificado"} enviado com sucesso!`);
       fetchDocumentos();
-    } catch (err: any) {
-      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } catch {
+      toast.error("Erro ao enviar arquivo. Tente novamente.");
     } finally {
       setUploading(false);
     }
@@ -99,11 +104,12 @@ const MeusDocumentos = () => {
       if (path) {
         await supabase.storage.from("documentos").remove([decodeURIComponent(path)]);
       }
-      await supabase.from("documentos").delete().eq("id", doc.id);
-      toast({ title: "Removido", description: "Documento removido com sucesso." });
+      const { error } = await supabase.from("documentos").delete().eq("id", doc.id);
+      if (error) throw error;
+      toast.success("Documento removido com sucesso.");
       fetchDocumentos();
-    } catch (err: any) {
-      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } catch {
+      toast.error("Erro ao remover documento.");
     }
   };
 
@@ -115,7 +121,7 @@ const MeusDocumentos = () => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
         if (file.size > 10 * 1024 * 1024) {
-          toast({ title: "Erro", description: "Arquivo muito grande. Máximo 10MB.", variant: "destructive" });
+          toast.error("Arquivo muito grande. Máximo 10MB.");
           return;
         }
         uploadFile(file, tipo);
@@ -179,7 +185,7 @@ const MeusDocumentos = () => {
                   <button
                     onClick={() => handleFileSelect("carteirinha")}
                     disabled={uploading}
-                    className="dojo-card flex items-center justify-center gap-2 py-3 text-sm font-medium text-foreground"
+                    className="dojo-card flex items-center justify-center gap-2 py-3 text-sm font-medium text-foreground disabled:opacity-50"
                   >
                     <Upload size={16} /> Atualizar
                   </button>
@@ -189,7 +195,7 @@ const MeusDocumentos = () => {
               <button
                 onClick={() => handleFileSelect("carteirinha")}
                 disabled={uploading}
-                className="dojo-card w-full flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground border-2 border-dashed border-border"
+                className="dojo-card w-full flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground border-2 border-dashed border-border disabled:opacity-50"
               >
                 {uploading ? (
                   <Loader2 className="animate-spin" size={32} />
@@ -254,7 +260,7 @@ const MeusDocumentos = () => {
             <button
               onClick={() => handleFileSelect("certificado")}
               disabled={uploading}
-              className="dojo-btn w-full mt-3"
+              className="dojo-btn w-full mt-3 disabled:opacity-50"
             >
               {uploading ? <Loader2 className="animate-spin" size={18} /> : <Upload size={18} />}
               Adicionar certificado

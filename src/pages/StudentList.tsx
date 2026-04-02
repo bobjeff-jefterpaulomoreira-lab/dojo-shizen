@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
-import { Search, UserPlus, Pencil, Trash2, X, Check, ArrowRightLeft } from "lucide-react";
+import { Search, UserPlus, Pencil, Trash2, ArrowRightLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -62,18 +62,22 @@ const StudentList = () => {
     if (!usuario) return;
     setLoadingData(true);
 
-    const { data: unidadesData } = await supabase
-      .from("unidades")
-      .select("id, nome")
-      .order("nome");
-    setUnidades((unidadesData as Unidade[]) || []);
+    try {
+      const [unidadesRes, alunosRes] = await Promise.all([
+        supabase.from("unidades").select("id, nome").order("nome"),
+        supabase.from("usuarios").select("id, nome, email, faixa, progresso_faixa, unidade_id").eq("role", "aluno"),
+      ]);
 
-    const { data: alunosData } = await supabase
-      .from("usuarios")
-      .select("id, nome, email, faixa, progresso_faixa, unidade_id")
-      .eq("role", "aluno");
-    setAlunos((alunosData as Aluno[]) || []);
-    setLoadingData(false);
+      if (unidadesRes.error) throw unidadesRes.error;
+      if (alunosRes.error) throw alunosRes.error;
+
+      setUnidades((unidadesRes.data as Unidade[]) || []);
+      setAlunos((alunosRes.data as Aluno[]) || []);
+    } catch {
+      toast.error("Erro ao carregar lista de alunos.");
+    } finally {
+      setLoadingData(false);
+    }
   };
 
   useEffect(() => {
@@ -101,33 +105,36 @@ const StudentList = () => {
   const handleSaveEdit = async () => {
     if (!editAluno || !editNome.trim()) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("usuarios")
-      .update({
-        nome: editNome.trim(),
-        faixa: editFaixa,
-        unidade_id: editUnidade,
-        progresso_faixa: editProgresso,
-      })
-      .eq("id", editAluno.id);
-    setSaving(false);
-    if (error) {
-      toast.error("Erro ao salvar: " + error.message);
-    } else {
+    try {
+      const { error } = await supabase
+        .from("usuarios")
+        .update({
+          nome: editNome.trim(),
+          faixa: editFaixa,
+          unidade_id: editUnidade,
+          progresso_faixa: editProgresso,
+        })
+        .eq("id", editAluno.id);
+      if (error) throw error;
       toast.success("Dados do aluno atualizados!");
       setEditDialog(false);
       fetchData();
+    } catch {
+      toast.error("Erro ao salvar alterações.");
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDelete = async (aluno: Aluno) => {
     if (!confirm(`Deseja realmente excluir o aluno ${aluno.nome}?`)) return;
-    const { error } = await supabase.from("usuarios").delete().eq("id", aluno.id);
-    if (error) {
-      toast.error("Erro ao excluir: " + error.message);
-    } else {
+    try {
+      const { error } = await supabase.from("usuarios").delete().eq("id", aluno.id);
+      if (error) throw error;
       toast.success("Aluno excluído.");
       fetchData();
+    } catch {
+      toast.error("Erro ao excluir aluno.");
     }
   };
 
@@ -140,18 +147,20 @@ const StudentList = () => {
   const handleTransfer = async () => {
     if (!transferAluno || !transferUnidade || transferUnidade === transferAluno.unidade_id) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("usuarios")
-      .update({ unidade_id: transferUnidade })
-      .eq("id", transferAluno.id);
-    setSaving(false);
-    if (error) {
-      toast.error("Erro ao transferir: " + error.message);
-    } else {
+    try {
+      const { error } = await supabase
+        .from("usuarios")
+        .update({ unidade_id: transferUnidade })
+        .eq("id", transferAluno.id);
+      if (error) throw error;
       const destNome = unidades.find((u) => u.id === transferUnidade)?.nome || "";
       toast.success(`${transferAluno.nome} transferido para Dojo ${destNome}!`);
       setTransferDialog(false);
       fetchData();
+    } catch {
+      toast.error("Erro ao transferir aluno.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -212,7 +221,7 @@ const StudentList = () => {
             />
           </div>
 
-          {/* Belt filter - horizontal scroll */}
+          {/* Belt filter */}
           <div className="overflow-x-auto scrollbar-thin pb-1">
             <div className="flex gap-2 min-w-max">
               {FAIXAS_FILTER.map((f) => (
@@ -354,7 +363,7 @@ const StudentList = () => {
             <button
               onClick={handleSaveEdit}
               disabled={saving}
-              className="dojo-btn w-full text-sm"
+              className="dojo-btn w-full text-sm disabled:opacity-50"
             >
               {saving ? "Salvando..." : "Salvar Alterações"}
             </button>

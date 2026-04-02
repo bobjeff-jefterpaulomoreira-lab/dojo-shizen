@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Bell } from "lucide-react";
@@ -9,20 +9,22 @@ const NotificationBell = () => {
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const fetchCount = async () => {
+  const fetchCount = useCallback(async () => {
     if (!usuario) return;
 
-    const [notifRes, leiturasRes] = await Promise.all([
-      supabase.from("notificacoes").select("id"),
-      supabase.from("notificacao_leituras").select("notificacao_id").eq("usuario_id", usuario.id),
-    ]);
+    try {
+      const [notifRes, leiturasRes] = await Promise.all([
+        supabase.from("notificacoes").select("id"),
+        supabase.from("notificacao_leituras").select("notificacao_id").eq("usuario_id", usuario.id),
+      ]);
 
-    const totalNotifs = notifRes.data?.length || 0;
-    const readIds = new Set((leiturasRes.data || []).map((l: any) => l.notificacao_id));
-    const allIds = (notifRes.data || []).map((n: any) => n.id);
-    const unread = allIds.filter((id: string) => !readIds.has(id)).length;
-    setUnreadCount(unread);
-  };
+      const readIds = new Set((leiturasRes.data || []).map((l) => l.notificacao_id));
+      const allIds = (notifRes.data || []).map((n) => n.id);
+      setUnreadCount(allIds.filter((id) => !readIds.has(id)).length);
+    } catch {
+      // Silently fail for bell count
+    }
+  }, [usuario]);
 
   useEffect(() => {
     fetchCount();
@@ -35,7 +37,7 @@ const NotificationBell = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [usuario]);
+  }, [fetchCount]);
 
   const isProfessor = usuario?.role === "professor";
   const path = isProfessor ? "/sensei/notificacoes" : "/notificacoes";

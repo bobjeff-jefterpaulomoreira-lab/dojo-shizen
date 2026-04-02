@@ -6,6 +6,8 @@ import PageHeader from "@/components/PageHeader";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Clock, XCircle, TrendingUp, Award, Calendar, Target } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { BELT_COLORS, BELT_ORDER, CATEGORIAS, TECNICAS_POR_CATEGORIA } from "@/lib/constants";
 
@@ -23,45 +25,41 @@ const Evolution = () => {
   const [categoriaAtiva, setCategoriaAtiva] = useState("Todas");
   const [presencasMes, setPresencasMes] = useState(0);
   const [totalPresencas, setTotalPresencas] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!usuario) return;
 
-    const fetchAvaliacoes = async () => {
-      const { data } = await supabase
-        .from("avaliacoes")
-        .select("tecnica, status, observacoes")
-        .eq("aluno_id", usuario.id);
-      const map = new Map<string, { status: StatusType; obs: string | null }>();
-      (data || []).forEach((a) => map.set(a.tecnica, { status: a.status as StatusType, obs: a.observacoes }));
-      setAvaliacoes(map);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [avalRes, mesRes, totalRes] = await Promise.all([
+          supabase.from("avaliacoes").select("tecnica, status, observacoes").eq("aluno_id", usuario.id),
+          supabase.from("presencas").select("*", { count: "exact", head: true })
+            .eq("aluno_id", usuario.id).eq("presente", true)
+            .gte("data", format(startOfMonth(new Date()), "yyyy-MM-dd"))
+            .lte("data", format(endOfMonth(new Date()), "yyyy-MM-dd")),
+          supabase.from("presencas").select("*", { count: "exact", head: true })
+            .eq("aluno_id", usuario.id).eq("presente", true),
+        ]);
+
+        if (avalRes.error) throw avalRes.error;
+        if (mesRes.error) throw mesRes.error;
+        if (totalRes.error) throw totalRes.error;
+
+        const map = new Map<string, { status: StatusType; obs: string | null }>();
+        (avalRes.data || []).forEach((a) => map.set(a.tecnica, { status: a.status as StatusType, obs: a.observacoes }));
+        setAvaliacoes(map);
+        setPresencasMes(mesRes.count || 0);
+        setTotalPresencas(totalRes.count || 0);
+      } catch {
+        toast.error("Erro ao carregar dados de evolução.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const fetchPresencas = async () => {
-      const now = new Date();
-      const mStart = format(startOfMonth(now), "yyyy-MM-dd");
-      const mEnd = format(endOfMonth(now), "yyyy-MM-dd");
-
-      const { count: mesCount } = await supabase
-        .from("presencas")
-        .select("*", { count: "exact", head: true })
-        .eq("aluno_id", usuario.id)
-        .eq("presente", true)
-        .gte("data", mStart)
-        .lte("data", mEnd);
-
-      const { count: totalCount } = await supabase
-        .from("presencas")
-        .select("*", { count: "exact", head: true })
-        .eq("aluno_id", usuario.id)
-        .eq("presente", true);
-
-      setPresencasMes(mesCount || 0);
-      setTotalPresencas(totalCount || 0);
-    };
-
-    fetchAvaliacoes();
-    fetchPresencas();
+    fetchData();
   }, [usuario]);
 
   const allTecnicas = useMemo(() => {
@@ -115,6 +113,23 @@ const Evolution = () => {
   const beltColor = BELT_COLORS[faixa] || "#888";
   const currentBeltIndex = BELT_ORDER.indexOf(faixa);
   const nextBelt = currentBeltIndex < BELT_ORDER.length - 1 ? BELT_ORDER[currentBeltIndex + 1] : null;
+
+  if (loading) {
+    return (
+      <MobileLayout showBrush={false} showNav={true} fullWidth={true}>
+        <PageHeader title="Minha Evolução" showBack={true} />
+        <div className="flex-1 overflow-y-auto pb-24 bg-dojo-paper px-4 pt-3 space-y-3">
+          <Skeleton className="w-full h-32 rounded-2xl" />
+          <div className="grid grid-cols-3 gap-2">
+            {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+          </div>
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => <Skeleton key={i} className="w-full h-14 rounded-xl" />)}
+          </div>
+        </div>
+      </MobileLayout>
+    );
+  }
 
   return (
     <MobileLayout showBrush={false} showNav={true} fullWidth={true}>
