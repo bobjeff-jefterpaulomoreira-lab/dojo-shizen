@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import shizenLogo from "@/assets/shizen-logo.png";
 import karatekaBack from "@/assets/karateka-hero.jpg";
 import dojoInterior from "@/assets/dojo-interior-new.jpg";
