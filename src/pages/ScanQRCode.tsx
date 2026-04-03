@@ -180,6 +180,7 @@ const ScanQRCode = () => {
 
   // CRITICAL: Start scanner directly in click handler to preserve user gesture context
   const startScanner = async () => {
+    if (status === "scanning" || status === "processing") return;
     setStatus("scanning");
     setMessage("");
 
