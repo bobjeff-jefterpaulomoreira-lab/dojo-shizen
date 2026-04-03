@@ -21,6 +21,7 @@ const MeusDocumentos = () => {
   const [certificados, setCertificados] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchDocumentos = async () => {
     if (!user) return;
