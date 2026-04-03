@@ -101,6 +101,20 @@ const Notificacoes = () => {
   const handleSend = async () => {
     if (!titulo.trim() || !mensagem.trim() || !usuario) return;
 
+    // Validate filter selection
+    if (destinatarioTipo === "aluno" && !selectedAluno) {
+      toast.error("Selecione o aluno destinatário.");
+      return;
+    }
+    if (destinatarioTipo === "faixa" && !selectedFaixa) {
+      toast.error("Selecione a faixa destinatária.");
+      return;
+    }
+    if (destinatarioTipo === "unidade" && !selectedUnidade) {
+      toast.error("Selecione a academia destinatária.");
+      return;
+    }
+
     let filtro: Record<string, string> | null = null;
     if (destinatarioTipo === "aluno" && selectedAluno) {
       filtro = { aluno_id: selectedAluno };
