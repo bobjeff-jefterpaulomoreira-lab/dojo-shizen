@@ -157,7 +157,9 @@ const Comunicados = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (deletingId) return;
     if (!confirm("Deseja realmente excluir este comunicado?")) return;
+    setDeletingId(id);
     try {
       const { error } = await supabase.from("comunicados").delete().eq("id", id);
       if (error) throw error;
@@ -165,6 +167,8 @@ const Comunicados = () => {
       fetchComunicados();
     } catch {
       toast.error("Erro ao excluir comunicado.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
