@@ -117,7 +117,7 @@ const ScanQRCode = () => {
 
   // Manual attendance without QR code
   const handleManualAttendance = async () => {
-    if (!usuario || !aulaAtiva) return;
+    if (!usuario || !aulaAtiva || status === "processing") return;
     setStatus("processing");
 
     try {
