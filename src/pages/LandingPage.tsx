@@ -33,7 +33,33 @@ const FadeInSection = ({ children, className = "", delay = 0 }: { children: Reac
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true);
+    }
+
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setIsInstalled(true);
+      }
+      setDeferredPrompt(null);
+    }
+  };
   const features = [
     { icon: QrCode, title: "Check-in por QR Code", desc: "Aluno escaneia, presença registrada. Sem filas, sem papel, sem erro." },
     { icon: Users, title: "Gestão de Alunos", desc: "Cadastro completo com faixa, unidade, progresso e histórico." },
