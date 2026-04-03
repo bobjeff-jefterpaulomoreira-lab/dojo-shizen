@@ -149,7 +149,9 @@ const Notificacoes = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (deletingId) return;
     if (!confirm("Excluir esta notificação?")) return;
+    setDeletingId(id);
     try {
       const { error } = await supabase.from("notificacoes").delete().eq("id", id);
       if (error) throw error;
@@ -157,6 +159,8 @@ const Notificacoes = () => {
       fetchData();
     } catch {
       toast.error("Erro ao excluir notificação.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
