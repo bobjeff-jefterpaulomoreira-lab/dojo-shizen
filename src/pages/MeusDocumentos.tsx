@@ -100,6 +100,9 @@ const MeusDocumentos = () => {
   };
 
   const deleteDocumento = async (doc: Documento) => {
+    if (deletingId) return;
+    if (!confirm("Deseja remover este documento?")) return;
+    setDeletingId(doc.id);
     try {
       const path = doc.arquivo_url.split("/documentos/")[1];
       if (path) {
@@ -111,6 +114,8 @@ const MeusDocumentos = () => {
       fetchDocumentos();
     } catch {
       toast.error("Erro ao remover documento.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
