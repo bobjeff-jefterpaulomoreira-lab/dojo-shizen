@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import shizenLogo from "@/assets/shizen-logo.png";
 import karatekaBack from "@/assets/karateka-hero.jpg";
 import dojoInterior from "@/assets/dojo-interior-new.jpg";
@@ -33,7 +33,33 @@ const FadeInSection = ({ children, className = "", delay = 0 }: { children: Reac
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true);
+    }
+
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setIsInstalled(true);
+      }
+      setDeferredPrompt(null);
+    }
+  };
   const features = [
     { icon: QrCode, title: "Check-in por QR Code", desc: "Aluno escaneia, presença registrada. Sem filas, sem papel, sem erro." },
     { icon: Users, title: "Gestão de Alunos", desc: "Cadastro completo com faixa, unidade, progresso e histórico." },
@@ -162,6 +188,16 @@ const LandingPage = () => {
             >
               Ver Planos <ArrowRight size={18} />
             </motion.button>
+            {deferredPrompt && !isInstalled && (
+              <motion.button
+                onClick={handleInstall}
+                className="px-8 py-4 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Smartphone size={18} /> Instalar App
+              </motion.button>
+            )}
             <motion.button
               onClick={() => navigate("/")}
               className="px-8 py-4 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10 transition-all"
@@ -536,6 +572,72 @@ const LandingPage = () => {
             </motion.button>
           </div>
         </FadeInSection>
+      </section>
+
+      {/* ═══════ COMO INSTALAR ═══════ */}
+      <section id="instalar" className="py-20 px-6" style={{ backgroundColor: "hsl(var(--card))" }}>
+        <div className="max-w-4xl mx-auto">
+          <FadeInSection className="text-center mb-12">
+            <p className="text-sm tracking-[0.3em] uppercase font-medium mb-3" style={{ color: "hsl(var(--primary))" }}>
+              Instalação
+            </p>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Como instalar o app no celular
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              O Dojo Shizen funciona como um app nativo direto do navegador. Sem precisar de loja de apps.
+            </p>
+          </FadeInSection>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <FadeInSection delay={0.1}>
+              <div className="dojo-card p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "hsl(var(--primary) / 0.1)" }}>
+                    <Smartphone size={20} style={{ color: "hsl(var(--primary))" }} />
+                  </div>
+                  <h3 className="font-serif font-bold text-foreground text-lg">Android (Chrome)</h3>
+                </div>
+                <ol className="space-y-3 text-sm text-muted-foreground">
+                  <li className="flex gap-2"><span className="font-bold text-foreground">1.</span> Acesse <strong className="text-foreground">dojo-shizen.lovable.app</strong></li>
+                  <li className="flex gap-2"><span className="font-bold text-foreground">2.</span> Toque no menu <strong className="text-foreground">⋮</strong> (3 pontos no canto superior)</li>
+                  <li className="flex gap-2"><span className="font-bold text-foreground">3.</span> Selecione <strong className="text-foreground">"Instalar app"</strong> ou <strong className="text-foreground">"Adicionar à tela inicial"</strong></li>
+                  <li className="flex gap-2"><span className="font-bold text-foreground">4.</span> Confirme e pronto! O ícone aparece na sua tela</li>
+                </ol>
+              </div>
+            </FadeInSection>
+
+            <FadeInSection delay={0.2}>
+              <div className="dojo-card p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "hsl(var(--primary) / 0.1)" }}>
+                    <Globe size={20} style={{ color: "hsl(var(--primary))" }} />
+                  </div>
+                  <h3 className="font-serif font-bold text-foreground text-lg">iPhone (Safari)</h3>
+                </div>
+                <ol className="space-y-3 text-sm text-muted-foreground">
+                  <li className="flex gap-2"><span className="font-bold text-foreground">1.</span> Abra o <strong className="text-foreground">Safari</strong> e acesse <strong className="text-foreground">dojo-shizen.lovable.app</strong></li>
+                  <li className="flex gap-2"><span className="font-bold text-foreground">2.</span> Toque no botão de <strong className="text-foreground">compartilhar</strong> (ícone ↑ na barra inferior)</li>
+                  <li className="flex gap-2"><span className="font-bold text-foreground">3.</span> Role para baixo e toque em <strong className="text-foreground">"Adicionar à Tela de Início"</strong></li>
+                  <li className="flex gap-2"><span className="font-bold text-foreground">4.</span> Toque em <strong className="text-foreground">"Adicionar"</strong> e o app estará instalado!</li>
+                </ol>
+              </div>
+            </FadeInSection>
+          </div>
+
+          {deferredPrompt && !isInstalled && (
+            <FadeInSection delay={0.3} className="text-center mt-8">
+              <motion.button
+                onClick={handleInstall}
+                className="dojo-btn text-base px-8 py-4 rounded-xl shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Smartphone size={18} /> Instalar Agora
+              </motion.button>
+            </FadeInSection>
+          )}
+        </div>
       </section>
 
       {/* ═══════ FOOTER ═══════ */}
