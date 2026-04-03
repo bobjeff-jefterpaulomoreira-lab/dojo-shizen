@@ -44,6 +44,7 @@ const Comunicados = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Comunicado | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Form state
   const [tipo, setTipo] = useState("Aviso Geral");
