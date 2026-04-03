@@ -188,6 +188,16 @@ const LandingPage = () => {
             >
               Ver Planos <ArrowRight size={18} />
             </motion.button>
+            {deferredPrompt && !isInstalled && (
+              <motion.button
+                onClick={handleInstall}
+                className="px-8 py-4 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Smartphone size={18} /> Instalar App
+              </motion.button>
+            )}
             <motion.button
               onClick={() => navigate("/")}
               className="px-8 py-4 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10 transition-all"
