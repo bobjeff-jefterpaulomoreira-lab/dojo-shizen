@@ -379,7 +379,7 @@ const ComunicadoCard = ({ comunicado, isProfessor, onEdit, onDelete, formatDate,
           <button onClick={onEdit} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
             <Pencil size={16} />
           </button>
-          <button onClick={onDelete} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+          <button onClick={onDelete} disabled={!onDelete} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive disabled:opacity-50">
             <Trash2 size={16} />
           </button>
         </div>

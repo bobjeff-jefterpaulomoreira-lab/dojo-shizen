@@ -238,7 +238,8 @@ const Notificacoes = () => {
                       </div>
                       <button
                         onClick={() => handleDelete(n.id)}
-                        className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                        disabled={deletingId === n.id}
+                        className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0 disabled:opacity-50"
                       >
                         <Trash2 size={14} />
                       </button>

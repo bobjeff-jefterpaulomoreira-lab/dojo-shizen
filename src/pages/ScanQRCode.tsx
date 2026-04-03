@@ -198,8 +198,7 @@ const ScanQRCode = () => {
         },
         () => {}
       );
-    } catch (err: any) {
-      console.error("Camera error:", err);
+    } catch {
       setStatus("error");
       setMessage("Não foi possível acessar a câmera. Verifique as permissões do navegador.");
     }

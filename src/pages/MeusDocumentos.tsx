@@ -247,7 +247,8 @@ const MeusDocumentos = () => {
                       </a>
                       <button
                         onClick={() => deleteDocumento(cert)}
-                        className="p-2 rounded-lg hover:bg-destructive/10"
+                        disabled={deletingId === cert.id}
+                        className="p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-50"
                       >
                         <Trash2 size={16} className="text-destructive" />
                       </button>

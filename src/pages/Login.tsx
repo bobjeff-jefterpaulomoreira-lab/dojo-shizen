@@ -15,12 +15,22 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
+    if (!email.trim() || !password.trim()) {
+      setError("Preencha e-mail e senha.");
+      return;
+    }
     setError("");
     setIsLoading(true);
-    const { error } = await signIn(email, password);
-    setIsLoading(false);
-    if (error) {
-      setError("E-mail ou senha incorretos.");
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        setError("E-mail ou senha incorretos.");
+      }
+    } catch {
+      setError("Erro de conexão. Tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
