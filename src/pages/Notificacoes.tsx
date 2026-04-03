@@ -61,6 +61,7 @@ const Notificacoes = () => {
   const [selectedAluno, setSelectedAluno] = useState("");
   const [selectedFaixa, setSelectedFaixa] = useState("");
   const [selectedUnidade, setSelectedUnidade] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoadingData(true);
@@ -100,6 +101,20 @@ const Notificacoes = () => {
   const handleSend = async () => {
     if (!titulo.trim() || !mensagem.trim() || !usuario) return;
 
+    // Validate filter selection
+    if (destinatarioTipo === "aluno" && !selectedAluno) {
+      toast.error("Selecione o aluno destinatário.");
+      return;
+    }
+    if (destinatarioTipo === "faixa" && !selectedFaixa) {
+      toast.error("Selecione a faixa destinatária.");
+      return;
+    }
+    if (destinatarioTipo === "unidade" && !selectedUnidade) {
+      toast.error("Selecione a academia destinatária.");
+      return;
+    }
+
     let filtro: Record<string, string> | null = null;
     if (destinatarioTipo === "aluno" && selectedAluno) {
       filtro = { aluno_id: selectedAluno };
@@ -134,7 +149,9 @@ const Notificacoes = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (deletingId) return;
     if (!confirm("Excluir esta notificação?")) return;
+    setDeletingId(id);
     try {
       const { error } = await supabase.from("notificacoes").delete().eq("id", id);
       if (error) throw error;
@@ -142,6 +159,8 @@ const Notificacoes = () => {
       fetchData();
     } catch {
       toast.error("Erro ao excluir notificação.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -219,7 +238,8 @@ const Notificacoes = () => {
                       </div>
                       <button
                         onClick={() => handleDelete(n.id)}
-                        className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                        disabled={deletingId === n.id}
+                        className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0 disabled:opacity-50"
                       >
                         <Trash2 size={14} />
                       </button>

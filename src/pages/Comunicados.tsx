@@ -44,6 +44,7 @@ const Comunicados = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Comunicado | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Form state
   const [tipo, setTipo] = useState("Aviso Geral");
@@ -156,7 +157,9 @@ const Comunicados = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (deletingId) return;
     if (!confirm("Deseja realmente excluir este comunicado?")) return;
+    setDeletingId(id);
     try {
       const { error } = await supabase.from("comunicados").delete().eq("id", id);
       if (error) throw error;
@@ -164,6 +167,8 @@ const Comunicados = () => {
       fetchComunicados();
     } catch {
       toast.error("Erro ao excluir comunicado.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -374,7 +379,7 @@ const ComunicadoCard = ({ comunicado, isProfessor, onEdit, onDelete, formatDate,
           <button onClick={onEdit} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
             <Pencil size={16} />
           </button>
-          <button onClick={onDelete} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+          <button onClick={onDelete} disabled={!onDelete} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive disabled:opacity-50">
             <Trash2 size={16} />
           </button>
         </div>

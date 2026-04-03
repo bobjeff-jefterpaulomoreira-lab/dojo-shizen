@@ -117,7 +117,7 @@ const ScanQRCode = () => {
 
   // Manual attendance without QR code
   const handleManualAttendance = async () => {
-    if (!usuario || !aulaAtiva) return;
+    if (!usuario || !aulaAtiva || status === "processing") return;
     setStatus("processing");
 
     try {
@@ -180,6 +180,7 @@ const ScanQRCode = () => {
 
   // CRITICAL: Start scanner directly in click handler to preserve user gesture context
   const startScanner = async () => {
+    if (status === "scanning" || status === "processing") return;
     setStatus("scanning");
     setMessage("");
 
@@ -197,8 +198,7 @@ const ScanQRCode = () => {
         },
         () => {}
       );
-    } catch (err: any) {
-      console.error("Camera error:", err);
+    } catch {
       setStatus("error");
       setMessage("Não foi possível acessar a câmera. Verifique as permissões do navegador.");
     }

@@ -21,6 +21,7 @@ const MeusDocumentos = () => {
   const [certificados, setCertificados] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchDocumentos = async () => {
     if (!user) return;
@@ -99,6 +100,9 @@ const MeusDocumentos = () => {
   };
 
   const deleteDocumento = async (doc: Documento) => {
+    if (deletingId) return;
+    if (!confirm("Deseja remover este documento?")) return;
+    setDeletingId(doc.id);
     try {
       const path = doc.arquivo_url.split("/documentos/")[1];
       if (path) {
@@ -110,6 +114,8 @@ const MeusDocumentos = () => {
       fetchDocumentos();
     } catch {
       toast.error("Erro ao remover documento.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -241,7 +247,8 @@ const MeusDocumentos = () => {
                       </a>
                       <button
                         onClick={() => deleteDocumento(cert)}
-                        className="p-2 rounded-lg hover:bg-destructive/10"
+                        disabled={deletingId === cert.id}
+                        className="p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-50"
                       >
                         <Trash2 size={16} className="text-destructive" />
                       </button>

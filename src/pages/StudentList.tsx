@@ -126,8 +126,12 @@ const StudentList = () => {
     }
   };
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const handleDelete = async (aluno: Aluno) => {
+    if (deletingId) return;
     if (!confirm(`Deseja realmente excluir o aluno ${aluno.nome}?`)) return;
+    setDeletingId(aluno.id);
     try {
       const { error } = await supabase.from("usuarios").delete().eq("id", aluno.id);
       if (error) throw error;
@@ -135,6 +139,8 @@ const StudentList = () => {
       fetchData();
     } catch {
       toast.error("Erro ao excluir aluno.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
