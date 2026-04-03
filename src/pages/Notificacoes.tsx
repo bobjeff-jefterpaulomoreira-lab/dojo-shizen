@@ -61,6 +61,7 @@ const Notificacoes = () => {
   const [selectedAluno, setSelectedAluno] = useState("");
   const [selectedFaixa, setSelectedFaixa] = useState("");
   const [selectedUnidade, setSelectedUnidade] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoadingData(true);
