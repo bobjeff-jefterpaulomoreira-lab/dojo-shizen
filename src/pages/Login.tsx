@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import MobileLayout from "@/components/MobileLayout";
 import shizenLogo from "@/assets/shizen-logo.png";
