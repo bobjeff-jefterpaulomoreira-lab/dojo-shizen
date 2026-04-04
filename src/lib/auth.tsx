@@ -41,10 +41,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => fetchUsuario(session.user.id), 500);
+          await fetchUsuario(session.user.id);
         } else {
           setUsuario(null);
         }
