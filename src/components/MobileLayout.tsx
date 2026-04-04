@@ -120,7 +120,7 @@ const MobileLayout = ({
           />
         )}
         {bgImage && darkOverlay && (
-          <div className="absolute inset-0 z-[1]" style={{ backgroundColor: "rgba(0,0,0,0.45)" }} />
+          <div className="absolute inset-0 z-[1] bg-foreground/45" />
         )}
         <div className="relative z-10 flex flex-col flex-1 min-h-0">
           {children}
