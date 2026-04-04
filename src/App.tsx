@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import RelatorioAulas from "./pages/RelatorioAulas";
 import Documentacao from "./pages/Documentacao";
 import LandingPage from "./pages/LandingPage";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
