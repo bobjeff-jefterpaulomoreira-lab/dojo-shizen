@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import RelatorioAulas from "./pages/RelatorioAulas";
 import Documentacao from "./pages/Documentacao";
 import LandingPage from "./pages/LandingPage";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => (
             <Route path="/documentos" element={<ProtectedRoute requiredRole="aluno"><MeusDocumentos /></ProtectedRoute>} />
             <Route path="/documentacao" element={<Documentacao />} />
             <Route path="/landing" element={<LandingPage />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

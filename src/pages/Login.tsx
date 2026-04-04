@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import MobileLayout from "@/components/MobileLayout";
 import shizenLogo from "@/assets/shizen-logo.png";
@@ -88,9 +89,14 @@ const Login = () => {
         </form>
       </div>
 
-      {/* Brush strokes at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
-        <img src={brushRedBottom} alt="" className="w-full h-16 object-cover object-bottom opacity-50" />
+      {/* Footer */}
+      <div className="absolute bottom-0 left-0 right-0 z-30">
+        <div className="text-center pb-2">
+          <Link to="/privacy" className="text-primary-foreground/40 text-[10px] hover:text-primary-foreground/60 transition-colors">
+            Privacy Policy
+          </Link>
+        </div>
+        <img src={brushRedBottom} alt="" className="w-full h-16 object-cover object-bottom opacity-50 pointer-events-none" />
       </div>
     </MobileLayout>
   );
