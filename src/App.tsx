@@ -28,18 +28,21 @@ import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
+const AppLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-muted">
+    <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+  </div>
+);
+
 const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) => {
   const { user, usuario, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
-        <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
+    return <AppLoader />;
   }
 
   if (!user) return <Navigate to="/" replace />;
+  if (!usuario) return <Navigate to="/" replace />;
   if (requiredRole && usuario?.role !== requiredRole) {
     return <Navigate to={usuario?.role === "professor" ? "/sensei" : "/dashboard"} replace />;
   }
@@ -51,11 +54,11 @@ const AuthRedirect = () => {
   const { user, usuario, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
-        <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
+    return <AppLoader />;
+  }
+
+  if (user && !usuario) {
+    return <Login />;
   }
 
   if (user && usuario) {
