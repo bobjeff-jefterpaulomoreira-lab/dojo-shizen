@@ -29,38 +29,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchUsuario = async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("usuarios")
       .select("*")
       .eq("id", userId)
-      .single();
-    if (data) {
-      setUsuario(data as Usuario);
+      .maybeSingle();
+
+    if (error) {
+      setUsuario(null);
+      return null;
     }
+
+    const nextUsuario = (data as Usuario | null) ?? null;
+    setUsuario(nextUsuario);
+    return nextUsuario;
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchUsuario(session.user.id);
-        } else {
-          setUsuario(null);
-        }
+    let isMounted = true;
+
+    const syncSession = async (nextUser: User | null) => {
+      if (!isMounted) return;
+
+      setLoading(true);
+      setUser(nextUser);
+
+      if (!nextUser) {
+        setUsuario(null);
         setLoading(false);
+        return;
+      }
+
+      await fetchUsuario(nextUser.id);
+
+      if (!isMounted) return;
+
+      setLoading(false);
+    };
+
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      void syncSession(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        void syncSession(session?.user ?? null);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUsuario(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -84,6 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
     setUser(null);
     setUsuario(null);
+    setLoading(false);
   };
 
   return (
