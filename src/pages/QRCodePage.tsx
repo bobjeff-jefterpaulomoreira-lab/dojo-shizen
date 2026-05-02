@@ -296,7 +296,9 @@ const QRCodePage = () => {
           </p>
 
           <div className="text-center">
-            <p className="font-serif font-bold text-foreground text-lg">Aula de Karatê</p>
+            <p className="font-serif font-bold text-foreground text-lg">
+              Aula de Karatê {unidade?.nome ? `— ${unidade.nome}` : ""}
+            </p>
             <p className="text-sm text-muted-foreground">{date}</p>
           </div>
 
@@ -342,7 +344,9 @@ const QRCodePage = () => {
                 disabled={actionLoading}
               >
                 <Play size={16} />
-                {actionLoading ? "Abrindo..." : "Abrir Nova Aula"}
+                {actionLoading
+                  ? "Abrindo..."
+                  : `Abrir Nova Aula${unidade?.nome ? ` — ${unidade.nome}` : ""}`}
               </Button>
             )}
           </div>
