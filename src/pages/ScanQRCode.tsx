@@ -229,24 +229,22 @@ const ScanQRCode = () => {
 
       <div className="flex-1 bg-dojo-paper px-5 py-6">
         <div className="dojo-card p-6 flex flex-col items-center gap-5 animate-fade-in">
-          {/* Unit context badges */}
+          {/* Active classes (any unit) */}
           <div className="flex flex-wrap gap-2 justify-center">
-            {unidadeAluno?.nome && (
-              <div className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/30">
-                Sua unidade: {unidadeAluno.nome}
+            {aulasAtivas.length > 0 ? (
+              aulasAtivas.map((a: any) => (
+                <div
+                  key={a.id}
+                  className="px-3 py-1 rounded-full text-xs font-medium border bg-green-100 text-green-800 border-green-200"
+                >
+                  🟢 Aula aberta{a.unidades?.nome ? ` — ${a.unidades.nome}` : ""}
+                </div>
+              ))
+            ) : (
+              <div className="px-3 py-1 rounded-full text-xs font-medium border bg-muted text-muted-foreground border-border">
+                ⚪ Nenhuma aula aberta no momento
               </div>
             )}
-            <div
-              className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                aulaAtiva
-                  ? "bg-green-100 text-green-800 border-green-200"
-                  : "bg-muted text-muted-foreground border-border"
-              }`}
-            >
-              {aulaAtiva
-                ? `🟢 Aula aberta${(aulaAtiva as any).unidades?.nome ? ` — ${(aulaAtiva as any).unidades.nome}` : ""}`
-                : "⚪ Nenhuma aula aberta na sua unidade"}
-            </div>
           </div>
 
           {/* QR reader div always in DOM so it exists when scanner starts */}
