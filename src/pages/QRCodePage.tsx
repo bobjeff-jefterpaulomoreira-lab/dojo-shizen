@@ -271,6 +271,12 @@ const QRCodePage = () => {
             {aulaAtiva ? "🟢 Aula Ativa" : "🔴 Aula Encerrada"}
           </div>
 
+          {unidade?.nome && (
+            <div className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/30">
+              Unidade: {unidade.nome}
+            </div>
+          )}
+
           {token && aulaAtiva ? (
             <div className="bg-card p-3 rounded-xl border border-border">
               <div className="qr-print-source">
