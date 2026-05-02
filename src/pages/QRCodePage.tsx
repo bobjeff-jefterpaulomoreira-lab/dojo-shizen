@@ -27,20 +27,6 @@ const QRCodePage = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  const { data: unidade } = useQuery({
-    queryKey: ["unidade", usuario?.unidade_id],
-    enabled: !!usuario?.unidade_id,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("unidades")
-        .select("id, nome")
-        .eq("id", usuario!.unidade_id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const { data: presencas = [], refetch: refetchPresencas } = useQuery({
     queryKey: ["presencas-aula", aulaId],
     enabled: !!aulaId,
@@ -271,12 +257,6 @@ const QRCodePage = () => {
             {aulaAtiva ? "🟢 Aula Ativa" : "🔴 Aula Encerrada"}
           </div>
 
-          {unidade?.nome && (
-            <div className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/30">
-              Unidade: {unidade.nome}
-            </div>
-          )}
-
           {token && aulaAtiva ? (
             <div className="bg-card p-3 rounded-xl border border-border">
               <div className="qr-print-source">
@@ -297,7 +277,7 @@ const QRCodePage = () => {
 
           <div className="text-center">
             <p className="font-serif font-bold text-foreground text-lg">
-              Aula de Karatê {unidade?.nome ? `— ${unidade.nome}` : ""}
+              Aula de Karatê Kyokushin
             </p>
             <p className="text-sm text-muted-foreground">{date}</p>
           </div>
