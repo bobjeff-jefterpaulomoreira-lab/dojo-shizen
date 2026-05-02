@@ -15,39 +15,24 @@ const ScanQRCode = () => {
   const [message, setMessage] = useState("");
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
-  // Load student's unit name (for clear context)
-  const { data: unidadeAluno } = useQuery({
-    queryKey: ["unidade-aluno", usuario?.unidade_id],
-    enabled: !!usuario?.unidade_id,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("unidades")
-        .select("id, nome")
-        .eq("id", usuario!.unidade_id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Check for active class in student's unit
-  const { data: aulaAtiva, refetch: refetchAula } = useQuery({
-    queryKey: ["aula-ativa", usuario?.unidade_id],
-    enabled: !!usuario?.unidade_id,
+  // Check for ANY active class (any unit) — students can train across units
+  const { data: aulasAtivas = [], refetch: refetchAula } = useQuery({
+    queryKey: ["aulas-ativas-todas"],
+    enabled: !!usuario,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("aulas")
         .select("id, unidade_id, status, unidades(nome)")
-        .eq("unidade_id", usuario!.unidade_id)
         .eq("status", "aberta")
         .gte("expires_at", new Date().toISOString())
-        .limit(1)
-        .maybeSingle();
+        .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      return data ?? [];
     },
-    refetchInterval: 30000, // Refresh every 30s
+    refetchInterval: 30000,
   });
+
+  const aulaAtiva = aulasAtivas[0] ?? null;
 
   const handleScan = async (token: string) => {
     if (!usuario) return;
@@ -63,17 +48,7 @@ const ScanQRCode = () => {
 
       if (aulaError || !aula) {
         setStatus("error");
-        setMessage(
-          `QR Code inválido, expirado ou de outra unidade. Sua unidade é "${unidadeAluno?.nome ?? "—"}". Verifique com o Sensei se a aula é da sua unidade.`
-        );
-        return;
-      }
-
-      if (aula.unidade_id !== usuario.unidade_id) {
-        setStatus("error");
-        setMessage(
-          `Este QR Code é de outra unidade. Sua unidade é "${unidadeAluno?.nome ?? "—"}".`
-        );
+        setMessage("QR Code inválido ou expirado. Peça ao Sensei para gerar um novo.");
         return;
       }
 
