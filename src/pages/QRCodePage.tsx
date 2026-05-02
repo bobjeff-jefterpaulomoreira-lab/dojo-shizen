@@ -344,9 +344,7 @@ const QRCodePage = () => {
                 disabled={actionLoading}
               >
                 <Play size={16} />
-                {actionLoading
-                  ? "Abrindo..."
-                  : `Abrir Nova Aula${unidade?.nome ? ` — ${unidade.nome}` : ""}`}
+                {actionLoading ? "Abrindo..." : "Abrir Nova Aula"}
               </Button>
             )}
           </div>
