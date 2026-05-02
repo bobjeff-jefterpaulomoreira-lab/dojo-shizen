@@ -27,6 +27,20 @@ const QRCodePage = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
+  const { data: unidade } = useQuery({
+    queryKey: ["unidade", usuario?.unidade_id],
+    enabled: !!usuario?.unidade_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("unidades")
+        .select("id, nome")
+        .eq("id", usuario!.unidade_id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: presencas = [], refetch: refetchPresencas } = useQuery({
     queryKey: ["presencas-aula", aulaId],
     enabled: !!aulaId,
