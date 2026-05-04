@@ -15,6 +15,38 @@ interface Documento {
   created_at: string;
 }
 
+const extractStoragePath = (urlOrPath: string): string => {
+  // Backward compat: handle legacy public URLs that contain /documentos/<path>
+  const marker = "/documentos/";
+  const idx = urlOrPath.indexOf(marker);
+  if (idx >= 0) {
+    return decodeURIComponent(urlOrPath.substring(idx + marker.length));
+  }
+  return urlOrPath;
+};
+
+const useSignedUrl = (path: string | undefined) => {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    if (!path) {
+      setUrl(null);
+      return;
+    }
+    const storagePath = extractStoragePath(path);
+    supabase.storage
+      .from("documentos")
+      .createSignedUrl(storagePath, 60 * 60)
+      .then(({ data }) => {
+        if (!cancelled) setUrl(data?.signedUrl ?? null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [path]);
+  return url;
+};
+
 const MeusDocumentos = () => {
   const { user, loading: authLoading } = useAuth();
   const [carteirinha, setCarteirinha] = useState<Documento | null>(null);
@@ -22,6 +54,7 @@ const MeusDocumentos = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const carteirinhaUrl = useSignedUrl(carteirinha?.arquivo_url);
 
   const fetchDocumentos = async () => {
     if (!user) return;
@@ -69,15 +102,11 @@ const MeusDocumentos = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
-        .from("documentos")
-        .getPublicUrl(fileName);
-
       if (tipo === "carteirinha" && carteirinha) {
         await supabase.from("documentos").delete().eq("id", carteirinha.id);
-        const oldPath = carteirinha.arquivo_url.split("/documentos/")[1];
+        const oldPath = extractStoragePath(carteirinha.arquivo_url);
         if (oldPath) {
-          await supabase.storage.from("documentos").remove([decodeURIComponent(oldPath)]);
+          await supabase.storage.from("documentos").remove([oldPath]);
         }
       }
 
@@ -85,7 +114,7 @@ const MeusDocumentos = () => {
         usuario_id: user.id,
         tipo,
         nome: file.name,
-        arquivo_url: urlData.publicUrl,
+        arquivo_url: fileName,
       });
 
       if (dbError) throw dbError;
@@ -104,9 +133,9 @@ const MeusDocumentos = () => {
     if (!confirm("Deseja remover este documento?")) return;
     setDeletingId(doc.id);
     try {
-      const path = doc.arquivo_url.split("/documentos/")[1];
+      const path = extractStoragePath(doc.arquivo_url);
       if (path) {
-        await supabase.storage.from("documentos").remove([decodeURIComponent(path)]);
+        await supabase.storage.from("documentos").remove([path]);
       }
       const { error } = await supabase.from("documentos").delete().eq("id", doc.id);
       if (error) throw error;
