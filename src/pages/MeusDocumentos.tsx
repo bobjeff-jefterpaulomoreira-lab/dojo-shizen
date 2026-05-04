@@ -47,6 +47,48 @@ const useSignedUrl = (path: string | undefined) => {
   return url;
 };
 
+const CertificadoItem = ({
+  cert,
+  deletingId,
+  onDelete,
+}: {
+  cert: Documento;
+  deletingId: string | null;
+  onDelete: (doc: Documento) => void;
+}) => {
+  const url = useSignedUrl(cert.arquivo_url);
+  return (
+    <div className="dojo-card flex items-center gap-3">
+      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+        <FileText size={20} className="text-primary" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground truncate">{cert.nome}</p>
+        <p className="text-xs text-muted-foreground">
+          {new Date(cert.created_at).toLocaleDateString("pt-BR")}
+        </p>
+      </div>
+      <div className="flex items-center gap-1">
+        <a
+          href={url ?? "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-2 rounded-lg hover:bg-muted"
+        >
+          <ExternalLink size={16} className="text-muted-foreground" />
+        </a>
+        <button
+          onClick={() => onDelete(cert)}
+          disabled={deletingId === cert.id}
+          className="p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-50"
+        >
+          <Trash2 size={16} className="text-destructive" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const MeusDocumentos = () => {
   const { user, loading: authLoading } = useAuth();
   const [carteirinha, setCarteirinha] = useState<Documento | null>(null);
