@@ -192,13 +192,19 @@ const MeusDocumentos = () => {
             {carteirinha ? (
               <div className="space-y-3">
                 <div className="dojo-card p-0 overflow-hidden relative">
-                  <img
-                    src={carteirinha.arquivo_url}
-                    alt="Carteirinha"
-                    className="w-full h-auto rounded-xl"
-                  />
+                  {carteirinhaUrl ? (
+                    <img
+                      src={carteirinhaUrl}
+                      alt="Carteirinha"
+                      className="w-full h-auto rounded-xl"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="animate-spin text-primary" size={24} />
+                    </div>
+                  )}
                   <a
-                    href={carteirinha.arquivo_url}
+                    href={carteirinhaUrl ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="absolute bottom-3 right-3 bg-foreground/70 text-background text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 backdrop-blur-sm"
@@ -209,7 +215,7 @@ const MeusDocumentos = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <a
-                    href={carteirinha.arquivo_url}
+                    href={carteirinhaUrl ?? "#"}
                     download
                     target="_blank"
                     rel="noopener noreferrer"
@@ -255,34 +261,12 @@ const MeusDocumentos = () => {
             {certificados.length > 0 ? (
               <div className="space-y-3">
                 {certificados.map((cert) => (
-                  <div key={cert.id} className="dojo-card flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <FileText size={20} className="text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{cert.nome}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(cert.created_at).toLocaleDateString("pt-BR")}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <a
-                        href={cert.arquivo_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-lg hover:bg-muted"
-                      >
-                        <ExternalLink size={16} className="text-muted-foreground" />
-                      </a>
-                      <button
-                        onClick={() => deleteDocumento(cert)}
-                        disabled={deletingId === cert.id}
-                        className="p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-50"
-                      >
-                        <Trash2 size={16} className="text-destructive" />
-                      </button>
-                    </div>
-                  </div>
+                  <CertificadoItem
+                    key={cert.id}
+                    cert={cert}
+                    deletingId={deletingId}
+                    onDelete={deleteDocumento}
+                  />
                 ))}
               </div>
             ) : (
