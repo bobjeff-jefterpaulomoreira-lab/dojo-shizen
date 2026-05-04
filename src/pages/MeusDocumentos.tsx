@@ -15,6 +15,80 @@ interface Documento {
   created_at: string;
 }
 
+const extractStoragePath = (urlOrPath: string): string => {
+  // Backward compat: handle legacy public URLs that contain /documentos/<path>
+  const marker = "/documentos/";
+  const idx = urlOrPath.indexOf(marker);
+  if (idx >= 0) {
+    return decodeURIComponent(urlOrPath.substring(idx + marker.length));
+  }
+  return urlOrPath;
+};
+
+const useSignedUrl = (path: string | undefined) => {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    if (!path) {
+      setUrl(null);
+      return;
+    }
+    const storagePath = extractStoragePath(path);
+    supabase.storage
+      .from("documentos")
+      .createSignedUrl(storagePath, 60 * 60)
+      .then(({ data }) => {
+        if (!cancelled) setUrl(data?.signedUrl ?? null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [path]);
+  return url;
+};
+
+const CertificadoItem = ({
+  cert,
+  deletingId,
+  onDelete,
+}: {
+  cert: Documento;
+  deletingId: string | null;
+  onDelete: (doc: Documento) => void;
+}) => {
+  const url = useSignedUrl(cert.arquivo_url);
+  return (
+    <div className="dojo-card flex items-center gap-3">
+      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+        <FileText size={20} className="text-primary" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground truncate">{cert.nome}</p>
+        <p className="text-xs text-muted-foreground">
+          {new Date(cert.created_at).toLocaleDateString("pt-BR")}
+        </p>
+      </div>
+      <div className="flex items-center gap-1">
+        <a
+          href={url ?? "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-2 rounded-lg hover:bg-muted"
+        >
+          <ExternalLink size={16} className="text-muted-foreground" />
+        </a>
+        <button
+          onClick={() => onDelete(cert)}
+          disabled={deletingId === cert.id}
+          className="p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-50"
+        >
+          <Trash2 size={16} className="text-destructive" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const MeusDocumentos = () => {
   const { user, loading: authLoading } = useAuth();
   const [carteirinha, setCarteirinha] = useState<Documento | null>(null);
@@ -22,6 +96,7 @@ const MeusDocumentos = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const carteirinhaUrl = useSignedUrl(carteirinha?.arquivo_url);
 
   const fetchDocumentos = async () => {
     if (!user) return;
@@ -69,15 +144,11 @@ const MeusDocumentos = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
-        .from("documentos")
-        .getPublicUrl(fileName);
-
       if (tipo === "carteirinha" && carteirinha) {
         await supabase.from("documentos").delete().eq("id", carteirinha.id);
-        const oldPath = carteirinha.arquivo_url.split("/documentos/")[1];
+        const oldPath = extractStoragePath(carteirinha.arquivo_url);
         if (oldPath) {
-          await supabase.storage.from("documentos").remove([decodeURIComponent(oldPath)]);
+          await supabase.storage.from("documentos").remove([oldPath]);
         }
       }
 
@@ -85,7 +156,7 @@ const MeusDocumentos = () => {
         usuario_id: user.id,
         tipo,
         nome: file.name,
-        arquivo_url: urlData.publicUrl,
+        arquivo_url: fileName,
       });
 
       if (dbError) throw dbError;
@@ -104,9 +175,9 @@ const MeusDocumentos = () => {
     if (!confirm("Deseja remover este documento?")) return;
     setDeletingId(doc.id);
     try {
-      const path = doc.arquivo_url.split("/documentos/")[1];
+      const path = extractStoragePath(doc.arquivo_url);
       if (path) {
-        await supabase.storage.from("documentos").remove([decodeURIComponent(path)]);
+        await supabase.storage.from("documentos").remove([path]);
       }
       const { error } = await supabase.from("documentos").delete().eq("id", doc.id);
       if (error) throw error;
@@ -163,13 +234,19 @@ const MeusDocumentos = () => {
             {carteirinha ? (
               <div className="space-y-3">
                 <div className="dojo-card p-0 overflow-hidden relative">
-                  <img
-                    src={carteirinha.arquivo_url}
-                    alt="Carteirinha"
-                    className="w-full h-auto rounded-xl"
-                  />
+                  {carteirinhaUrl ? (
+                    <img
+                      src={carteirinhaUrl}
+                      alt="Carteirinha"
+                      className="w-full h-auto rounded-xl"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="animate-spin text-primary" size={24} />
+                    </div>
+                  )}
                   <a
-                    href={carteirinha.arquivo_url}
+                    href={carteirinhaUrl ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="absolute bottom-3 right-3 bg-foreground/70 text-background text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 backdrop-blur-sm"
@@ -180,7 +257,7 @@ const MeusDocumentos = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <a
-                    href={carteirinha.arquivo_url}
+                    href={carteirinhaUrl ?? "#"}
                     download
                     target="_blank"
                     rel="noopener noreferrer"
@@ -226,34 +303,12 @@ const MeusDocumentos = () => {
             {certificados.length > 0 ? (
               <div className="space-y-3">
                 {certificados.map((cert) => (
-                  <div key={cert.id} className="dojo-card flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <FileText size={20} className="text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{cert.nome}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(cert.created_at).toLocaleDateString("pt-BR")}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <a
-                        href={cert.arquivo_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-lg hover:bg-muted"
-                      >
-                        <ExternalLink size={16} className="text-muted-foreground" />
-                      </a>
-                      <button
-                        onClick={() => deleteDocumento(cert)}
-                        disabled={deletingId === cert.id}
-                        className="p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-50"
-                      >
-                        <Trash2 size={16} className="text-destructive" />
-                      </button>
-                    </div>
-                  </div>
+                  <CertificadoItem
+                    key={cert.id}
+                    cert={cert}
+                    deletingId={deletingId}
+                    onDelete={deleteDocumento}
+                  />
                 ))}
               </div>
             ) : (
