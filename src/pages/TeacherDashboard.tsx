@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import shizenLogo from "@/assets/shizen-logo.png";
 import karatekaBack from "@/assets/karateka-back.jpg";
-import { Calendar, ClipboardCheck, QrCode, Users } from "lucide-react";
+import { Calendar, ClipboardCheck, QrCode, Users, DollarSign } from "lucide-react";
 
 const TeacherDashboard = () => {
   const { usuario } = useAuth();
@@ -63,6 +63,26 @@ const TeacherDashboard = () => {
               </div>
             </button>
           ))}
+        </div>
+
+        {/* Financeiro - card extra abaixo do grid 2x2 (frozen) */}
+        <div
+          className="w-full max-w-md md:max-w-lg mt-4 animate-fade-in"
+          style={{ animationDelay: "0.6s" }}
+        >
+          <button
+            onClick={() => navigate("/sensei/financeiro")}
+            className="w-full flex items-center justify-between gap-3 px-5 py-4 rounded-2xl shadow-lg transition-all active:scale-95 hover:shadow-xl hover:scale-[1.02] bg-primary"
+          >
+            <div className="flex items-center gap-3">
+              <DollarSign className="text-primary-foreground" size={26} />
+              <div className="text-left">
+                <p className="font-serif font-bold text-primary-foreground text-sm">Financeiro</p>
+                <p className="text-[11px] text-primary-foreground/60">Mensalidades & Despesas</p>
+              </div>
+            </div>
+            <span className="text-primary-foreground/70 text-lg">›</span>
+          </button>
         </div>
 
         {/* Osu footer */}

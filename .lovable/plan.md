@@ -1,54 +1,74 @@
-## Diagnóstico — Verificação do App
+# Plano: Área Financeira do Sensei
 
-### O que está funcionando bem
-- **Banco de dados saudável**: 5 usuários (1 sensei + 4 alunos), 78 aulas no histórico, 6 presenças registradas. Sem erros recentes nos logs do Postgres ou de autenticação.
-- **Multi-unidade**: 2 unidades com alunos distribuídos. Cross-unit check-in funcionando após últimas correções.
-- **PWA / Frontend**: Sem erros no console (apenas warning interno do Lovable, irrelevante).
-- **Fluxo de QR Code**: Lógica de check-in/check-out por toggle e fechamento automático no `fecharAula` está correta.
+Módulo simples de controle financeiro, acessível **apenas pelo professor**. Nada do app do aluno é alterado — sem mudanças em dashboard, check-in, QR, avaliações ou notificações.
 
-### Pontos de atenção encontrados
-1. **Não há aulas ativas no momento** (todas as 78 aulas estão expiradas). Esperado fora do horário de treino.
-2. **Findings de segurança críticos pendentes** — apesar de termos corrigido recentemente, o scanner ainda aponta:
-   - `PRIVILEGE_ESCALATION` — política de UPDATE em `usuarios` ainda permite que aluno mude `role`/`unidade_id`/`faixa` no nível RLS (o trigger bloqueia, mas a policy continua permissiva — defesa em profundidade falhando).
-   - `EXPOSED_SENSITIVE_DATA` — bucket `documentos` ainda marcado como público (a migration anterior não chegou a torná-lo private de fato, ou o flag não pegou).
-   - `REALTIME_MISSING_AUTHORIZATION` — qualquer usuário autenticado pode escutar todas as mudanças de `presencas` e `notificacoes` via Realtime, vazando presenças e notificações de outros alunos.
-   - `MISSING_STORAGE_UPDATE_POLICY` — sem política UPDATE no bucket `documentos`.
-3. **Linter Supabase**: 9 funções `SECURITY DEFINER` executáveis por anon/authenticated sem necessidade + Leaked Password Protection desabilitado.
+## O que o Sensei poderá fazer
 
----
+1. **Mensalidades dos alunos**
+   - Definir o valor mensal por aluno (ou um valor padrão da unidade)
+   - Marcar pagamentos como **Pago / Pendente / Atrasado**
+   - Registrar data de pagamento, forma (Pix, dinheiro, cartão) e observação
+   - Ver lista mensal: quem pagou, quem está em atraso
 
-## Plano de correções
+2. **Despesas da academia**
+   - Cadastrar despesas (aluguel, equipamentos, eventos, etc.) com categoria, valor e data
+   - Cadastrar outras receitas avulsas (uniformes, exames de faixa, eventos)
 
-### 1. Travar privilege escalation no nível RLS (não só trigger)
-Substituir a policy `Users can update own profile` em `public.usuarios` por uma policy que bloqueie alteração de `role`, `unidade_id` e `faixa` por alunos via `WITH CHECK` comparando com a linha existente (usando `has_role` para permitir professor).
+3. **Relatório financeiro**
+   - Resumo do mês: receita total, despesas, saldo
+   - Gráfico simples de receita x despesa (últimos 6 meses)
+   - Lista de inadimplentes
+   - Exportar em CSV/PDF
 
-### 2. Tornar bucket `documentos` privado de verdade
-- `UPDATE storage.buckets SET public = false WHERE id = 'documentos'`
-- Adicionar policy de UPDATE no bucket (dono ou professor).
-- Validar que `MeusDocumentos.tsx` já usa signed URLs (já está, conforme última iteração).
+## Onde ficará no app
 
-### 3. Restringir Realtime de `presencas` e `notificacoes`
-Criar políticas RLS em `realtime.messages` para que cada usuário só receba broadcasts dos próprios registros:
-- `presencas`: filtrar por `aluno_id = auth.uid()` (professor recebe tudo).
-- `notificacoes`: filtrar por `usuario_id = auth.uid()` ou `usuario_id IS NULL` (broadcast geral).
+Nova aba/card no dashboard do Sensei: **"Financeiro"** → leva para `/sensei/financeiro` com 3 sub-páginas:
+- `/sensei/financeiro` (visão geral + gráficos)
+- `/sensei/financeiro/mensalidades` (lista de alunos + status do mês)
+- `/sensei/financeiro/despesas` (CRUD de despesas/receitas)
 
-### 4. Reduzir superfície de SECURITY DEFINER
-Revogar `EXECUTE` em funções `SECURITY DEFINER` do schema `public` para `anon` (e para `authenticated` quando aplicável), mantendo apenas o necessário (ex: `has_role` precisa ser executável por authenticated).
+A `BottomNav` do professor já tem 5 itens; o acesso ficará pelo dashboard (card) para não sobrecarregar a navegação. Layout segue o padrão japonês existente (vermelho #8B0000, cards translúcidos, `pb-24`).
 
-### 5. Habilitar Leaked Password Protection
-Ativar via configuração de auth do Cloud (`cloud--configure_auth`).
+## Mudanças no banco (3 tabelas novas, isoladas)
 
-### 6. Atualizar `@security-memory`
-Documentar as decisões e remover orientações obsoletas das iterações anteriores.
+```text
+mensalidades
+  id, aluno_id, unidade_id, mes_referencia (date),
+  valor, status (pago|pendente|atrasado),
+  data_pagamento, forma_pagamento, observacao, created_at
 
----
+despesas
+  id, unidade_id, categoria, descricao, valor,
+  data, tipo (despesa|receita_avulsa), created_at, professor_id
 
-## Detalhes técnicos
+config_financeiro
+  id, unidade_id, valor_mensalidade_padrao, dia_vencimento
+```
 
-- Migration única consolidando: nova policy UPDATE em `usuarios` com checagem coluna-a-coluna; `storage.buckets` private; políticas em `storage.objects` para UPDATE/DELETE no bucket documentos; políticas em `realtime.messages`; revogações de EXECUTE.
-- Sem mudanças de código frontend necessárias (signed URLs já implementadas; queries de presença já filtram por `aluno_id`).
-- Após aplicar, rodar `security--run_security_scan` para confirmar zero findings críticos.
+**RLS estrita**: somente `get_user_role(auth.uid()) = 'professor'` pode SELECT/INSERT/UPDATE/DELETE nas 3 tabelas. Aluno **não tem nenhum acesso** — não vê valores, não vê status próprio (a menos que você queira no futuro). Nada do schema atual é alterado.
 
-## Fora do escopo
-- Mudanças de UX no fluxo de QR/aula (já alinhado nas iterações anteriores).
-- Novas features.
+## Garantias de não-quebra
+
+- Nenhum arquivo existente é modificado, exceto:
+  - `src/pages/TeacherDashboard.tsx`: adicionar 1 card "Financeiro" (sem mexer no grid 2x2 frozen — adicionado abaixo dele)
+  - `src/App.tsx`: registrar 3 rotas novas
+- Dashboard do aluno, BottomNav do aluno, QR, presenças, avaliações, notificações: **intocados**
+- Nenhuma migração altera tabelas existentes — só cria novas
+- Tipos do Supabase regeneram automaticamente sem afetar telas atuais
+
+## Fora do escopo (pode entrar depois)
+
+- Geração automática de cobrança mensal (cron)
+- Integração com Pix/cartão real (Paddle/Stripe)
+- Notificação push de vencimento ao aluno
+- Tela do aluno mostrando seu próprio histórico financeiro
+
+## Arquivos a criar
+
+- `supabase/migrations/<timestamp>_financeiro.sql`
+- `src/pages/Financeiro/Overview.tsx`
+- `src/pages/Financeiro/Mensalidades.tsx`
+- `src/pages/Financeiro/Despesas.tsx`
+- `src/lib/financeiro.ts` (helpers de cálculo + export CSV)
+
+Aprovando, eu implemento o schema + as 3 telas + o card no dashboard do Sensei.

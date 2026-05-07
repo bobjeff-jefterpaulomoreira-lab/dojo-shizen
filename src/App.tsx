@@ -25,6 +25,9 @@ import RelatorioAulas from "./pages/RelatorioAulas";
 import Documentacao from "./pages/Documentacao";
 import LandingPage from "./pages/LandingPage";
 import Privacy from "./pages/Privacy";
+import FinanceiroOverview from "./pages/Financeiro/Overview";
+import Mensalidades from "./pages/Financeiro/Mensalidades";
+import Despesas from "./pages/Financeiro/Despesas";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +95,9 @@ const App = () => (
             <Route path="/sensei/calendario" element={<ProtectedRoute requiredRole="professor"><Calendario /></ProtectedRoute>} />
             <Route path="/sensei/notificacoes" element={<ProtectedRoute requiredRole="professor"><Notificacoes /></ProtectedRoute>} />
             <Route path="/sensei/aulas" element={<ProtectedRoute requiredRole="professor"><RelatorioAulas /></ProtectedRoute>} />
+            <Route path="/sensei/financeiro" element={<ProtectedRoute requiredRole="professor"><FinanceiroOverview /></ProtectedRoute>} />
+            <Route path="/sensei/financeiro/mensalidades" element={<ProtectedRoute requiredRole="professor"><Mensalidades /></ProtectedRoute>} />
+            <Route path="/sensei/financeiro/despesas" element={<ProtectedRoute requiredRole="professor"><Despesas /></ProtectedRoute>} />
             <Route path="/comunicados" element={<ProtectedRoute requiredRole="aluno"><Comunicados /></ProtectedRoute>} />
             <Route path="/calendario" element={<ProtectedRoute requiredRole="aluno"><Calendario /></ProtectedRoute>} />
             <Route path="/notificacoes" element={<ProtectedRoute requiredRole="aluno"><NotificacoesAluno /></ProtectedRoute>} />
