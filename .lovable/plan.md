@@ -1,91 +1,54 @@
+## Diagnóstico — Verificação do App
 
+### O que está funcionando bem
+- **Banco de dados saudável**: 5 usuários (1 sensei + 4 alunos), 78 aulas no histórico, 6 presenças registradas. Sem erros recentes nos logs do Postgres ou de autenticação.
+- **Multi-unidade**: 2 unidades com alunos distribuídos. Cross-unit check-in funcionando após últimas correções.
+- **PWA / Frontend**: Sem erros no console (apenas warning interno do Lovable, irrelevante).
+- **Fluxo de QR Code**: Lógica de check-in/check-out por toggle e fechamento automático no `fecharAula` está correta.
 
-## Auditoria Completa E2E - Dojo Shizen
-
-### Problemas Encontrados
-
----
-
-#### 1. BUG DE BUILD (Bloqueante)
-
-**Arquivo:** `supabase/functions/register-student/index.ts` (linha 83)
-- `err` tipado como `unknown` no catch, mas acessa `.message` diretamente
-- **Correção:** Usar `(err as Error).message` ou `String(err)`
-
----
-
-#### 2. BUGS DE LOGICA
-
-**a) QRCodePage.tsx (linha 148)** - Usa `.single()` ao buscar aula existente, o que lanca erro se nenhuma aula for encontrada (deveria ser `.maybeSingle()`)
-
-**b) AttendanceReport.tsx (linhas 64-71)** - Query usa `usuarios!inner(nome, faixa)` como join na tabela `presencas`, mas `presencas` nao tem foreign key para `usuarios` no schema gerado. Isso pode falhar silenciosamente dependendo de como o PostgREST resolve a relacao. Funciona porque existe FK `presencas_aluno_id_fkey` referenciando `usuarios`, mas o alias `usuarios!inner` depende do PostgREST inferir isso corretamente -- fragil.
-
-**c) NotificationBell.tsx** - Busca TODAS as notificacoes sem filtro de destinatario. Alunos veem contagem de notificacoes que nao sao para eles (RLS filtra no banco, mas a logica de contagem no front assume que tudo retornado e relevante -- isso funciona CORRETAMENTE gracas ao RLS, porem depende totalmente do RLS estar configurado certo).
-
-**d) StudentDashboard.tsx (linha 52)** - `unreadCount` usa a contagem de comunicados como badge de notificacoes, o que e semanticamente incorreto (mostra quantidade de comunicados recentes, nao notificacoes nao lidas).
-
-**e) Assessment.tsx (linha 151)** - Usa `as any` para inserir avaliacao, contornando tipagem. A tabela `avaliacoes` nao tem campo `categoria`, mas o filtro tenta acessar `(av as any).categoria`. Filtro de categoria nunca funciona corretamente.
+### Pontos de atenção encontrados
+1. **Não há aulas ativas no momento** (todas as 78 aulas estão expiradas). Esperado fora do horário de treino.
+2. **Findings de segurança críticos pendentes** — apesar de termos corrigido recentemente, o scanner ainda aponta:
+   - `PRIVILEGE_ESCALATION` — política de UPDATE em `usuarios` ainda permite que aluno mude `role`/`unidade_id`/`faixa` no nível RLS (o trigger bloqueia, mas a policy continua permissiva — defesa em profundidade falhando).
+   - `EXPOSED_SENSITIVE_DATA` — bucket `documentos` ainda marcado como público (a migration anterior não chegou a torná-lo private de fato, ou o flag não pegou).
+   - `REALTIME_MISSING_AUTHORIZATION` — qualquer usuário autenticado pode escutar todas as mudanças de `presencas` e `notificacoes` via Realtime, vazando presenças e notificações de outros alunos.
+   - `MISSING_STORAGE_UPDATE_POLICY` — sem política UPDATE no bucket `documentos`.
+3. **Linter Supabase**: 9 funções `SECURITY DEFINER` executáveis por anon/authenticated sem necessidade + Leaked Password Protection desabilitado.
 
 ---
 
-#### 3. SEGURANCA
+## Plano de correções
 
-**a) `usuarios` tabela sem INSERT policy** - A criacao de usuarios depende exclusivamente do trigger `handle_new_user`. Se o trigger falhar, o usuario fica sem perfil. Nao ha policy de INSERT para auto-criacao, o que e correto para seguranca, mas nao ha fallback.
+### 1. Travar privilege escalation no nível RLS (não só trigger)
+Substituir a policy `Users can update own profile` em `public.usuarios` por uma policy que bloqueie alteração de `role`, `unidade_id` e `faixa` por alunos via `WITH CHECK` comparando com a linha existente (usando `has_role` para permitir professor).
 
-**b) `comunicados` RLS usa `{public}` em vez de `{authenticated}`** - Permite que usuarios anonimos potencialmente acessem se tiverem o anon key (embora `get_user_role` retornaria null para anonimos, e seguro mas nao e best practice).
+### 2. Tornar bucket `documentos` privado de verdade
+- `UPDATE storage.buckets SET public = false WHERE id = 'documentos'`
+- Adicionar policy de UPDATE no bucket (dono ou professor).
+- Validar que `MeusDocumentos.tsx` já usa signed URLs (já está, conforme última iteração).
 
-**c) Exclusao de alunos (`StudentList.tsx`)** - Exclui da tabela `usuarios` mas NAO exclui o usuario do auth.users. O usuario continua existindo no auth e pode relogar, porem sem perfil, causando erro.
+### 3. Restringir Realtime de `presencas` e `notificacoes`
+Criar políticas RLS em `realtime.messages` para que cada usuário só receba broadcasts dos próprios registros:
+- `presencas`: filtrar por `aluno_id = auth.uid()` (professor recebe tudo).
+- `notificacoes`: filtrar por `usuario_id = auth.uid()` ou `usuario_id IS NULL` (broadcast geral).
 
----
+### 4. Reduzir superfície de SECURITY DEFINER
+Revogar `EXECUTE` em funções `SECURITY DEFINER` do schema `public` para `anon` (e para `authenticated` quando aplicável), mantendo apenas o necessário (ex: `has_role` precisa ser executável por authenticated).
 
-#### 4. ARQUITETURA / QUALIDADE DE CODIGO
+### 5. Habilitar Leaked Password Protection
+Ativar via configuração de auth do Cloud (`cloud--configure_auth`).
 
-**a) Dados duplicados em constantes** - `TECNICAS_POR_CATEGORIA` esta duplicado em `Assessment.tsx` e `Evolution.tsx` com formatos diferentes (um com array de strings, outro com objetos `{nome, desc}`). Deveria ser um unico arquivo compartilhado.
-
-**b) `BELT_COLORS` definido em 4 arquivos** (`StudentDashboard.tsx`, `Assessment.tsx`, `Evolution.tsx`, `StudentList.tsx`) com valores ligeiramente diferentes.
-
-**c) Tipo `Usuario` definido manualmente** em `auth.tsx` em vez de usar os tipos gerados do Supabase.
-
-**d) `useEffect` sem dependencias corretas** - `RegisterStudent.tsx` (linha 35) e `NotificationBell.tsx` com `fetchCount` nao estavel.
-
-**e) `as any` casts excessivos** - Em `Assessment.tsx`, `AttendanceReport.tsx`, `Notificacoes.tsx`.
-
----
-
-#### 5. UI/UX
-
-**a) Responsividade do MobileLayout** - O `BottomNav` tem `max-w-[430px]` no mobile mas o conteudo usa `fullWidth`, criando desalinhamento visual onde o nav e mais estreito que o conteudo.
-
-**b) Falta de loading states** - `Assessment.tsx`, `StudentList.tsx`, `Notificacoes.tsx` nao mostram skeleton/spinner enquanto carregam dados.
-
-**c) Falta de reset de password** - Nao existe fluxo de recuperacao de senha.
+### 6. Atualizar `@security-memory`
+Documentar as decisões e remover orientações obsoletas das iterações anteriores.
 
 ---
 
-### Plano de Correcoes (por prioridade)
+## Detalhes técnicos
 
-**Passo 1 - Fix Build Error**
-- Corrigir `err.message` em `register-student/index.ts` para `(err as Error).message`
+- Migration única consolidando: nova policy UPDATE em `usuarios` com checagem coluna-a-coluna; `storage.buckets` private; políticas em `storage.objects` para UPDATE/DELETE no bucket documentos; políticas em `realtime.messages`; revogações de EXECUTE.
+- Sem mudanças de código frontend necessárias (signed URLs já implementadas; queries de presença já filtram por `aluno_id`).
+- Após aplicar, rodar `security--run_security_scan` para confirmar zero findings críticos.
 
-**Passo 2 - Corrigir .single() para .maybeSingle()**
-- `QRCodePage.tsx` linha 148: trocar `.single()` por `.maybeSingle()`
-
-**Passo 3 - Extrair constantes compartilhadas**
-- Criar `src/lib/constants.ts` com `BELT_COLORS` e `TECNICAS_POR_CATEGORIA` unificados
-- Atualizar imports em todos os arquivos que usam essas constantes
-
-**Passo 4 - Corrigir badge do StudentDashboard**
-- Usar contagem real de notificacoes nao lidas em vez de contagem de comunicados
-
-**Passo 5 - Corrigir filtro de categoria no Assessment**
-- Armazenar categoria junto com a avaliacao ou extrair da tecnica selecionada
-
-**Passo 6 - Adicionar loading states**
-- Adicionar skeletons em `Assessment.tsx`, `StudentList.tsx`, `Notificacoes.tsx`
-
-**Passo 7 - Melhorar RLS policies**
-- Trocar `{public}` por `{authenticated}` nas policies de `comunicados` e `documentos`
-
-**Passo 8 - Corrigir BottomNav width**
-- Remover `max-w-[430px]` do BottomNav quando `fullWidth` e usado
-
+## Fora do escopo
+- Mudanças de UX no fluxo de QR/aula (já alinhado nas iterações anteriores).
+- Novas features.
