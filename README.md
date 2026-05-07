@@ -46,12 +46,12 @@ Este processo reduz a necessidade de controle manual e simula um cenário real d
 O sistema possui autenticação e rotas protegidas. Para fins de teste, utilize:
 
 - **Perfil Sensei**
-  - Email: sensei@dojo.com  
-  - Senha: sensei123  
+  - Email: 0000
+  - Senha: 0000  
 
 - **Perfil Aluno**
-  - Email: aluno@dojo.com  
-  - Senha: aluno123  
+  - Email: 0000 
+  - Senha: 0000  
 
 > ⚠️ Credenciais destinadas exclusivamente para ambiente de demonstração, sem dados sensíveis.
 
