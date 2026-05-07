@@ -139,6 +139,72 @@ export type Database = {
         }
         Relationships: []
       }
+      config_financeiro: {
+        Row: {
+          created_at: string
+          dia_vencimento: number
+          id: string
+          unidade_id: string
+          updated_at: string
+          valor_mensalidade_padrao: number
+        }
+        Insert: {
+          created_at?: string
+          dia_vencimento?: number
+          id?: string
+          unidade_id: string
+          updated_at?: string
+          valor_mensalidade_padrao?: number
+        }
+        Update: {
+          created_at?: string
+          dia_vencimento?: number
+          id?: string
+          unidade_id?: string
+          updated_at?: string
+          valor_mensalidade_padrao?: number
+        }
+        Relationships: []
+      }
+      despesas: {
+        Row: {
+          categoria: string
+          created_at: string
+          data: string
+          descricao: string | null
+          id: string
+          professor_id: string
+          tipo: string
+          unidade_id: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          id?: string
+          professor_id: string
+          tipo?: string
+          unidade_id: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          id?: string
+          professor_id?: string
+          tipo?: string
+          unidade_id?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       documentos: {
         Row: {
           arquivo_url: string
@@ -163,6 +229,48 @@ export type Database = {
           nome?: string
           tipo?: string
           usuario_id?: string
+        }
+        Relationships: []
+      }
+      mensalidades: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          data_pagamento: string | null
+          forma_pagamento: string | null
+          id: string
+          mes_referencia: string
+          observacao: string | null
+          status: string
+          unidade_id: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          data_pagamento?: string | null
+          forma_pagamento?: string | null
+          id?: string
+          mes_referencia: string
+          observacao?: string | null
+          status?: string
+          unidade_id: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          data_pagamento?: string | null
+          forma_pagamento?: string | null
+          id?: string
+          mes_referencia?: string
+          observacao?: string | null
+          status?: string
+          unidade_id?: string
+          updated_at?: string
+          valor?: number
         }
         Relationships: []
       }
