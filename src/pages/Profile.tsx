@@ -16,6 +16,34 @@ const Profile = () => {
   const [novaSenha, setNovaSenha] = useState("");
   const [salvandoSenha, setSalvandoSenha] = useState(false);
 
+  const handleAlterarSenha = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!novaSenha || novaSenha.length < 6) {
+      toast({
+        title: "Senha muito curta",
+        description: "A nova senha deve ter pelo menos 6 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSalvandoSenha(true);
+    const { error } = await supabase.auth.updateUser({ password: novaSenha });
+    setSalvandoSenha(false);
+    if (error) {
+      toast({
+        title: "Erro ao alterar senha",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Senha alterada",
+        description: "Sua senha foi atualizada com sucesso.",
+      });
+      setNovaSenha("");
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
