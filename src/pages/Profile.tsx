@@ -12,6 +12,9 @@ import { useState } from "react";
 const Profile = () => {
   const { usuario, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [novaSenha, setNovaSenha] = useState("");
+  const [salvandoSenha, setSalvandoSenha] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
