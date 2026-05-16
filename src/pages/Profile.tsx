@@ -2,13 +2,47 @@ import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 import shizenLogo from "@/assets/shizen-logo.png";
-import { LogOut, FileText } from "lucide-react";
+import { LogOut, FileText, Lock, Save } from "lucide-react";
+import { useState } from "react";
 
 const Profile = () => {
   const { usuario, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [novaSenha, setNovaSenha] = useState("");
+  const [salvandoSenha, setSalvandoSenha] = useState(false);
+
+  const handleAlterarSenha = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!novaSenha || novaSenha.length < 6) {
+      toast({
+        title: "Senha muito curta",
+        description: "A nova senha deve ter pelo menos 6 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSalvandoSenha(true);
+    const { error } = await supabase.auth.updateUser({ password: novaSenha });
+    setSalvandoSenha(false);
+    if (error) {
+      toast({
+        title: "Erro ao alterar senha",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Senha alterada",
+        description: "Sua senha foi atualizada com sucesso.",
+      });
+      setNovaSenha("");
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -54,6 +88,30 @@ const Profile = () => {
               <FileText size={18} className="text-primary" />
               <span className="font-medium text-foreground text-sm">Meus Documentos</span>
             </button>
+          )}
+
+          {usuario?.role === "professor" && (
+            <form onSubmit={handleAlterarSenha} className="dojo-card mb-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Lock size={16} className="text-primary" />
+                <span className="font-medium text-foreground text-sm">Alterar Senha</span>
+              </div>
+              <input
+                type="password"
+                placeholder="Nova senha (min. 6 caracteres)"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring mb-3"
+              />
+              <button
+                type="submit"
+                disabled={salvandoSenha}
+                className="dojo-btn w-full text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Save size={16} />
+                {salvandoSenha ? "Salvando..." : "Salvar nova senha"}
+              </button>
+            </form>
           )}
 
           <button onClick={handleSignOut} className="dojo-btn w-full mt-1">
