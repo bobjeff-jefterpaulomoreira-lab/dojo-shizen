@@ -2,9 +2,12 @@ import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import PageHeader from "@/components/PageHeader";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 import shizenLogo from "@/assets/shizen-logo.png";
-import { LogOut, FileText } from "lucide-react";
+import { LogOut, FileText, Lock, Save } from "lucide-react";
+import { useState } from "react";
 
 const Profile = () => {
   const { usuario, signOut } = useAuth();
