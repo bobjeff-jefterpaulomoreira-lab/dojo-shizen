@@ -90,6 +90,30 @@ const Profile = () => {
             </button>
           )}
 
+          {usuario?.role === "professor" && (
+            <form onSubmit={handleAlterarSenha} className="dojo-card mb-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Lock size={16} className="text-primary" />
+                <span className="font-medium text-foreground text-sm">Alterar Senha</span>
+              </div>
+              <input
+                type="password"
+                placeholder="Nova senha (min. 6 caracteres)"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring mb-3"
+              />
+              <button
+                type="submit"
+                disabled={salvandoSenha}
+                className="dojo-btn w-full text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Save size={16} />
+                {salvandoSenha ? "Salvando..." : "Salvar nova senha"}
+              </button>
+            </form>
+          )}
+
           <button onClick={handleSignOut} className="dojo-btn w-full mt-1">
             <LogOut size={18} />
             Sair
